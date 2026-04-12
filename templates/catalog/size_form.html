@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+
+{% block meta_title %}{{ title }} | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="hf-card p-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h5 style="color: var(--hf-primary);">
+                    {% if is_edit %}<i class="bi bi-pencil"></i>{% else %}<i class="bi bi-plus-lg"></i>{% endif %}
+                    {{ title }}
+                </h5>
+                <a href="{% url 'size_list' %}" class="btn btn-sm btn-hf-outline"><i class="bi bi-arrow-right"></i> بازگشت</a>
+            </div>
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label class="form-label">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.size_type.label }}</label>
+                    {{ form.size_type }}
+                </div>
+
+                <div class="row g-3 mb-3" id="rect-fields">
+                    <div class="col-6">
+                        <label class="form-label">{{ form.length.label }}</label>
+                        {{ form.length }}
+                        {% if form.length.errors %}<div class="text-danger small">{{ form.length.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">{{ form.width.label }}</label>
+                        {{ form.width }}
+                        {% if form.width.errors %}<div class="text-danger small">{{ form.width.errors.0 }}</div>{% endif %}
+                    </div>
+                </div>
+
+                <div class="mb-3" id="round-field" style="display:none;">
+                    <label class="form-label">{{ form.diameter.label }}</label>
+                    {{ form.diameter }}
+                    {% if form.diameter.errors %}<div class="text-danger small">{{ form.diameter.errors.0 }}</div>{% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.area.label }}</label>
+                    {{ form.area }}
+                    <small class="text-muted">مساحت به صورت خودکار محاسبه می‌شود</small>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-6">
+                        <label class="form-label">{{ form.default_order_rule.label }}</label>
+                        {{ form.default_order_rule }}
+                    </div>
+                    <div class="col-6">
+                        <label class="form-label">{{ form.sort_order.label }}</label>
+                        {{ form.sort_order }}
+                    </div>
+                </div>
+
+                <div class="mb-3 d-flex gap-4">
+                    <div class="form-check form-switch">
+                        {{ form.is_nine_meter }}
+                        <label class="form-check-label" for="{{ form.is_nine_meter.id_for_label }}">سایز ۹ متری خاص (محاسبه با پرتی)</label>
+                    </div>
+                    <div class="form-check form-switch">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">فعال</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-hf-primary w-100">
+                    <i class="bi bi-check-lg"></i> ذخیره
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var sizeType = document.getElementById('id_size_type');
+    var rectFields = document.getElementById('rect-fields');
+    var roundField = document.getElementById('round-field');
+    var lengthInput = document.querySelector('[name="length"]');
+    var widthInput = document.querySelector('[name="width"]');
+    var diameterInput = document.querySelector('[name="diameter"]');
+    var areaInput = document.querySelector('[name="area"]');
+
+    function toggleFields() {
+        if (sizeType.value === 'round') {
+            rectFields.style.display = 'none';
+            roundField.style.display = 'block';
+        } else {
+            rectFields.style.display = 'flex';
+            roundField.style.display = 'none';
+        }
+    }
+
+    function calcArea() {
+        if (sizeType.value === 'round' && diameterInput.value) {
+            var r = parseFloat(diameterInput.value) / 2;
+            areaInput.value = (Math.PI * r * r).toFixed(4);
+        } else if (lengthInput.value && widthInput.value) {
+            areaInput.value = (parseFloat(lengthInput.value) * parseFloat(widthInput.value)).toFixed(4);
+        }
+    }
+
+    sizeType.addEventListener('change', toggleFields);
+    lengthInput.addEventListener('input', calcArea);
+    widthInput.addEventListener('input', calcArea);
+    diameterInput.addEventListener('input', calcArea);
+
+    toggleFields();
+});
+</script>
+{% endblock %}

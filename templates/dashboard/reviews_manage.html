@@ -1,0 +1,242 @@
+{% extends 'dashboard/base.html' %}
+{% load price_tags %}
+
+{% block title %}مدیریت نظرات{% endblock %}
+{% block page_title %}مدیریت نظرات و امتیازات{% endblock %}
+
+{% block content %}
+{# آمار #}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3 {% if current_status == '' %}border-primary border-2{% endif %}">
+            <a href="{% url 'dashboard:reviews_manage' %}" class="text-decoration-none">
+                <div class="fs-3 fw-bold text-primary">{{ total_count }}</div>
+                <small class="text-muted">کل نظرات</small>
+            </a>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3 {% if current_status == 'pending' %}border-warning border-2{% endif %}">
+            <a href="?status=pending" class="text-decoration-none">
+                <div class="fs-3 fw-bold text-warning">{{ pending_count }}</div>
+                <small class="text-muted">در انتظار تأیید</small>
+            </a>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3 {% if current_status == 'approved' %}border-success border-2{% endif %}">
+            <a href="?status=approved" class="text-decoration-none">
+                <div class="fs-3 fw-bold text-success">{{ approved_count }}</div>
+                <small class="text-muted">تأیید شده</small>
+            </a>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3 {% if current_status == 'rejected' %}border-danger border-2{% endif %}">
+            <a href="?status=rejected" class="text-decoration-none">
+                <div class="fs-3 fw-bold text-danger">{{ rejected_count }}</div>
+                <small class="text-muted">رد شده</small>
+            </a>
+        </div>
+    </div>
+</div>
+
+{# فیلتر و جستجو #}
+<div class="card mb-3">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <input type="text" name="search" class="form-control form-control-sm"
+                       placeholder="جستجو (محصول، کاربر، متن نظر...)" value="{{ search }}">
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">همه وضعیت‌ها</option>
+                    <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>در انتظار تأیید</option>
+                    <option value="approved" {% if current_status == 'approved' %}selected{% endif %}>تأیید شده</option>
+                    <option value="rejected" {% if current_status == 'rejected' %}selected{% endif %}>رد شده</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="rating" class="form-select form-select-sm">
+                    <option value="">همه امتیازها</option>
+                    {% for i in "12345" %}
+                    <option value="{{ i }}" {% if current_rating == i %}selected{% endif %}>{{ i }} ستاره</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-sm btn-primary w-100">
+                    <i class="bi bi-search"></i> فیلتر
+                </button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'dashboard:reviews_manage' %}" class="btn btn-sm btn-outline-secondary w-100">
+                    <i class="bi bi-x-circle"></i> حذف فیلتر
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# جدول نظرات #}
+{% if reviews %}
+<form method="post" action="{% url 'dashboard:reviews_bulk_action' %}" id="bulkForm">
+    {% csrf_token %}
+
+    {# عملیات گروهی #}
+    <div class="card mb-2">
+        <div class="card-body py-2 d-flex align-items-center gap-2">
+            <div class="form-check">
+                <input type="checkbox" class="form-check-input" id="selectAll"
+                       onchange="toggleAll(this.checked)">
+                <label class="form-check-label small" for="selectAll">انتخاب همه</label>
+            </div>
+            <select name="bulk_action" class="form-select form-select-sm" style="width:auto;">
+                <option value="">عملیات گروهی...</option>
+                <option value="approve">✅ تأیید انتخاب‌شده‌ها</option>
+                <option value="reject">❌ رد انتخاب‌شده‌ها</option>
+                <option value="delete">🗑️ حذف انتخاب‌شده‌ها</option>
+            </select>
+            <button type="submit" class="btn btn-sm btn-outline-primary"
+                    onclick="return confirm('آیا مطمئنید؟')">
+                <i class="bi bi-check2-all"></i> اجرا
+            </button>
+            <span class="text-muted small ms-auto" id="selectedCount">0 نظر انتخاب شده</span>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0 align-middle">
+                <thead class="table-light">
+                    <tr>
+                        <th style="width:30px;"></th>
+                        <th>محصول</th>
+                        <th>کاربر</th>
+                        <th>امتیاز</th>
+                        <th>نظر</th>
+                        <th>وضعیت</th>
+                        <th>تاریخ</th>
+                        <th style="width:180px;">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for review in reviews %}
+                    <tr class="{% if review.status == 'pending' %}table-warning{% elif review.status == 'rejected' %}table-light text-muted{% endif %}">
+                        <td>
+                            <input type="checkbox" name="review_ids" value="{{ review.id }}"
+                                   class="form-check-input review-checkbox"
+                                   onchange="updateSelectedCount()">
+                        </td>
+                        <td>
+                            <a href="/farsh/{{ review.product.slug }}/" target="_blank"
+                               class="text-decoration-none fw-bold">
+                                {{ review.product.name|truncatechars:30 }}
+                            </a>
+                        </td>
+                        <td>
+                            <small>
+                                {{ review.user.get_full_name|default:review.user.phone }}
+                                <br><span class="text-muted">{{ review.user.phone }}</span>
+                            </small>
+                        </td>
+                        <td>
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= review.rating %}
+                                <i class="bi bi-star-fill text-warning" style="font-size:0.8rem;"></i>
+                                {% else %}
+                                <i class="bi bi-star text-muted" style="font-size:0.8rem;"></i>
+                                {% endif %}
+                            {% endfor %}
+                        </td>
+                        <td>
+                            {% if review.comment %}
+                            <small title="{{ review.comment }}">{{ review.comment|truncatechars:60 }}</small>
+                            {% else %}
+                            <small class="text-muted">—</small>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if review.status == 'pending' %}
+                            <span class="badge bg-warning text-dark">در انتظار</span>
+                            {% elif review.status == 'approved' %}
+                            <span class="badge bg-success">تأیید</span>
+                            {% elif review.status == 'rejected' %}
+                            <span class="badge bg-danger">رد</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <small class="text-muted">{{ review.created_at|date:"Y/m/d H:i" }}</small>
+                        </td>
+                        <td>
+                            <div class="d-flex gap-1">
+                                {% if review.status != 'approved' %}
+                                <form method="post" action="{% url 'dashboard:review_action' review.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="approve">
+                                    <button type="submit" class="btn btn-sm btn-success" title="تأیید">
+                                        <i class="bi bi-check-lg"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                {% if review.status != 'rejected' %}
+                                <form method="post" action="{% url 'dashboard:review_action' review.pk %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="reject">
+                                    <button type="submit" class="btn btn-sm btn-warning" title="رد">
+                                        <i class="bi bi-x-lg"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+
+                                <form method="post" action="{% url 'dashboard:review_action' review.pk %}" class="d-inline"
+                                      onsubmit="return confirm('حذف این نظر؟')">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="action" value="delete">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" title="حذف">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</form>
+
+{% else %}
+<div class="card">
+    <div class="card-body text-center py-5 text-muted">
+        <i class="bi bi-chat-left-text" style="font-size:3rem;"></i>
+        <p class="mt-2 mb-0">
+            {% if current_status or search %}
+            نظری با این فیلتر یافت نشد.
+            {% else %}
+            هنوز نظری ثبت نشده است.
+            {% endif %}
+        </p>
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleAll(checked) {
+    document.querySelectorAll('.review-checkbox').forEach(function(cb) {
+        cb.checked = checked;
+    });
+    updateSelectedCount();
+}
+
+function updateSelectedCount() {
+    var count = document.querySelectorAll('.review-checkbox:checked').length;
+    document.getElementById('selectedCount').textContent = count + ' نظر انتخاب شده';
+}
+</script>
+{% endblock %}

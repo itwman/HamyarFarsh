@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load price_tags %}
+
+{% block meta_title %}اشتراک‌گذاری {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="hf-card p-4">
+                <h3 class="mb-4" style="color:var(--hf-primary);">
+                    <i class="bi bi-share"></i> اشتراک‌گذاری محصول
+                </h3>
+
+                <div class="row mb-4">
+                    <div class="col-md-4">
+                        {% with img=product.primary_image %}
+                        {% if img and img.featured_image %}
+                        <img src="{{ img.featured_image.url }}" class="img-fluid rounded" alt="{{ product.name }}">
+                        {% else %}
+                        <div class="bg-light rounded" style="aspect-ratio:1/1;"></div>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="col-md-8">
+                        <h4>{{ product.name }}</h4>
+                        <p class="text-muted">
+                            {{ product.album.manufacturer.name }}<br>
+                            {{ product.comb }} شانه
+                        </p>
+                        <h5 style="color:var(--hf-primary);">
+                            {{ product.get_sell_price_12m|price_comma }} تومان
+                        </h5>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">لینک محصول:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="productUrl" 
+                               value="{{ product_url }}" readonly>
+                        <button class="btn btn-outline-secondary" onclick="copyUrl()">
+                            <i class="bi bi-clipboard"></i> کپی
+                        </button>
+                    </div>
+                </div>
+
+                <h5 class="mb-3">ارسال مستقیم:</h5>
+                <div class="d-grid gap-2">
+                    <a href="{{ telegram_url }}" target="_blank" class="btn btn-info">
+                        <i class="bi bi-telegram"></i> ارسال به تلگرام
+                    </a>
+                    <a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success">
+                        <i class="bi bi-whatsapp"></i> ارسال به واتساپ
+                    </a>
+                </div>
+
+                <div class="mt-4">
+                    <a href="{% url 'shop:product_detail' product.slug %}" class="btn btn-outline-primary">
+                        <i class="bi bi-arrow-right"></i> بازگشت به محصول
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyUrl() {
+    const input = document.getElementById('productUrl');
+    input.select();
+    document.execCommand('copy');
+    alert('لینک کپی شد!');
+}
+</script>
+{% endblock %}

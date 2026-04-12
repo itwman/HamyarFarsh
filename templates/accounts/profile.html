@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+
+{% block meta_title %}پروفایل | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="hf-card p-4">
+            <h4 class="mb-4" style="color: var(--hf-primary);">
+                <i class="bi bi-person"></i> ویرایش پروفایل
+            </h4>
+
+            <div class="text-center mb-4">
+                {% if user.avatar %}
+                <img src="{{ user.avatar.url }}" alt="avatar" class="rounded-circle" width="100" height="100" style="object-fit:cover;">
+                {% else %}
+                <div class="rounded-circle d-inline-flex align-items-center justify-content-center"
+                     style="width:100px;height:100px;background:var(--hf-primary-bg);color:var(--hf-primary);font-size:2.5rem;">
+                    <i class="bi bi-person"></i>
+                </div>
+                {% endif %}
+                <p class="mt-2 text-muted small">{{ user.phone }} | {{ user.get_role_display }}</p>
+            </div>
+
+            <form method="post" enctype="multipart/form-data" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                <div class="mb-3">
+                    <label class="form-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.errors %}
+                    <div class="text-danger small mt-1">
+                        {% for error in field.errors %}{{ error }}{% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+                <button type="submit" class="btn btn-hf-primary w-100">
+                    <i class="bi bi-check-lg"></i> ذخیره تغییرات
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,16 @@
+{% extends 'dashboard/base.html' %}
+{% block page_title %}واردکردن فایل{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-upload"></i> واردکردن شماره از فایل</h5>
+    <a href="{% url 'newsletter:admin_dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+</div>
+<div class="card"><div class="card-body">
+    <form method="post" enctype="multipart/form-data">{% csrf_token %}
+        <label class="form-label fw-bold">فایل CSV یا TXT</label>
+        <input type="file" name="file" class="form-control" accept=".csv,.txt,.xlsx">
+        <small class="text-muted d-block mt-1">هر شماره در یک خط. فرمت: 09xxxxxxxxx</small>
+        <div class="mt-3"><button type="submit" class="btn btn-primary"><i class="bi bi-upload"></i> واردکردن</button></div>
+    </form>
+</div></div>
+{% endblock %}

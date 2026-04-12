@@ -1,0 +1,358 @@
+{% load humanize %}
+{% load price_tags %}
+{% load jalali_tags %}
+
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <title>فاکتور شماره {{ order.invoice_number }}</title>
+    <style>
+        @font-face {
+            font-family: 'Vazirmatn';
+            src: url('/static/fonts/Vazirmatn-Regular.woff2') format('woff2');
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Vazirmatn', Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.6;
+            padding: 20px;
+            direction: rtl;
+        }
+        
+        .invoice {
+            max-width: 800px;
+            margin: 0 auto;
+            border: 2px solid #C62828;
+            padding: 30px;
+        }
+        
+        .header {
+            border-bottom: 3px solid #C62828;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .logo img {
+            max-height: 80px;
+        }
+        
+        .company-info {
+            text-align: left;
+        }
+        
+        .invoice-title {
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+            color: #C62828;
+            margin: 20px 0;
+        }
+        
+        .invoice-meta {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 30px;
+            background: #f5f5f5;
+            padding: 15px;
+        }
+        
+        .meta-item {
+            margin-bottom: 5px;
+        }
+        
+        .meta-label {
+            font-weight: bold;
+            display: inline-block;
+            width: 120px;
+        }
+        
+        .customer-info {
+            background: #f9f9f9;
+            padding: 15px;
+            margin-bottom: 30px;
+            border-right: 4px solid #C62828;
+        }
+        
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+        
+        .items-table thead {
+            background: #C62828;
+            color: white;
+        }
+        
+        .items-table th,
+        .items-table td {
+            padding: 12px;
+            text-align: center;
+            border: 1px solid #ddd;
+        }
+        
+        .items-table tbody tr:nth-child(even) {
+            background: #f9f9f9;
+        }
+        
+        .totals {
+            margin-right: auto;
+            width: 300px;
+        }
+        
+        .total-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .total-row.grand-total {
+            font-size: 18px;
+            font-weight: bold;
+            color: #C62828;
+            border-top: 3px solid #C62828;
+            border-bottom: 3px solid #C62828;
+            padding: 15px 0;
+        }
+        
+        .terms {
+            margin-top: 40px;
+            padding: 20px;
+            background: #fff8e1;
+            border: 1px solid #ffc107;
+        }
+        
+        .terms h4 {
+            color: #C62828;
+            margin-bottom: 10px;
+        }
+        
+        .terms ul {
+            padding-right: 20px;
+        }
+        
+        .terms li {
+            margin-bottom: 5px;
+        }
+        
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #C62828;
+            text-align: center;
+            color: #666;
+            font-size: 12px;
+        }
+        
+        .signature {
+            margin-top: 60px;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .signature-box {
+            text-align: center;
+            padding-top: 60px;
+            border-top: 1px solid #333;
+            width: 200px;
+        }
+        
+        @media print {
+            body { padding: 0; }
+            .no-print { display: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="invoice">
+        {# هدر #}
+        <div class="header">
+            <div class="logo">
+                {% if ss.logo %}
+                <img src="{{ ss.logo.url }}" alt="{{ ss.site_title }}">
+                {% else %}
+                <h2 style="color:#C62828;">{{ ss.site_title }}</h2>
+                {% endif %}
+            </div>
+            <div class="company-info">
+                <div><strong>{{ ss.company_name }}</strong></div>
+                <div>{{ ss.address }}</div>
+                <div>تلفن: {{ ss.phone }}</div>
+                {% if ss.email %}<div>ایمیل: {{ ss.email }}</div>{% endif %}
+            </div>
+        </div>
+        
+        {# عنوان #}
+        <div class="invoice-title">
+            فاکتور فروش
+        </div>
+        
+        {# اطلاعات فاکتور #}
+        <div class="invoice-meta">
+            <div>
+                <div class="meta-item">
+                    <span class="meta-label">شماره فاکتور:</span>
+                    <span>{{ order.invoice_number }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">تاریخ صدور:</span>
+                    <span>{{ today }}</span>
+                </div>
+            </div>
+            <div>
+                <div class="meta-item">
+                    <span class="meta-label">شماره سفارش:</span>
+                    <span>#{{ order.id }}</span>
+                </div>
+                <div class="meta-item">
+                    <span class="meta-label">تاریخ سفارش:</span>
+                    <span>{{ order.created_at|jalali }}</span>
+                </div>
+            </div>
+        </div>
+        
+        {# اطلاعات مشتری #}
+        <div class="customer-info">
+            <h4 style="color:#C62828;margin-bottom:10px;">مشخصات خریدار</h4>
+            <div><strong>نام:</strong> {{ order.customer_name }}</div>
+            <div><strong>موبایل:</strong> {{ order.customer_phone }}</div>
+            {% if order.customer_email %}
+            <div><strong>ایمیل:</strong> {{ order.customer_email }}</div>
+            {% endif %}
+            <div><strong>آدرس:</strong> {{ order.shipping_address }}</div>
+        </div>
+        
+        {# جدول اقلام #}
+        <table class="items-table">
+            <thead>
+                <tr>
+                    <th>ردیف</th>
+                    <th>شرح کالا</th>
+                    <th>سایز</th>
+                    <th>تعداد</th>
+                    <th>قیمت واحد</th>
+                    <th>جمع</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.product.name }}</td>
+                    <td>
+                        {% if item.is_custom_size %}
+                        {{ item.custom_length }}×{{ item.custom_width }} متر
+                        {% else %}
+                        {{ item.carpet_size.name }}
+                        {% endif %}
+                    </td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.price|price_comma }}</td>
+                    <td>{{ item.get_total_price|price_comma }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        
+        {# جمع کل #}
+        <div class="totals">
+            <div class="total-row">
+                <span>جمع فاکتور:</span>
+                <span>{{ subtotal|price_comma }} تومان</span>
+            </div>
+            
+            {% if shipping_cost > 0 %}
+            <div class="total-row">
+                <span>هزینه ارسال:</span>
+                <span>{{ shipping_cost|price_comma }} تومان</span>
+            </div>
+            {% endif %}
+            
+            <div class="total-row grand-total">
+                <span>جمع کل:</span>
+                <span>{{ total|price_comma }} تومان</span>
+            </div>
+            
+            {% if paid > 0 %}
+            <div class="total-row">
+                <span>پرداخت شده:</span>
+                <span style="color:green;">{{ paid|price_comma }} تومان</span>
+            </div>
+            {% endif %}
+            
+            {% if remaining > 0 %}
+            <div class="total-row">
+                <span>مانده:</span>
+                <span style="color:red;">{{ remaining|price_comma }} تومان</span>
+            </div>
+            {% endif %}
+        </div>
+        
+        {# شرایط و ضوابط #}
+        <div class="terms">
+            <h4>شرایط و ضوابط:</h4>
+            <ul>
+                {% if order.payment_method == 'online_full' %}
+                <li>پرداخت: نقدی آنلاین کامل</li>
+                {% if shipping_cost == 0 %}
+                <li>ارسال رایگان تا نزدیکترین باربری</li>
+                {% endif %}
+                
+                {% elif order.payment_method == 'deposit_on_delivery' %}
+                <li>روش پرداخت: بیعانه 10% + پرداخت موقع تحویل</li>
+                <li>بیعانه پرداخت شده: {{ paid|price_comma }} تومان</li>
+                <li>قیمت روز در زمان تحویل اعمال می‌شود (بیعانه ثابت)</li>
+                <li>هزینه ارسال با مشتری</li>
+                <li>در صورت انصراف: 50% بیعانه + هزینه ایاب و ذهاب</li>
+                
+                {% elif order.payment_method == 'installment_check' %}
+                <li>روش پرداخت: اقساط چکی ({{ order.installment_plan.num_installments }} ماه)</li>
+                <li>مبلغ هر قسط: {{ order.installment_plan.installment_amount|price_comma }} تومان</li>
+                
+                {% elif order.payment_method == 'installment_beta' %}
+                <li>روش پرداخت: طرح بتا بانک رفاه ({{ order.installment_plan.num_installments }} ماه)</li>
+                <li>مبلغ هر قسط: {{ order.installment_plan.installment_amount|price_comma }} تومان</li>
+                {% endif %}
+                
+                <li>کالا تحویل شده قابل تعویض و استرداد نیست (مگر در صورت نقص تولیدی)</li>
+                <li>ضمانت اصالت کالا از شرکت تولیدی</li>
+            </ul>
+        </div>
+        
+        {# امضا #}
+        <div class="signature">
+            <div class="signature-box">
+                امضا و مهر فروشنده
+            </div>
+            <div class="signature-box">
+                امضا خریدار
+            </div>
+        </div>
+        
+        {# فوتر #}
+        <div class="footer">
+            <p>این فاکتور به صورت سیستمی از {{ ss.site_title }} تولید شده است.</p>
+            <p>{{ ss.website }} | {{ ss.phone }}</p>
+        </div>
+    </div>
+    
+    {# دکمه چاپ #}
+    <div class="no-print" style="text-align:center;margin-top:20px;">
+        <button onclick="window.print()" style="padding:10px 30px;background:#C62828;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">
+            چاپ فاکتور
+        </button>
+    </div>
+</body>
+</html>

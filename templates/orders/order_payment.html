@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load price_tags %}
+
+{% block meta_title %}پرداخت سفارش #{{ order.id }} | {{ site_settings.site_title }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white text-center">
+                    <h4 class="mb-0">
+                        <i class="bi bi-credit-card"></i>
+                        پرداخت سفارش
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="text-center mb-4">
+                        <h2 class="text-danger">{{ payable_amount|price_comma }} تومان</h2>
+                        <p class="text-muted">مبلغ قابل پرداخت</p>
+                    </div>
+
+                    <div class="alert alert-info">
+                        <h6><i class="bi bi-info-circle"></i> اطلاعات سفارش:</h6>
+                        <ul class="mb-0">
+                            <li>شماره سفارش: <strong>#{{ order.id }}</strong></li>
+                            <li>روش پرداخت: {{ order.get_payment_method_display_persian }}</li>
+                            <li>تعداد محصولات: {{ order.items.count }}</li>
+                        </ul>
+                    </div>
+
+                    <div class="alert alert-warning">
+                        <i class="bi bi-exclamation-triangle"></i>
+                        <strong>توجه:</strong>
+                        در صورت موفقیت‌آمیز بودن پرداخت، به صفحه تأیید هدایت می‌شوید.
+                    </div>
+
+                    <!-- فاز 8: اتصال به درگاه -->
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-success btn-lg" disabled>
+                            <i class="bi bi-lock"></i>
+                            انتقال به درگاه پرداخت
+                        </button>
+                        <small class="text-center text-muted">
+                            درگاه پرداخت در فاز 8 فعال خواهد شد
+                        </small>
+                    </div>
+
+                    <hr>
+
+                    <div class="text-center">
+                        <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-right"></i>
+                            بازگشت به جزئیات سفارش
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- لوگوهای بانک‌ها -->
+            <div class="card shadow-sm mt-3">
+                <div class="card-body text-center">
+                    <small class="text-muted">پرداخت از طریق درگاه امن بانکی</small>
+                    <div class="mt-2">
+                        <i class="bi bi-shield-check text-success fs-1"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

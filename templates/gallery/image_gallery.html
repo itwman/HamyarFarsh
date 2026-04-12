@@ -1,0 +1,457 @@
+{% extends "base.html" %}
+{% load static %}
+{% load gallery_tags %}
+
+{% block meta_title %}گالری تصاویر فرش ماشینی | همیار فرش{% endblock %}
+{% block meta_description %}مشاهده تصاویر فرش‌های ماشینی در انواع طرح، رنگ و شانه. تصاویر واقعی با کیفیت بالا.{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/gallery.css' %}">
+<style>
+/* ===== Fullscreen Lightbox - Instagram/Pinterest Style ===== */
+.lb-overlay {
+    position: fixed; inset: 0; z-index: 9999;
+    background: #000; opacity: 0; pointer-events: none;
+    transition: opacity .25s;
+    display: flex; flex-direction: column;
+}
+.lb-overlay.active { opacity: 1; pointer-events: all; }
+
+/* Header */
+.lb-header {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 10;
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 10px 16px;
+    background: linear-gradient(180deg, rgba(0,0,0,.6) 0%, transparent 100%);
+}
+.lb-close {
+    width: 40px; height: 40px; border-radius: 50%;
+    background: rgba(255,255,255,.15); border: none; color: #fff;
+    font-size: 1.2rem; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+}
+.lb-counter { color: rgba(255,255,255,.7); font-size: .8rem; }
+
+/* Image Area */
+.lb-slides {
+    flex: 1; position: relative; overflow: hidden;
+    display: flex; align-items: center; justify-content: center;
+}
+.lb-img {
+    max-width: 100%; max-height: 100%; object-fit: contain;
+    transition: opacity .2s;
+    user-select: none; -webkit-user-drag: none;
+}
+.lb-img.loading { opacity: .3; }
+
+/* Nav Arrows (desktop) */
+.lb-arrow {
+    position: absolute; top: 50%; transform: translateY(-50%);
+    width: 48px; height: 48px; border-radius: 50%;
+    background: rgba(255,255,255,.12); border: none; color: #fff;
+    font-size: 1.4rem; cursor: pointer; z-index: 5;
+    display: none; align-items: center; justify-content: center;
+    transition: background .2s;
+}
+.lb-arrow:hover { background: rgba(255,255,255,.25); }
+.lb-arrow-prev { right: 14px; }
+.lb-arrow-next { left: 14px; }
+@media (min-width: 768px) {
+    .lb-arrow { display: flex; }
+}
+
+/* Bottom Info Panel */
+.lb-info {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 10;
+    padding: 12px 16px;
+    background: linear-gradient(0deg, rgba(0,0,0,.7) 0%, transparent 100%);
+    color: #fff;
+    transform: translateY(0); transition: transform .3s;
+}
+.lb-info-hidden .lb-info { transform: translateY(100%); }
+.lb-title { font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
+.lb-specs {
+    display: flex; gap: 10px; flex-wrap: wrap;
+    font-size: .78rem; color: rgba(255,255,255,.75); margin-bottom: 8px;
+}
+.lb-price {
+    font-size: 1.05rem; font-weight: 700;
+    color: var(--hf-primary-light, #FF5F52);
+}
+.lb-buy {
+    display: inline-block; padding: 6px 18px; border-radius: 6px;
+    background: var(--hf-primary, #C62828); color: #fff;
+    text-decoration: none; font-size: .85rem; font-weight: 600;
+    margin-right: 12px;
+}
+
+/* Loading spinner */
+.lb-spinner {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+}
+.lb-spinner::after {
+    content: ''; width: 32px; height: 32px;
+    border: 3px solid rgba(255,255,255,.2);
+    border-top-color: #fff; border-radius: 50%;
+    animation: lbspin .7s linear infinite;
+}
+@keyframes lbspin { to { transform: rotate(360deg); } }
+
+/* Swipe hint (mobile) */
+.lb-swipe-hint {
+    position: absolute; bottom: 90px; left: 50%; transform: translateX(-50%);
+    color: rgba(255,255,255,.5); font-size: .75rem;
+    animation: lbfade 2s ease forwards;
+    pointer-events: none;
+}
+@keyframes lbfade { 0%{opacity:1} 70%{opacity:1} 100%{opacity:0} }
+</style>
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<!-- هدر گالری -->
+<section class="gallery-hero">
+    <div class="container">
+        <div class="gallery-hero-content">
+            <h1><i class="bi bi-images"></i> گالری تصاویر</h1>
+            <p>{{ total }} تصویر از فرش‌های ماشینی</p>
+        </div>
+    </div>
+</section>
+
+<div class="container gallery-container">
+    <div class="row">
+        <!-- فیلتر سایدبار (دسکتاپ) -->
+        <aside class="col-lg-3 d-none d-lg-block">
+            <div class="gallery-filter-sidebar" id="filterSidebar">
+                {% include "gallery/includes/filters.html" with gallery_type="image" %}
+            </div>
+        </aside>
+
+        <!-- دکمه فیلتر موبایل -->
+        <div class="gallery-mobile-filter-btn d-lg-none">
+            <button class="btn btn-hf-primary" id="btnMobileFilter" type="button">
+                <i class="bi bi-funnel"></i> فیلتر
+            </button>
+            <div class="gallery-sort-mobile">
+                <select class="form-select form-select-sm" onchange="applySort(this.value)">
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
+                    <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>محبوب‌ترین</option>
+                    <option value="cheapest" {% if current_sort == 'cheapest' %}selected{% endif %}>ارزان‌ترین</option>
+                    <option value="expensive" {% if current_sort == 'expensive' %}selected{% endif %}>گران‌ترین</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Drawer فیلتر موبایل -->
+        <div class="gallery-drawer-overlay" id="drawerOverlay"></div>
+        <div class="gallery-drawer" id="filterDrawer">
+            <div class="gallery-drawer-header">
+                <h5><i class="bi bi-funnel"></i> فیلتر تصاویر</h5>
+                <button class="btn-close" id="btnCloseDrawer"></button>
+            </div>
+            <div class="gallery-drawer-body">
+                {% include "gallery/includes/filters.html" with gallery_type="image" is_drawer=True %}
+            </div>
+        </div>
+
+        <!-- محتوای اصلی -->
+        <div class="col-lg-9">
+            <div class="gallery-toolbar d-none d-lg-flex">
+                <span class="gallery-count">{{ total }} تصویر</span>
+                <div class="gallery-sort">
+                    <label>مرتب‌سازی:</label>
+                    <select class="form-select form-select-sm" onchange="applySort(this.value)">
+                        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
+                        <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>محبوب‌ترین</option>
+                        <option value="cheapest" {% if current_sort == 'cheapest' %}selected{% endif %}>ارزان‌ترین</option>
+                        <option value="expensive" {% if current_sort == 'expensive' %}selected{% endif %}>گران‌ترین</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Masonry Grid -->
+            {% if images %}
+            <div class="image-masonry-grid">
+                {% for img in images %}
+                <div class="image-card" onclick="openLightbox({{ img.pk }}, this)">
+                    <div class="image-card-inner">
+                        <img src="{% if img.featured_image %}{{ img.featured_image.url }}{% elif img.thumbnail %}{{ img.thumbnail.url }}{% else %}{{ img.original.url }}{% endif %}"
+                             alt="{{ img.get_effective_alt }}"
+                             loading="lazy" class="image-card-img"
+                             data-full="{% if img.featured_image %}{{ img.featured_image.url }}{% else %}{{ img.original.url }}{% endif %}">
+                        <div class="image-card-hover"><i class="bi bi-zoom-in"></i></div>
+                        <div class="image-card-info">
+                            <span class="image-card-name">{{ img.product.display_title|truncatechars:30 }}</span>
+                        </div>
+                    </div>
+                    <div class="image-card-bottom">
+                        <span class="image-card-color"><i class="bi bi-palette"></i> {{ img.product.background_color.name|default:"--" }}</span>
+                        <a href="/farsh/{{ img.product.slug }}/" class="image-card-buy" onclick="event.stopPropagation();"><i class="bi bi-cart2"></i></a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- صفحه‌بندی -->
+            {% if images.has_other_pages %}
+            <nav class="gallery-pagination">
+                <ul class="pagination justify-content-center">
+                    {% if images.has_previous %}
+                    <li class="page-item"><a class="page-link" href="?page={{ images.previous_page_number }}&sort={{ current_sort }}{% if query %}&q={{ query }}{% endif %}{% if sel_color %}&color={{ sel_color }}{% endif %}{% if sel_design %}&design={{ sel_design }}{% endif %}{% if sel_comb %}&comb={{ sel_comb }}{% endif %}"><i class="bi bi-chevron-right"></i></a></li>
+                    {% endif %}
+                    {% for num in images.paginator.page_range %}
+                        {% if images.number == num %}
+                        <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                        {% elif num > images.number|add:"-3" and num < images.number|add:"3" %}
+                        <li class="page-item"><a class="page-link" href="?page={{ num }}&sort={{ current_sort }}{% if query %}&q={{ query }}{% endif %}{% if sel_color %}&color={{ sel_color }}{% endif %}{% if sel_design %}&design={{ sel_design }}{% endif %}{% if sel_comb %}&comb={{ sel_comb }}{% endif %}">{{ num }}</a></li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if images.has_next %}
+                    <li class="page-item"><a class="page-link" href="?page={{ images.next_page_number }}&sort={{ current_sort }}{% if query %}&q={{ query }}{% endif %}{% if sel_color %}&color={{ sel_color }}{% endif %}{% if sel_design %}&design={{ sel_design }}{% endif %}{% if sel_comb %}&comb={{ sel_comb }}{% endif %}"><i class="bi bi-chevron-left"></i></a></li>
+                    {% endif %}
+                </ul>
+            </nav>
+            {% endif %}
+            {% else %}
+            <div class="gallery-empty">
+                <i class="bi bi-image"></i>
+                <h3>تصویری یافت نشد</h3>
+                <a href="{% url 'gallery:image_gallery' %}" class="btn btn-hf-primary"><i class="bi bi-arrow-counterclockwise"></i> مشاهده همه</a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- ===== Fullscreen Lightbox ===== -->
+<div class="lb-overlay" id="lb">
+    <div class="lb-header">
+        <button class="lb-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
+        <span class="lb-counter" id="lbCounter"></span>
+    </div>
+
+    <div class="lb-slides" id="lbSlides">
+        <div class="lb-spinner" id="lbSpinner" style="display:none;"></div>
+        <img class="lb-img" id="lbImg" src="" alt="">
+        <button class="lb-arrow lb-arrow-prev" id="lbPrev" onclick="lbNav(-1)"><i class="bi bi-chevron-right"></i></button>
+        <button class="lb-arrow lb-arrow-next" id="lbNext" onclick="lbNav(1)"><i class="bi bi-chevron-left"></i></button>
+    </div>
+
+    <div class="lb-info" id="lbInfo">
+        <div class="lb-title" id="lbTitle"></div>
+        <div class="lb-specs" id="lbSpecs"></div>
+        <div>
+            <span class="lb-price" id="lbPrice"></span>
+            <a class="lb-buy" id="lbBuy" href="#"><i class="bi bi-cart-plus"></i> مشاهده و خرید</a>
+        </div>
+    </div>
+
+    <div class="lb-swipe-hint" id="lbHint">← بکشید برای تصاویر مشابه →</div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/gallery.js' %}"></script>
+<script>
+(function() {
+    // ===== State =====
+    var queue = [];       // [{id, src, alt, display_title, product_url, comb, color, design, price}]
+    var idx = 0;          // current index in queue
+    var seen = new Set();  // avoid duplicates
+    var loading = false;
+    var firstOpen = true;
+
+    var lb      = document.getElementById('lb');
+    var lbImg   = document.getElementById('lbImg');
+    var lbTitle = document.getElementById('lbTitle');
+    var lbSpecs = document.getElementById('lbSpecs');
+    var lbPrice = document.getElementById('lbPrice');
+    var lbBuy   = document.getElementById('lbBuy');
+    var lbCounter = document.getElementById('lbCounter');
+    var lbSpinner = document.getElementById('lbSpinner');
+    var lbHint  = document.getElementById('lbHint');
+
+    // ===== Build initial queue from page =====
+    var pageImages = [
+        {% for img in images %}
+        {
+            id: {{ img.pk }},
+            src: "{% if img.featured_image %}{{ img.featured_image.url }}{% else %}{{ img.original.url }}{% endif %}",
+            alt: "{{ img.get_effective_alt|escapejs }}",
+            display_title: "{{ img.product.display_title|escapejs }}",
+            product_url: "/farsh/{{ img.product.slug }}/",
+            comb: "{{ img.product.album.comb }} شانه",
+            color: "{{ img.product.background_color.name|default:'--'|escapejs }}",
+            design: "{{ img.product.design_type_display|escapejs }}",
+            price: "{% if img.product.get_sell_price_12m %}{{ img.product.get_sell_price_12m|intcomma_fa }}{% endif %}"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    // ===== Open Lightbox =====
+    window.openLightbox = function(imgId, el) {
+        // Build queue: clicked image first, rest of page after
+        queue = [];
+        seen = new Set();
+        var startIdx = 0;
+
+        // Find clicked in pageImages
+        for (var i = 0; i < pageImages.length; i++) {
+            if (pageImages[i].id === imgId) startIdx = i;
+        }
+        // Add clicked first
+        addToQueue(pageImages[startIdx]);
+        // Add rest
+        for (var i = 0; i < pageImages.length; i++) {
+            if (i !== startIdx) addToQueue(pageImages[i]);
+        }
+
+        idx = 0;
+        showCurrent();
+        lb.classList.add('active');
+        document.body.style.overflow = 'hidden';
+
+        // Fetch similar
+        fetchSimilar(imgId);
+
+        // Show swipe hint on first open
+        if (firstOpen) {
+            lbHint.style.display = 'block';
+            firstOpen = false;
+        } else {
+            lbHint.style.display = 'none';
+        }
+    };
+
+    function addToQueue(item) {
+        if (!seen.has(item.id)) {
+            seen.add(item.id);
+            queue.push(item);
+        }
+    }
+
+    // ===== Close =====
+    window.closeLightbox = function() {
+        lb.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    // ===== Show current =====
+    function showCurrent() {
+        if (!queue[idx]) return;
+        var item = queue[idx];
+
+        // Loading state
+        lbImg.classList.add('loading');
+        lbSpinner.style.display = 'flex';
+
+        var img = new Image();
+        img.onload = function() {
+            lbImg.src = item.src;
+            lbImg.alt = item.alt;
+            lbImg.classList.remove('loading');
+            lbSpinner.style.display = 'none';
+        };
+        img.onerror = function() {
+            lbImg.src = item.src;
+            lbImg.classList.remove('loading');
+            lbSpinner.style.display = 'none';
+        };
+        img.src = item.src;
+
+        // Info
+        lbTitle.textContent = item.display_title;
+        lbSpecs.innerHTML = '';
+        if (item.comb) lbSpecs.innerHTML += '<span>' + item.comb + '</span>';
+        if (item.color && item.color !== '--') lbSpecs.innerHTML += '<span>' + item.color + '</span>';
+        if (item.design) lbSpecs.innerHTML += '<span>' + item.design + '</span>';
+        lbPrice.textContent = item.price ? item.price + ' تومان' : '';
+        lbBuy.href = item.product_url;
+
+        // Counter
+        lbCounter.textContent = (idx + 1) + ' / ' + queue.length;
+
+        // Prefetch next
+        if (queue[idx + 1]) {
+            var pre = new Image();
+            pre.src = queue[idx + 1].src;
+        }
+
+        // If near end, fetch more similar
+        if (idx >= queue.length - 5 && !loading) {
+            fetchSimilar(item.id);
+        }
+    }
+
+    // ===== Navigate =====
+    window.lbNav = function(dir) {
+        idx += dir;
+        if (idx < 0) idx = queue.length - 1;
+        if (idx >= queue.length) idx = 0;
+        showCurrent();
+    };
+
+    // ===== Fetch Similar =====
+    function fetchSimilar(imgId) {
+        if (loading) return;
+        loading = true;
+
+        fetch('/gallery/api/images/' + imgId + '/similar/')
+            .then(function(r) { return r.json(); })
+            .then(function(data) {
+                if (data.images) {
+                    data.images.forEach(function(item) { addToQueue(item); });
+                    lbCounter.textContent = (idx + 1) + ' / ' + queue.length;
+                }
+                loading = false;
+            })
+            .catch(function() { loading = false; });
+    }
+
+    // ===== Keyboard =====
+    document.addEventListener('keydown', function(e) {
+        if (!lb.classList.contains('active')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') lbNav(1);  // RTL: left = next
+        if (e.key === 'ArrowRight') lbNav(-1);
+    });
+
+    // ===== Touch/Swipe =====
+    var touchStartX = 0, touchStartY = 0, swiping = false;
+    var slides = document.getElementById('lbSlides');
+
+    slides.addEventListener('touchstart', function(e) {
+        touchStartX = e.touches[0].clientX;
+        touchStartY = e.touches[0].clientY;
+        swiping = true;
+    }, {passive: true});
+
+    slides.addEventListener('touchend', function(e) {
+        if (!swiping) return;
+        swiping = false;
+        var dx = touchStartX - e.changedTouches[0].clientX;
+        var dy = touchStartY - e.changedTouches[0].clientY;
+        // Only horizontal swipe
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 0) lbNav(1);   // swipe left = next (RTL)
+            else lbNav(-1);          // swipe right = prev
+        }
+    }, {passive: true});
+
+    // Click on overlay background = close
+    slides.addEventListener('click', function(e) {
+        if (e.target === slides) closeLightbox();
+    });
+
+    // Toggle info on tap (mobile)
+    lbImg.addEventListener('click', function(e) {
+        e.stopPropagation();
+        lb.classList.toggle('lb-info-hidden');
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load price_tags %}
+
+{% block meta_title %}{{ catalog.title }} | کاتالوگ همیار فرش{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    {# هدر کاتالوگ #}
+    <div class="hf-card p-4 mb-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 style="color:var(--hf-primary);">
+                    <i class="bi bi-collection"></i> {{ catalog.title }}
+                </h2>
+                <p class="text-muted mb-0">
+                    <i class="bi bi-calendar3"></i> ایجاد شده: {{ catalog.created_at|date:"Y/m/d" }}
+                    <span class="mx-2">|</span>
+                    <i class="bi bi-eye"></i> {{ catalog.view_count }} بازدید
+                    <span class="mx-2">|</span>
+                    <i class="bi bi-box-seam"></i> {{ products.count }} محصول
+                </p>
+            </div>
+            <div class="col-md-4 text-end">
+                <button class="btn btn-hf-primary" onclick="shareDialog()">
+                    <i class="bi bi-share"></i> اشتراک‌گذاری
+                </button>
+            </div>
+        </div>
+    </div>
+
+    {# محصولات #}
+    <div class="row g-4">
+        {% for product in products %}
+        <div class="col-6 col-md-4 col-lg-3">
+            <div class="card h-100 product-card">
+                {% with img=product.primary_image %}
+                {% if img and img.featured_image %}
+                <img src="{{ img.featured_image.url }}" class="card-img-top" 
+                     alt="{{ product.name }}"
+                     style="aspect-ratio:1/1;object-fit:cover;">
+                {% else %}
+                <div style="aspect-ratio:1/1;background:var(--hf-gray-light);display:flex;align-items:center;justify-content:center;">
+                    <i class="bi bi-image" style="font-size:3rem;color:#999;"></i>
+                </div>
+                {% endif %}
+                {% endwith %}
+                
+                <div class="card-body">
+                    <h6 class="card-title">{{ product.name }}</h6>
+                    <p class="card-text small text-muted mb-2">
+                        {{ product.album.manufacturer.name }}<br>
+                        {{ product.comb }} شانه
+                    </p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <strong style="color:var(--hf-primary);">
+                            {{ product.get_sell_price_12m|price_comma }}
+                        </strong>
+                        <a href="{% url 'shop:product_detail' product.slug %}" 
+                           class="btn btn-sm btn-hf-outline" target="_blank">
+                            مشاهده
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <i class="bi bi-inbox" style="font-size:4rem;color:#ccc;"></i>
+            <p class="text-muted mt-3">این کاتالوگ خالی است.</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{# مودال اشتراک‌گذاری #}
+<div class="modal fade" id="shareModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">اشتراک‌گذاری کاتالوگ</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div class="mb-3">
+                    <label class="form-label">لینک کاتالوگ:</label>
+                    <div class="input-group">
+                        <input type="text" class="form-control" id="catalogUrl" 
+                               value="{{ share_url }}" readonly>
+                        <button class="btn btn-outline-secondary" onclick="copyUrl()">
+                            <i class="bi bi-clipboard"></i> کپی
+                        </button>
+                    </div>
+                </div>
+                <div class="d-grid gap-2">
+                    <a href="https://t.me/share/url?url={{ share_url }}&text={{ catalog.title }}" 
+                       target="_blank" class="btn btn-info">
+                        <i class="bi bi-telegram"></i> ارسال به تلگرام
+                    </a>
+                    <a href="https://wa.me/?text={{ catalog.title }} {{ share_url }}" 
+                       target="_blank" class="btn btn-success">
+                        <i class="bi bi-whatsapp"></i> ارسال به واتساپ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function shareDialog() {
+    new bootstrap.Modal(document.getElementById('shareModal')).show();
+}
+
+function copyUrl() {
+    const input = document.getElementById('catalogUrl');
+    input.select();
+    document.execCommand('copy');
+    alert('لینک کپی شد!');
+}
+</script>
+{% endblock %}
+
+<style>
+.product-card {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.product-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+</style>

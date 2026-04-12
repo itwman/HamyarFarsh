@@ -1,0 +1,37 @@
+# محیط مجازی
+venv/
+env/
+.venv/
+
+# تنظیمات محلی
+.env
+*.env
+
+# فایل‌های آپلودی و media
+media/
+
+# فایل‌های کش Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# دیتابیس SQLite
+*.sqlite3
+db.sqlite3
+
+# فایل‌های استاتیک جمع‌آوری شده
+staticfiles/
+static_root/
+
+# لاگ‌ها
+*.log
+logs/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# ویندوز
+Thumbs.db
+desktop.ini

@@ -1,0 +1,289 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block page_title %}تنظیمات سایت{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0"><i class="bi bi-gear"></i> تنظیمات سایت</h5>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            {# اطلاعات سایت #}
+            <div class="card mb-4">
+                <div class="card-header fw-bold" style="background:#f8f9fa;color:#2c3e50;">
+                    <i class="bi bi-info-circle"></i> اطلاعات سایت
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.site_name.label }}</label>
+                        {{ form.site_name }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.logo.label }}</label>
+                        {{ form.logo }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.favicon.label }}</label>
+                        {{ form.favicon }}
+                    </div>
+                </div>
+            </div>
+
+            {# اطلاعات تماس #}
+            <div class="card mb-4">
+                <div class="card-header fw-bold" style="background:#f8f9fa;color:#2c3e50;">
+                    <i class="bi bi-telephone"></i> اطلاعات تماس
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.phone.label }}</label>
+                        {{ form.phone }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.mobile.label }}</label>
+                        {{ form.mobile }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.whatsapp.label }}</label>
+                        {{ form.whatsapp }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.telegram_id.label }}</label>
+                        {{ form.telegram_id }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.instagram_id.label }}</label>
+                        {{ form.instagram_id }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.eitaa_id.label }}</label>
+                        {{ form.eitaa_id }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.bale_id.label }}</label>
+                        {{ form.bale_id }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.website_url.label }}</label>
+                        {{ form.website_url }}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.address.label }}</label>
+                        {{ form.address }}
+                    </div>
+                </div>
+            </div>
+
+            {# تنظیمات تصویر #}
+            <div class="card mb-4">
+                <div class="card-header fw-bold" style="background:#f8f9fa;color:#2c3e50;">
+                    <i class="bi bi-image"></i> تنظیمات تصویر
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.thumbnail_width.label }}</label>
+                        {{ form.thumbnail_width }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.thumbnail_height.label }}</label>
+                        {{ form.thumbnail_height }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.featured_image_size.label }}</label>
+                        {{ form.featured_image_size }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.info_bar_color.label }}</label>
+                        {{ form.info_bar_color }}
+                    </div>
+
+                    {# قالب خطوط نوار اطلاعات تصویر شاخص #}
+                    <div class="col-12"><hr class="my-1"><h6 class="mt-2 mb-0" style="color:var(--hf-primary,#C62828);">قالب نوار اطلاعات تصویر شاخص</h6></div>
+                    <div class="col-12">
+                        <label class="form-label">{{ form.featured_line1_template.label }}</label>
+                        {{ form.featured_line1_template }}
+                        <small class="text-muted d-block mt-1">{{ form.fields.featured_line1_template.help_text }}</small>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">{{ form.featured_line2_template.label }}</label>
+                        {{ form.featured_line2_template }}
+                        <small class="text-muted d-block mt-1">{{ form.fields.featured_line2_template.help_text }}</small>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">{{ form.featured_line3_template.label }}</label>
+                        {{ form.featured_line3_template }}
+                        <small class="text-muted d-block mt-1">{{ form.fields.featured_line3_template.help_text }}</small>
+                    </div>
+                    <div class="col-12">
+                        <div class="alert alert-info small mb-0 py-2">
+                            <i class="bi bi-info-circle"></i>
+                            <strong>متغیرهای محصول:</strong> <code>{name}</code> نقشه، <code>{color}</code> رنگ، <code>{comb}</code> شانه، <code>{density}</code> تراکم، <code>{design}</code> طرح، <code>{weave}</code> بافت، <code>{feature}</code> ویژگی، <code>{company}</code> شرکت، <code>{album}</code> آلبوم، <code>{yarn}</code> نخ<br>
+                            <strong>متغیرهای تماس:</strong> <code>{mobile}</code>، <code>{phone}</code>، <code>{website}</code>، <code>{site_name}</code>، <code>{telegram}</code>، <code>{instagram}</code><br>
+                            <strong>توجه:</strong> پس از تغییر قالب، برای اعمال روی تصاویر قدیمی دستور <code>python manage.py rebuild_featured_images</code> را اجرا کنید.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# تنظیمات قیمت‌گذاری #}
+            <div class="card mb-4">
+                <div class="card-header fw-bold" style="background:#f8f9fa;color:#2c3e50;">
+                    <i class="bi bi-currency-exchange"></i> تنظیمات قیمت‌گذاری
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.profit_percent.label }}</label>
+                        <div class="input-group">
+                            {{ form.profit_percent }}
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.shipping_cost.label }}</label>
+                        <div class="input-group">
+                            {{ form.shipping_cost }}
+                            <span class="input-group-text">تومان</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.rounding_step.label }}</label>
+                        <div class="input-group">
+                            {{ form.rounding_step }}
+                            <span class="input-group-text">تومان</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# تنظیمات سفارش #}
+            <div class="card mb-4">
+                <div class="card-header fw-bold" style="background:#f8f9fa;color:#2c3e50;">
+                    <i class="bi bi-cart-check"></i> تنظیمات سفارش
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.free_shipping_min.label }}</label>
+                        <div class="input-group">
+                            {{ form.free_shipping_min }}
+                            <span class="input-group-text">تومان</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.deposit_percent.label }}</label>
+                        <div class="input-group">
+                            {{ form.deposit_percent }}
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.cancellation_fee_percent.label }}</label>
+                        <div class="input-group">
+                            {{ form.cancellation_fee_percent }}
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# تنظیمات اقساط #}
+            <div class="card mb-4">
+                <div class="card-header fw-bold" style="background:#f8f9fa;color:#2c3e50;">
+                    <i class="bi bi-calculator"></i> تنظیمات اقساط
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.installment_max.label }}</label>
+                        <div class="input-group">
+                            {{ form.installment_max }}
+                            <span class="input-group-text">تومان</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.check_max_months.label }}</label>
+                        <div class="input-group">
+                            {{ form.check_max_months }}
+                            <span class="input-group-text">ماه</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.beta_max_months.label }}</label>
+                        <div class="input-group">
+                            {{ form.beta_max_months }}
+                            <span class="input-group-text">ماه</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.check_monthly_interest_rate.label }}</label>
+                        <div class="input-group">
+                            {{ form.check_monthly_interest_rate }}
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.check_bimonthly_interest_rate.label }}</label>
+                        <div class="input-group">
+                            {{ form.check_bimonthly_interest_rate }}
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.beta_monthly_interest_rate.label }}</label>
+                        <div class="input-group">
+                            {{ form.beta_monthly_interest_rate }}
+                            <span class="input-group-text">%</span>
+                        </div>
+                    </div>
+                    <div class="col-md-3 d-flex flex-column justify-content-center gap-2 pt-3">
+                        <div class="form-check form-switch">
+                            {{ form.check_prepay_required }}
+                            <label class="form-check-label" for="{{ form.check_prepay_required.id_for_label }}">
+                                پیش‌پرداخت چکی الزامی
+                            </label>
+                        </div>
+                        <div class="form-check form-switch">
+                            {{ form.beta_prepay_required }}
+                            <label class="form-check-label" for="{{ form.beta_prepay_required.id_for_label }}">
+                                پیش‌پرداخت بتا الزامی
+                            </label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# تنظیمات SEO #}
+            <div class="card mb-4">
+                <div class="card-header fw-bold" style="background:#f8f9fa;color:#2c3e50;">
+                    <i class="bi bi-search"></i> تنظیمات SEO
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-12">
+                        <label class="form-label">{{ form.seo_title.label }}</label>
+                        {{ form.seo_title }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">{{ form.seo_description.label }}</label>
+                        {{ form.seo_description }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">{{ form.seo_keywords.label }}</label>
+                        {{ form.seo_keywords }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">{{ form.product_desc_template.label }}</label>
+                        {{ form.product_desc_template }}
+                        <small class="text-muted d-block mt-1">{{ form.fields.product_desc_template.help_text }}</small>
+                    </div>
+                </div>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-lg w-100">
+                <i class="bi bi-check-lg"></i> ذخیره تنظیمات
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

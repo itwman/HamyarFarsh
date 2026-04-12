@@ -1,0 +1,220 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load price_tags %}
+
+{% block meta_title %}ماشین‌حساب اقساط{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="hf-card p-4">
+                <h2 class="mb-4" style="color:var(--hf-primary);">
+                    <i class="bi bi-calculator"></i> ماشین‌حساب اقساط
+                </h2>
+                
+                <p class="text-muted mb-4">
+                    با این ابزار می‌توانید مبلغ اقساط ماهانه خود را محاسبه کنید.
+                </p>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        {# فرم ورودی #}
+                        <div class="p-3 rounded mb-3" style="background:var(--hf-gray-light);">
+                            <h5 class="mb-3">اطلاعات فاکتور</h5>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">مبلغ کل فاکتور (تومان)</label>
+                                <input type="number" id="totalAmount" class="form-control" value="50000000" min="0" step="100000">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">پیش‌پرداخت (تومان)</label>
+                                <input type="number" id="downPayment" class="form-control" value="20000000" min="0" step="100000">
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">نوع طرح</label>
+                                <select id="planType" class="form-select">
+                                    <option value="check">چک صیادی (حداکثر 12 ماه)</option>
+                                    <option value="beta">طرح بتا بانک رفاه (حداکثر 18 ماه)</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">تعداد اقساط</label>
+                                <input type="number" id="numInstallments" class="form-control" value="12" min="1" max="12">
+                                <small class="text-muted" id="maxInstallmentsHint">حداکثر 12 ماه</small>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">دوره پرداخت</label>
+                                <select id="period" class="form-select">
+                                    <option value="monthly">ماهانه</option>
+                                    <option value="bimonthly">دوماهانه</option>
+                                </select>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label class="form-label">نرخ سود ماهانه (%)</label>
+                                <input type="number" id="interestRate" class="form-control" value="{{ ss.check_monthly_interest_rate }}" min="0" step="0.1" readonly>
+                                <small class="text-muted">نرخ سود از تنظیمات سیستم</small>
+                            </div>
+                            
+                            <button onclick="calculateInstallment()" class="btn btn-hf-primary w-100">
+                                <i class="bi bi-calculator"></i> محاسبه
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        {# نتایج #}
+                        <div id="results" style="display:none;">
+                            <div class="p-3 rounded mb-3" style="background:var(--hf-primary-bg);">
+                                <h5 class="mb-3" style="color:var(--hf-primary);">نتایج محاسبه</h5>
+                                
+                                <div class="mb-3 pb-3 border-bottom">
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>مبلغ قابل اقساط:</span>
+                                        <strong id="financedAmount">-</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between mb-2">
+                                        <span>مجموع سود:</span>
+                                        <strong id="totalInterest" class="text-danger">-</strong>
+                                    </div>
+                                    <div class="d-flex justify-content-between">
+                                        <span>مبلغ کل با سود:</span>
+                                        <strong id="totalWithInterest">-</strong>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-center p-4 rounded" style="background:#fff;">
+                                    <small class="text-muted d-block mb-2">مبلغ هر قسط</small>
+                                    <h3 id="installmentAmount" style="color:var(--hf-primary);font-size:2rem;margin:0;">-</h3>
+                                    <small class="text-muted">تومان</small>
+                                </div>
+                            </div>
+                            
+                            {# جدول اقساط #}
+                            <div class="p-3 rounded" style="background:var(--hf-gray-light);">
+                                <h6 class="mb-3">برنامه پرداخت اقساط</h6>
+                                <div style="max-height:400px;overflow-y:auto;">
+                                    <table class="table table-sm table-bordered mb-0" id="scheduleTable">
+                                        <thead style="background:var(--hf-primary);color:#fff;position:sticky;top:0;">
+                                            <tr>
+                                                <th>قسط</th>
+                                                <th>مبلغ (تومان)</th>
+                                                <th>تاریخ سررسید</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="scheduleBody">
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// تغییر حداکثر تعداد اقساط بر اساس نوع طرح
+document.getElementById('planType').addEventListener('change', function() {
+    const planType = this.value;
+    const numInstallmentsInput = document.getElementById('numInstallments');
+    const interestRateInput = document.getElementById('interestRate');
+    const maxHint = document.getElementById('maxInstallmentsHint');
+    
+    if (planType === 'beta') {
+        numInstallmentsInput.max = 18;
+        maxHint.textContent = 'حداکثر 18 ماه';
+        interestRateInput.value = '{{ ss.beta_monthly_interest_rate }}';
+    } else {
+        numInstallmentsInput.max = 12;
+        maxHint.textContent = 'حداکثر 12 ماه';
+        interestRateInput.value = '{{ ss.check_monthly_interest_rate }}';
+    }
+    
+    // اگر مقدار فعلی بیشتر از حداکثر است
+    if (parseInt(numInstallmentsInput.value) > parseInt(numInstallmentsInput.max)) {
+        numInstallmentsInput.value = numInstallmentsInput.max;
+    }
+});
+
+function calculateInstallment() {
+    const totalAmount = parseFloat(document.getElementById('totalAmount').value);
+    const downPayment = parseFloat(document.getElementById('downPayment').value);
+    const planType = document.getElementById('planType').value;
+    const numInstallments = parseInt(document.getElementById('numInstallments').value);
+    const period = document.getElementById('period').value;
+    const interestRate = parseFloat(document.getElementById('interestRate').value);
+    
+    // اعتبارسنجی
+    if (!totalAmount || totalAmount <= 0) {
+        alert('لطفاً مبلغ کل فاکتور را وارد کنید');
+        return;
+    }
+    
+    if (downPayment >= totalAmount) {
+        alert('پیش‌پرداخت نمی‌تواند بیشتر یا مساوی مبلغ کل باشد');
+        return;
+    }
+    
+    // محاسبه
+    const financedAmount = totalAmount - downPayment;
+    const months = period === 'monthly' ? numInstallments : numInstallments * 2;
+    const totalInterest = financedAmount * (interestRate / 100) * months;
+    const totalWithInterest = financedAmount + totalInterest;
+    const installmentAmount = Math.floor(totalWithInterest / numInstallments);
+    const lastInstallment = totalWithInterest - (installmentAmount * (numInstallments - 1));
+    
+    // نمایش نتایج
+    document.getElementById('financedAmount').textContent = financedAmount.toLocaleString('fa-IR') + ' تومان';
+    document.getElementById('totalInterest').textContent = totalInterest.toLocaleString('fa-IR') + ' تومان';
+    document.getElementById('totalWithInterest').textContent = totalWithInterest.toLocaleString('fa-IR') + ' تومان';
+    document.getElementById('installmentAmount').textContent = installmentAmount.toLocaleString('fa-IR');
+    
+    // تولید جدول اقساط
+    const scheduleBody = document.getElementById('scheduleBody');
+    scheduleBody.innerHTML = '';
+    
+    const today = new Date();
+    today.setMonth(today.getMonth() + 1); // ماه بعد
+    
+    for (let i = 1; i <= numInstallments; i++) {
+        const amount = (i === numInstallments) ? Math.floor(lastInstallment) : installmentAmount;
+        const dueDate = new Date(today);
+        
+        if (period === 'monthly') {
+            dueDate.setMonth(dueDate.getMonth() + (i - 1));
+        } else {
+            dueDate.setMonth(dueDate.getMonth() + ((i - 1) * 2));
+        }
+        
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td class="text-center">${i}</td>
+            <td class="text-end">${amount.toLocaleString('fa-IR')}</td>
+            <td class="text-center">${dueDate.toLocaleDateString('fa-IR')}</td>
+        `;
+        scheduleBody.appendChild(row);
+    }
+    
+    // نمایش بخش نتایج
+    document.getElementById('results').style.display = 'block';
+    
+    // اسکرول به نتایج
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+// محاسبه خودکار در بارگذاری صفحه
+window.addEventListener('load', function() {
+    calculateInstallment();
+});
+</script>
+{% endblock %}

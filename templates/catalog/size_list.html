@@ -1,0 +1,82 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block page_title %}سایزهای فرش{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5><i class="bi bi-rulers"></i> سایزهای فرش</h5>
+    <div class="d-flex gap-2">
+        <a href="{% url 'catalog:categories_dashboard' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-right"></i> بازگشت</a>
+        <a href="{% url 'catalog:size_create' %}" class="btn btn-sm btn-primary"><i class="bi bi-plus-lg"></i> افزودن سایز</a>
+    </div>
+</div>
+
+<div class="mb-3 d-flex gap-2 flex-wrap">
+    <a href="{% url 'catalog:size_list' %}" class="btn btn-sm {% if not size_type %}btn-primary{% else %}btn-outline-primary{% endif %}">همه</a>
+    {% for val, label in size_type_choices %}
+    <a href="?type={{ val }}" class="btn btn-sm {% if size_type == val %}btn-primary{% else %}btn-outline-primary{% endif %}">{{ label }}</a>
+    {% endfor %}
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>#</th>
+                    <th>نام سایز</th>
+                    <th>نوع</th>
+                    <th>ابعاد</th>
+                    <th>مساحت (م²)</th>
+                    <th>۹ متری خاص</th>
+                    <th>قانون سفارش</th>
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for size in sizes %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td class="fw-bold">{{ size.name }}</td>
+                    <td><span class="badge bg-secondary">{{ size.get_size_type_display }}</span></td>
+                    <td>{{ size.dimensions_display }}</td>
+                    <td dir="ltr">{{ size.area }}</td>
+                    <td>
+                        {% if size.is_nine_meter %}
+                        <span class="badge bg-info">بله - پرتی</span>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if size.default_order_rule == 'even' %}
+                        <span class="badge bg-warning text-dark">فقط زوج</span>
+                        {% else %}
+                        <span class="badge bg-success">آزاد</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if size.is_active %}
+                        <span class="badge bg-success">فعال</span>
+                        {% else %}
+                        <span class="badge bg-secondary">غیرفعال</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'catalog:size_edit' size.pk %}" class="btn btn-outline-primary" title="ویرایش"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'catalog:size_toggle' size.pk %}" class="btn btn-outline-warning" title="تغییر وضعیت"><i class="bi bi-toggle-on"></i></a>
+                            <a href="{% url 'catalog:size_delete' size.pk %}" class="btn btn-outline-danger" title="حذف"><i class="bi bi-trash"></i></a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="9" class="text-center text-muted py-4">هنوز سایزی ثبت نشده.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

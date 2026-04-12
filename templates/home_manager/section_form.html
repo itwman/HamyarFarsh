@@ -1,0 +1,110 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-layout-text-window-reverse"></i> {{ title }}</h5>
+    <a href="{% url 'home_manager:dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-5">
+                    <label class="form-label fw-bold">عنوان بخش</label>
+                    {{ form.title }}
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label">زیرعنوان</label>
+                    {{ form.subtitle }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">آیکون</label>
+                    {{ form.icon }}
+                </div>
+
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">نوع بخش</label>
+                    {{ form.section_type }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">تعداد آیتم</label>
+                    {{ form.item_count }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">ترتیب</label>
+                    {{ form.order }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">رنگ پس‌زمینه</label>
+                    {{ form.bg_color }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label">فعال</label>
+                    </div>
+                </div>
+
+                <!-- فیلدهای product_auto -->
+                <div class="col-12" id="autoFields">
+                    <div class="card bg-light p-3">
+                        <strong class="mb-2 d-block"><i class="bi bi-funnel"></i> تنظیمات محصولات خودکار</strong>
+                        <div class="row g-2">
+                            <div class="col-md-4">
+                                <label class="form-label">فیلتر</label>
+                                {{ form.auto_filter }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">شانه (اختیاری)</label>
+                                {{ form.auto_comb }}
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label">لینک «مشاهده بیشتر»</label>
+                                {{ form.show_more_link }}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- فیلدهای product_manual -->
+                <div class="col-12" id="manualFields">
+                    <div class="card bg-light p-3">
+                        <strong class="mb-2 d-block"><i class="bi bi-hand-index"></i> انتخاب محصولات دستی</strong>
+                        {{ form.manual_products }}
+                        <small class="text-muted">برای انتخاب چندتایی Ctrl+Click کنید</small>
+                    </div>
+                </div>
+
+                <!-- فیلدهای HTML -->
+                <div class="col-12" id="htmlFields">
+                    <div class="card bg-light p-3">
+                        <strong class="mb-2 d-block"><i class="bi bi-code-slash"></i> کد HTML سفارشی</strong>
+                        {{ form.html_content }}
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {% if is_edit %}بروزرسانی{% else %}ذخیره{% endif %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function toggleSectionFields() {
+    var type = document.getElementById('id_section_type').value;
+    document.getElementById('autoFields').style.display = (type === 'product_auto') ? '' : 'none';
+    document.getElementById('manualFields').style.display = (type === 'product_manual') ? '' : 'none';
+    document.getElementById('htmlFields').style.display = (type === 'html_custom') ? '' : 'none';
+}
+document.getElementById('id_section_type').addEventListener('change', toggleSectionFields);
+toggleSectionFields();
+</script>
+{% endblock %}

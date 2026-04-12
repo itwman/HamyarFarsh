@@ -1,0 +1,46 @@
+{% extends 'dashboard/base.html' %}
+{% block page_title %}چت‌های آنلاین{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-chat-dots"></i> چت‌های آنلاین <span class="badge bg-danger">{{ open_count }} باز</span></h5>
+    <a href="{% url 'live_chat:admin_ticket_list' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-ticket"></i> تیکت‌ها</a>
+</div>
+<div class="card mb-3"><div class="card-body py-2">
+    <form method="get" class="d-flex gap-2">
+        <select name="status" class="form-select form-select-sm" style="width:auto;">
+            <option value="">همه</option>
+            <option value="open" {% if current_status == 'open' %}selected{% endif %}>باز</option>
+            <option value="answered" {% if current_status == 'answered' %}selected{% endif %}>پاسخ‌داده</option>
+            <option value="closed" {% if current_status == 'closed' %}selected{% endif %}>بسته</option>
+        </select>
+        <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-filter"></i></button>
+    </form>
+</div></div>
+<div class="card"><div class="table-responsive">
+    <table class="table table-hover align-middle mb-0">
+        <thead class="table-light"><tr><th>بازدیدکننده</th><th>آخرین پیام</th><th>وضعیت</th><th>تاریخ</th><th class="text-center">عملیات</th></tr></thead>
+        <tbody>
+            {% for s in sessions %}
+            <tr {% if s.unread_count %}class="table-warning"{% endif %}>
+                <td>
+                    <strong>{{ s.visitor_name }}</strong>
+                    {% if s.visitor_phone %}<br><small dir="ltr">{{ s.visitor_phone }}</small>{% endif %}
+                    {% if s.unread_count %}<span class="badge bg-danger ms-1">{{ s.unread_count }}</span>{% endif %}
+                </td>
+                <td><small>{% if s.last_message %}{{ s.last_message.message|truncatechars:50 }}{% endif %}</small></td>
+                <td><span class="badge bg-{% if s.status == 'open' %}danger{% elif s.status == 'answered' %}success{% else %}secondary{% endif %}">{{ s.get_status_display }}</span></td>
+                <td><small>{{ s.jalali_created }}</small></td>
+                <td class="text-center">
+                    <a href="{% url 'live_chat:admin_chat_detail' s.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-chat"></i> پاسخ</a>
+                    {% if s.status != 'closed' %}
+                    <a href="{% url 'live_chat:admin_chat_close' s.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x"></i></a>
+                    {% endif %}
+                </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-3">چتی وجود ندارد.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% endblock %}

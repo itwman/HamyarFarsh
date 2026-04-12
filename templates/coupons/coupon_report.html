@@ -1,0 +1,68 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block page_title %}گزارش کوپن {{ coupon.code }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-graph-up"></i> گزارش کوپن <code>{{ coupon.code }}</code></h5>
+    <a href="{% url 'coupons:coupon_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+</div>
+
+<!-- خلاصه -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3">
+        <div class="card p-3 text-center">
+            <div class="fw-bold fs-5">{{ coupon.code }}</div>
+            <small class="text-muted">{% if coupon.coupon_type == 'percent' %}{{ coupon.amount }}%{% else %}{{ coupon.amount|intcomma }} تومان{% endif %}</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 text-center">
+            <div class="fw-bold fs-4">{{ usages.count }}</div>
+            <small class="text-muted">تعداد استفاده</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 text-center">
+            <div class="fw-bold fs-4 text-danger">{{ total_discount|intcomma }}</div>
+            <small class="text-muted">مجموع تخفیف (تومان)</small>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="card p-3 text-center">
+            <div class="fw-bold fs-5">{{ coupon.jalali_start }}<br>تا {{ coupon.jalali_end }}</div>
+            <small class="text-muted">بازه اعتبار</small>
+        </div>
+    </div>
+</div>
+
+<!-- لاگ استفاده -->
+<div class="card">
+    <div class="card-header py-2"><strong><i class="bi bi-list-check"></i> لاگ استفاده</strong></div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>کاربر</th>
+                    <th>سفارش</th>
+                    <th>مبلغ تخفیف</th>
+                    <th>تاریخ</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for u in usages %}
+                <tr>
+                    <td>{{ u.user.get_full_name|default:u.user.phone }}</td>
+                    <td>{% if u.order %}<a href="{% url 'dashboard:order_detail_admin' u.order.pk %}">#{{ u.order.pk }}</a>{% else %}-{% endif %}</td>
+                    <td><strong>{{ u.discount_amount|intcomma }} تومان</strong></td>
+                    <td>{{ u.jalali_used_at }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" class="text-center text-muted py-3">هنوز استفاده‌ای ثبت نشده.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

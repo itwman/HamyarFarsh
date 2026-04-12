@@ -1,0 +1,528 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load price_tags %}
+{% load jalali_tags %}
+
+{% block meta_title %}{{ product.get_effective_seo_title }}{% endblock %}
+{% block meta_description %}{{ product.get_effective_seo_description }}{% endblock %}
+
+{% block og_tags %}
+<meta property="og:type" content="product">
+<meta property="og:title" content="{{ product.get_effective_seo_title }}">
+<meta property="og:description" content="{{ product.get_effective_seo_description }}">
+{% with img=product.primary_image %}
+{% if img and img.featured_image %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ img.featured_image.url }}">
+{% elif img %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ img.original.url }}">
+{% endif %}
+{% endwith %}
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:locale" content="fa_IR">
+{% if sell_price_12m %}
+<meta property="product:price:amount" content="{{ sell_price_12m }}">
+<meta property="product:price:currency" content="IRR">
+{% endif %}
+{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">{{ schema_json|safe }}</script>
+{% endblock %}
+
+{% block canonical %}
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/farsh/{{ product.slug }}/">
+{% endblock %}
+
+{% block content %}
+{# Breadcrumb #}
+<nav aria-label="breadcrumb" class="mb-3" itemscope itemtype="https://schema.org/BreadcrumbList">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="{% url 'home' %}" itemprop="item"><span itemprop="name">خانه</span></a><meta itemprop="position" content="1">
+        </li>
+        <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="{% url 'shop:catalog' %}" itemprop="item"><span itemprop="name">فرش‌ها</span></a><meta itemprop="position" content="2">
+        </li>
+        {% if product.first_design_type %}
+        <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span itemprop="name">{{ product.first_design_type.name }}</span>
+            <meta itemprop="position" content="3">
+        </li>
+        {% endif %}
+        <li class="breadcrumb-item active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <span itemprop="name">{{ product.display_title }}</span>
+            <meta itemprop="position" content="{% if product.first_design_type %}4{% else %}3{% endif %}">
+        </li>
+    </ol>
+</nav>
+
+<div class="row g-4">
+    {# گالری تصاویر #}
+    <div class="col-md-5">
+        <div class="hf-card p-3">
+            {# تصویر اصلی #}
+            <div id="mainImage" class="text-center mb-3" style="min-height:300px;">
+                {% with img=product.primary_image %}
+                {% if img %}
+                <img src="{{ img.original.url }}" alt="{{ img.get_effective_alt }}" class="img-fluid rounded"
+                     style="max-height:450px;object-fit:contain;" id="mainImg">
+                {% else %}
+                <div class="d-flex align-items-center justify-content-center" style="height:300px;background:var(--hf-gray-light);border-radius:8px;">
+                    <i class="bi bi-image text-muted" style="font-size:4rem;"></i>
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            {# تامبنیل‌ها #}
+            {% if images.count > 1 %}
+            <div class="d-flex gap-2 overflow-auto pb-2">
+                {% for img in images %}
+                <img src="{% if img.thumbnail %}{{ img.thumbnail.url }}{% else %}{{ img.original.url }}{% endif %}"
+                     alt="{{ img.get_effective_alt }}" loading="lazy"
+                     class="rounded border {% if img.is_primary %}border-danger border-2{% endif %}"
+                     style="width:60px;height:60px;object-fit:contain;cursor:pointer;flex-shrink:0;"
+                     onclick="document.getElementById('mainImg').src='{{ img.original.url }}'">
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {# ویدیوها #}
+            {% if videos %}
+            <div class="mt-3">
+                <h6 class="mb-2" style="color:var(--hf-primary);"><i class="bi bi-play-circle"></i> ویدیو</h6>
+                {% for vid in videos %}
+                <video controls class="w-100 rounded mb-2" style="max-height:300px;" preload="metadata"
+                       {% if vid.thumbnail %}poster="{{ vid.thumbnail.url }}"{% endif %}>
+                    {% if vid.video_720p %}
+                    <source src="{{ vid.video_720p.url }}" type="video/mp4">
+                    {% elif vid.video_480p %}
+                    <source src="{{ vid.video_480p.url }}" type="video/mp4">
+                    {% elif vid.original_file %}
+                    <source src="{{ vid.original_file.url }}" type="video/mp4">
+                    {% endif %}
+                </video>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+    </div>
+
+    {# اطلاعات محصول #}
+    <div class="col-md-7">
+        <div class="hf-card p-4">
+            {# عنوان + وضعیت #}
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h1 style="font-size:1.5rem;font-weight:700;color:var(--hf-dark);">{{ product.display_title }}</h1>
+                    <p class="text-muted mb-0">{{ product.manufacturer.name }} - آلبوم {{ product.album.name }}</p>
+                </div>
+                {% with badge=product.status_badge %}
+                <span class="badge bg-{{ badge.1 }} fs-6">{{ badge.0 }}</span>
+                {% endwith %}
+            </div>
+
+            {# امتیاز #}
+            <div class="mb-3">
+                {% for i in "12345" %}
+                {% if forloop.counter <= product.avg_rating %}
+                <i class="bi bi-star-fill text-warning"></i>
+                {% else %}
+                <i class="bi bi-star text-muted"></i>
+                {% endif %}
+                {% endfor %}
+                <span class="text-muted small">({{ product.rating_count }} نظر)</span>
+            </div>
+
+            {# مشخصات فنی #}
+            <div class="row g-2 mb-4">
+                <div class="col-6 col-md-4">
+                    <div class="p-2 rounded" style="background:var(--hf-gray-light);">
+                        <small class="text-muted d-block">شانه</small>
+                        <strong>{{ product.comb }}</strong>
+                    </div>
+                </div>
+                {% if product.density %}
+                <div class="col-6 col-md-4">
+                    <div class="p-2 rounded" style="background:var(--hf-gray-light);">
+                        <small class="text-muted d-block">تراکم</small>
+                        <strong>{{ product.density }}</strong>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="col-6 col-md-4">
+                    <div class="p-2 rounded" style="background:var(--hf-gray-light);">
+                        <small class="text-muted d-block">جنس نخ</small>
+                        <strong>{{ product.yarn_type }}</strong>
+                    </div>
+                </div>
+                {% if product.background_color %}
+                <div class="col-6 col-md-4">
+                    <div class="p-2 rounded" style="background:var(--hf-gray-light);">
+                        <small class="text-muted d-block">رنگ زمینه</small>
+                        <span class="d-inline-block rounded-circle" style="width:14px;height:14px;background:{{ product.background_color.color_code }};border:1px solid #ccc;vertical-align:middle;"></span>
+                        <strong>{{ product.background_color.name }}</strong>
+                    </div>
+                </div>
+                {% endif %}
+                {% if product.design_type_display %}
+                <div class="col-6 col-md-4">
+                    <div class="p-2 rounded" style="background:var(--hf-gray-light);">
+                        <small class="text-muted d-block">نوع طرح</small>
+                        <strong>{{ product.design_type_display }}</strong>
+                    </div>
+                </div>
+                {% endif %}
+                <div class="col-6 col-md-4">
+                    <div class="p-2 rounded" style="background:var(--hf-gray-light);">
+                        <small class="text-muted d-block">وزن</small>
+                        <strong>{{ product.weight_class }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            {# قیمت 12 متری #}
+            {% if sell_price_12m %}
+            <div class="p-3 rounded mb-4" style="background:var(--hf-primary-bg);border:1px solid var(--hf-primary);">
+                <div class="d-flex justify-content-between align-items-center">
+                    <span class="fw-bold">قیمت فرش ۱۲ متری:</span>
+                    <span style="font-size:1.4rem;font-weight:700;color:var(--hf-primary);">
+                        {{ sell_price_12m|price_comma }} <small>تومان</small>
+                    </span>
+                </div>
+            </div>
+            {% endif %}
+
+            {# دکمه اشتراک‌گذاری + علاقه‌مندی + مقایسه #}
+            <div class="d-flex gap-2 mb-3 flex-wrap">
+                {# علاقه‌مندی (فاز 18) #}
+                <button class="btn btn-sm btn-outline-danger" id="wishBtn" onclick="toggleWishlist({{ product.id }})">
+                    <i class="bi bi-heart" id="wishIcon"></i> <span id="wishText">علاقه‌مندی</span>
+                </button>
+                {# مقایسه (فاز 18) #}
+                <button class="btn btn-sm btn-outline-info" id="compareBtn" onclick="toggleCompare({{ product.id }})">
+                    <i class="bi bi-arrow-left-right"></i> <span id="compareText">مقایسه</span>
+                </button>
+                {# اشتراک #}
+                {% if product.primary_image and product.primary_image.featured_image %}
+                <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-telegram"></i> تلگرام</a>
+                <a href="https://wa.me/?text={{ product.name }}%20{{ request.build_absolute_uri }}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-whatsapp"></i> واتساپ</a>
+                {% endif %}
+                <button onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}');alert('لینک کپی شد!')" class="btn btn-sm btn-outline-secondary"><i class="bi bi-link-45deg"></i> کپی لینک</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# جدول قیمت سایزها + دکمه افزودن به سبد خرید #}
+{% if size_prices %}
+<div class="hf-card p-4 mt-4">
+    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-table"></i> جدول قیمت سایزها</h5>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead style="background:var(--hf-primary);color:#fff;">
+                <tr>
+                    <th>سایز</th>
+                    <th>ابعاد</th>
+                    <th>قیمت (تومان)</th>
+                    <th>سفارش</th>
+                    <th class="d-none d-md-table-cell">وضعیت</th>
+                    <th class="text-center">تعداد</th>
+                    <th class="text-center">افزودن</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in size_prices %}
+                {% if item.is_available %}
+                <tr class="{% if item.size.is_nine_meter %}table-warning{% endif %}">
+                    <td class="fw-bold">{{ item.size.name }}</td>
+                    <td class="small">{{ item.size.dimensions_display }}</td>
+                    <td class="fw-bold" style="color:var(--hf-primary);">{{ item.price|price_comma }}</td>
+                    <td>
+                        {% if item.order_rule == 'even' %}
+                        <span class="badge bg-info">فقط زوج</span>
+                        {% else %}
+                        <span class="badge bg-success">آزاد</span>
+                        {% endif %}
+                    </td>
+                    <td class="d-none d-md-table-cell"><i class="bi bi-check-circle-fill text-success"></i></td>
+                    <td class="text-center">
+                        <input type="number" class="form-control form-control-sm text-center" 
+                               id="qty_{{ item.size.id }}" 
+                               value="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}" 
+                               min="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}" 
+                               step="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}" 
+                               style="width:80px;display:inline-block;" dir="ltr">
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-hf-primary btn-sm" 
+                                onclick="addToCart({{ product.id }}, {{ item.size.id }}, document.getElementById('qty_{{ item.size.id }}').value)">
+                            <i class="bi bi-cart-plus"></i> افزودن
+                        </button>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# سفارش سایز خاص #}
+    <div class="mt-3 p-3 rounded" style="background:var(--hf-gray-light);">
+        <h6><i class="bi bi-rulers"></i> سایز خاص نیاز دارید؟</h6>
+        <p class="small text-muted mb-2">
+            سفارش سایز خاص فقط با تسویه کامل امکان‌پذیر است. توصیه می‌شود سایزهای خاص به صورت جفتی سفارش داده شود.
+            هزینه پرتی و طراحی به مبلغ سفارش اضافه می‌شود.
+        </p>
+        <form method="post" action="{% url 'shop:custom_size_request' product.slug %}" class="row g-2 align-items-end">
+            {% csrf_token %}
+            <div class="col-4 col-md-2">
+                <label class="form-label small">طول (متر)</label>
+                <input type="number" name="custom_length" step="0.01" class="form-control form-control-sm" dir="ltr" required>
+            </div>
+            <div class="col-4 col-md-2">
+                <label class="form-label small">عرض (متر)</label>
+                <input type="number" name="custom_width" step="0.01" class="form-control form-control-sm" dir="ltr" required>
+            </div>
+            <div class="col-4 col-md-2">
+                <label class="form-label small">تعداد</label>
+                <input type="number" name="quantity" value="2" min="1" class="form-control form-control-sm" dir="ltr">
+            </div>
+            <div class="col-12 col-md-4">
+                <label class="form-label small">توضیحات</label>
+                <input type="text" name="note" class="form-control form-control-sm" placeholder="اختیاری...">
+            </div>
+            <div class="col-12 col-md-2">
+                <button type="submit" class="btn btn-hf-primary btn-sm w-100">ثبت درخواست</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{# شرایط خرید #}
+<div class="hf-card p-4 mt-4">
+    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-info-circle"></i> شرایط خرید</h5>
+    <div class="row g-3">
+        <div class="col-md-4">
+            <div class="p-3 rounded h-100" style="background:var(--hf-primary-bg);">
+                <h6><i class="bi bi-cash-stack text-success"></i> خرید نقدی</h6>
+                <p class="small mb-0">پرداخت آنلاین کامل. سفارش بالای {{ ss.free_shipping_min|price_comma }} ارسال رایگان تا نزدیکترین باربری.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 rounded h-100" style="background:#FFF8E1;">
+                <h6><i class="bi bi-wallet2 text-warning"></i> پرداخت موقع تحویل</h6>
+                <p class="small mb-0">حداقل {{ ss.deposit_percent }}% بیعانه. قیمت روز در زمان تحویل. هزینه ارسال با مشتری.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="p-3 rounded h-100" style="background:#E8F5E9;">
+                <h6><i class="bi bi-credit-card text-success"></i> خرید اقساطی</h6>
+                <p class="small mb-0">
+                    چک صیادی تا {{ ss.check_max_months }} ماه |
+                    طرح بتا تا {{ ss.beta_max_months }} ماه |
+                    سقف {{ ss.installment_max|price_comma }}
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# شرح محصول #}
+<div class="hf-card p-4 mt-4">
+    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-file-text"></i> معرفی محصول</h5>
+    <div style="white-space:pre-line;line-height:2;">{{ product.get_effective_description }}</div>
+</div>
+
+{# نظرات و امتیازدهی #}
+<div class="hf-card p-4 mt-4">
+    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-star"></i> نظرات و امتیازها</h5>
+
+    {# فرم ثبت امتیاز #}
+    {% if user.is_authenticated %}
+    <div class="p-3 rounded mb-4" style="background:var(--hf-gray-light);">
+        <h6>{{ user_rating|yesno:"بروزرسانی امتیاز,ثبت امتیاز شما" }}</h6>
+        <form method="post" action="{% url 'shop:submit_rating' product.slug %}">
+            {% csrf_token %}
+            <div class="mb-2">
+                <div class="d-flex gap-1" id="starRating">
+                    {% for i in "12345" %}
+                    <i class="bi bi-star{% if user_rating and forloop.counter <= user_rating.rating %}-fill{% endif %} text-warning"
+                       style="font-size:1.5rem;cursor:pointer;"
+                       data-val="{{ forloop.counter }}"
+                       onclick="setRating({{ forloop.counter }})"></i>
+                    {% endfor %}
+                </div>
+                <input type="hidden" name="rating" id="ratingInput" value="{{ user_rating.rating|default:'0' }}">
+            </div>
+            <div class="mb-2">
+                <textarea name="comment" class="form-control form-control-sm" rows="2" placeholder="نظر شما (اختیاری)...">{{ user_rating.comment|default:"" }}</textarea>
+            </div>
+            <button type="submit" class="btn btn-hf-primary btn-sm">ثبت امتیاز</button>
+        </form>
+    </div>
+    {% else %}
+    <p class="text-muted">برای ثبت نظر <a href="{% url 'accounts:login' %}?next={{ request.path }}">وارد شوید</a>.</p>
+    {% endif %}
+
+    {# لیست نظرات #}
+    {% for review in reviews %}
+    <div class="border-bottom py-3">
+        <div class="d-flex justify-content-between">
+            <div>
+                <strong>{{ review.user.get_full_name|default:"کاربر" }}</strong>
+                <span class="ms-2">
+                    {% for i in "12345" %}
+                    <i class="bi bi-star{% if forloop.counter <= review.rating %}-fill{% endif %} text-warning" style="font-size:0.8rem;"></i>
+                    {% endfor %}
+                </span>
+            </div>
+            <small class="text-muted">{{ review.created_at|jalali }}</small>
+        </div>
+        {% if review.comment %}
+        <p class="mb-0 mt-1 small">{{ review.comment }}</p>
+        {% endif %}
+    </div>
+    {% empty %}
+    <p class="text-muted small">هنوز نظری ثبت نشده. اولین نفر باشید!</p>
+    {% endfor %}
+</div>
+
+{# محصولات مشابه #}
+{% if related %}
+<div class="mt-4">
+    <h5 class="mb-3"><i class="bi bi-grid" style="color:var(--hf-primary);"></i> محصولات مشابه</h5>
+    <div class="row g-3">
+        {% for p in related %}
+        <div class="col-6 col-md-3">
+            <a href="{% url 'shop:product_detail' p.slug %}" class="text-decoration-none">
+                <div class="hf-card h-100">
+                    {% with img=p.primary_image %}
+                    {% if img and img.thumbnail %}
+                    <img src="{{ img.thumbnail.url }}" alt="{{ p.name }}" class="card-img-top" loading="lazy"
+                         style="aspect-ratio:1/1;object-fit:contain;background:#fff;padding:8px;">
+                    {% endif %}
+                    {% endwith %}
+                    <div class="card-body p-2">
+                        <h6 class="card-title" style="font-size:0.8rem;">{{ p.display_title }}</h6>
+                        {% with price=p.get_sell_price_12m %}
+                        {% if price %}<div class="hf-price" style="font-size:0.85rem;">{{ price|price_comma }} <small>تومان</small></div>{% endif %}
+                        {% endwith %}
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function setRating(val) {
+    document.getElementById('ratingInput').value = val;
+    document.querySelectorAll('#starRating i').forEach(function(el, i) {
+        if (i < val) {
+            el.className = 'bi bi-star-fill text-warning';
+        } else {
+            el.className = 'bi bi-star text-muted';
+        }
+        el.style.fontSize = '1.5rem';
+        el.style.cursor = 'pointer';
+    });
+}
+
+// افزودن به سبد خرید
+function addToCart(productId, sizeId, quantity) {
+    fetch('/orders/cart/add/', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `product_id=${productId}&size_id=${sizeId}&quantity=${quantity}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('محصول به سبد خرید اضافه شد!');
+        } else {
+            alert('خطا: ' + (data.message || 'مشکلی پیش آمد'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('خطا در اتصال به سرور');
+    });
+}
+
+// علاقه‌مندی (فاز 18)
+function toggleWishlist(productId) {
+    fetch('/wishlist/toggle/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}'},
+        body: 'product_id=' + productId
+    }).then(r => r.json()).then(data => {
+        if (data.action === 'added') {
+            document.getElementById('wishIcon').className = 'bi bi-heart-fill';
+            document.getElementById('wishText').textContent = 'در علاقه‌مندی';
+            document.getElementById('wishBtn').classList.remove('btn-outline-danger');
+            document.getElementById('wishBtn').classList.add('btn-danger');
+        } else if (data.action === 'removed') {
+            document.getElementById('wishIcon').className = 'bi bi-heart';
+            document.getElementById('wishText').textContent = 'علاقه‌مندی';
+            document.getElementById('wishBtn').classList.remove('btn-danger');
+            document.getElementById('wishBtn').classList.add('btn-outline-danger');
+        } else if (data.action === 'login_required') {
+            alert(data.message);
+        }
+    });
+}
+
+// مقایسه (فاز 18)
+function toggleCompare(productId) {
+    fetch('/wishlist/compare/toggle/', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': '{{ csrf_token }}'},
+        body: 'product_id=' + productId
+    }).then(r => r.json()).then(data => {
+        if (data.action === 'added') {
+            document.getElementById('compareBtn').classList.remove('btn-outline-info');
+            document.getElementById('compareBtn').classList.add('btn-info', 'text-white');
+            document.getElementById('compareText').textContent = 'در مقایسه';
+        } else if (data.action === 'removed') {
+            document.getElementById('compareBtn').classList.remove('btn-info', 'text-white');
+            document.getElementById('compareBtn').classList.add('btn-outline-info');
+            document.getElementById('compareText').textContent = 'مقایسه';
+        } else if (data.action === 'full') {
+            alert(data.message);
+        }
+    });
+}
+
+// بررسی وضعیت اولیه علاقه‌مندی و مقایسه
+document.addEventListener('DOMContentLoaded', function() {
+    // علاقه‌مندی
+    fetch('/wishlist/check/?product_id={{ product.id }}')
+        .then(r => r.json()).then(data => {
+            if (data.in_wishlist) {
+                document.getElementById('wishIcon').className = 'bi bi-heart-fill';
+                document.getElementById('wishText').textContent = 'در علاقه‌مندی';
+                document.getElementById('wishBtn').classList.remove('btn-outline-danger');
+                document.getElementById('wishBtn').classList.add('btn-danger');
+            }
+        });
+    // مقایسه
+    fetch('/wishlist/compare/ids/')
+        .then(r => r.json()).then(data => {
+            if (data.ids && data.ids.indexOf({{ product.id }}) !== -1) {
+                document.getElementById('compareBtn').classList.remove('btn-outline-info');
+                document.getElementById('compareBtn').classList.add('btn-info', 'text-white');
+                document.getElementById('compareText').textContent = 'در مقایسه';
+            }
+        });
+});
+</script>
+{% endblock %}

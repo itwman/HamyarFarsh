@@ -1,0 +1,186 @@
+{% load static %}
+{% load jalali_tags %}
+{% load price_tags %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}داشبورد مدیریت{% endblock %} | همیار فرش</title>
+    
+    {# CSS #}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.rtl.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        {# Sidebar #}
+        <aside class="dashboard-sidebar">
+            <div class="sidebar-header">
+                <h4><i class="bi bi-speedometer2"></i> داشبورد</h4>
+            </div>
+            
+            <nav class="sidebar-nav">
+                <a href="{% url 'dashboard:home' %}" class="nav-item {% if request.resolver_match.url_name == 'home' %}active{% endif %}">
+                    <i class="bi bi-house-door"></i>
+                    <span>خانه</span>
+                </a>
+                
+                <div class="nav-section">فروش و سفارشات</div>
+                <a href="{% url 'dashboard:orders_manage' %}" class="nav-item {% if request.resolver_match.url_name == 'orders_manage' or request.resolver_match.url_name == 'order_detail_admin' %}active{% endif %}">
+                    <i class="bi bi-cart3"></i>
+                    <span>مدیریت سفارشات</span>
+                </a>
+                <a href="{% url 'coupons:coupon_list' %}" class="nav-item {% if 'coupons' in request.path %}active{% endif %}">
+                    <i class="bi bi-ticket-perforated"></i>
+                    <span>کوپن تخفیف</span>
+                </a>
+                <a href="{% url 'notifications:admin_dashboard' %}" class="nav-item {% if 'notifications/admin' in request.path %}active{% endif %}">
+                    <i class="bi bi-bell"></i>
+                    <span>اطلاع‌رسانی</span>
+                </a>
+                <a href="{% url 'newsletter:admin_dashboard' %}" class="nav-item {% if 'newsletter/admin' in request.path %}active{% endif %}">
+                    <i class="bi bi-envelope-paper"></i>
+                    <span>خبرنامه پیامکی</span>
+                </a>
+                <a href="{% url 'live_chat:admin_chat_list' %}" class="nav-item {% if 'chat/admin' in request.path %}active{% endif %}">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>چت آنلاین</span>
+                </a>
+                <a href="{% url 'live_chat:admin_ticket_list' %}" class="nav-item {% if 'chat/admin/tickets' in request.path %}active{% endif %}">
+                    <i class="bi bi-ticket"></i>
+                    <span>تیکت پشتیبانی</span>
+                </a>
+                <a href="{% url 'dashboard:reviews_manage' %}" class="nav-item {% if request.resolver_match.url_name == 'reviews_manage' %}active{% endif %}">
+                    <i class="bi bi-chat-left-text"></i>
+                    <span>مدیریت نظرات</span>
+                </a>
+                <a href="{% url 'dashboard:reports' %}" class="nav-item {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
+                    <i class="bi bi-graph-up"></i>
+                    <span>گزارشات فروش</span>
+                </a>
+                
+                <div class="nav-section">محصولات</div>
+                <a href="{% url 'products:product_list' %}" class="nav-item">
+                    <i class="bi bi-box-seam"></i>
+                    <span>لیست محصولات</span>
+                </a>
+                <a href="{% url 'products:product_add' %}" class="nav-item">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>افزودن محصول</span>
+                </a>
+                <a href="{% url 'catalog:manufacturer_list' %}" class="nav-item">
+                    <i class="bi bi-building"></i>
+                    <span>شرکت‌ها</span>
+                </a>
+                <a href="{% url 'catalog:album_list' %}" class="nav-item">
+                    <i class="bi bi-journal-album"></i>
+                    <span>آلبوم‌ها</span>
+                </a>
+                
+                <div class="nav-section">کاربران</div>
+                <a href="{% url 'dashboard:users_list' %}" class="nav-item {% if request.resolver_match.url_name == 'users_list' %}active{% endif %}">
+                    <i class="bi bi-people"></i>
+                    <span>مدیریت کاربران</span>
+                </a>
+                
+                <div class="nav-section">محتوا (CMS)</div>
+                <a href="{% url 'home_manager:dashboard' %}" class="nav-item {% if 'home-manager' in request.path %}active{% endif %}">
+                    <i class="bi bi-house-gear"></i>
+                    <span>صفحه اصلی</span>
+                </a>
+                <a href="{% url 'pages:page_list' %}" class="nav-item {% if request.resolver_match.app_name == 'pages' %}active{% endif %}">
+                    <i class="bi bi-file-earmark-richtext"></i>
+                    <span>صفحات و مقالات</span>
+                </a>
+                <a href="{% url 'pages:page_create' %}?type=post" class="nav-item">
+                    <i class="bi bi-plus-circle"></i>
+                    <span>ایجاد مقاله</span>
+                </a>
+                <a href="{% url 'pages:category_list' %}" class="nav-item">
+                    <i class="bi bi-tags"></i>
+                    <span>دسته‌بندی مقالات</span>
+                </a>
+                <a href="{% url 'appearance:dashboard' %}" class="nav-item {% if 'appearance' in request.path %}active{% endif %}">
+                    <i class="bi bi-palette2"></i>
+                    <span>ظاهر سایت</span>
+                </a>
+                <a href="{% url 'notifications:admin_dashboard' %}" class="nav-item {% if 'notifications/admin' in request.path %}active{% endif %}">
+                    <i class="bi bi-bell"></i>
+                    <span>اطلاع‌رسانی</span>
+                </a>
+                
+                <div class="nav-section">تنظیمات</div>
+                <a href="{% url 'settings_app:site_settings' %}" class="nav-item">
+                    <i class="bi bi-gear"></i>
+                    <span>تنظیمات سایت</span>
+                </a>
+                <a href="{% url 'dashboard:sms_settings' %}" class="nav-item {% if request.resolver_match.url_name == 'sms_settings' %}active{% endif %}">
+                    <i class="bi bi-chat-dots"></i>
+                    <span>تنظیمات پیامک</span>
+                </a>
+            </nav>
+            
+            <div class="sidebar-footer">
+                <a href="{% url 'home' %}" class="btn btn-outline-light btn-sm w-100 mb-2">
+                    <i class="bi bi-globe"></i> بازگشت به سایت
+                </a>
+                <a href="{% url 'accounts:logout' %}" class="btn btn-danger btn-sm w-100">
+                    <i class="bi bi-box-arrow-right"></i> خروج
+                </a>
+            </div>
+        </aside>
+        
+        {# Main Content #}
+        <main class="dashboard-main">
+            {# Top Bar #}
+            <div class="dashboard-topbar">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">{% block page_title %}داشبورد{% endblock %}</h5>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="text-muted small">
+                            <i class="bi bi-calendar3"></i>
+                            {% jalali_now "%d %B %Y" %}
+                        </span>
+                        <div class="dropdown">
+                            <button class="btn btn-sm btn-outline-secondary dropdown-toggle" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i>
+                                {{ user.get_full_name|default:user.phone }}
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}">پروفایل</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">خروج</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            {# Messages #}
+            {% if messages %}
+            <div class="dashboard-messages">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+            
+            {# Content #}
+            <div class="dashboard-content">
+                {% block content %}{% endblock %}
+            </div>
+        </main>
+    </div>
+    
+    {# JS #}
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/chart.min.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

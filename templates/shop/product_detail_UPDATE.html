@@ -1,0 +1,195 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load price_tags %}
+{% load jalali_tags %}
+
+{% block meta_title %}{{ product.get_effective_seo_title }}{% endblock %}
+{% block meta_description %}{{ product.get_effective_seo_description }}{% endblock %}
+
+{% block og_tags %}
+<meta property="og:type" content="product">
+<meta property="og:title" content="{{ product.get_effective_seo_title }}">
+<meta property="og:description" content="{{ product.get_effective_seo_description }}">
+{% with img=product.primary_image %}
+{% if img and img.featured_image %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ img.featured_image.url }}">
+{% elif img %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ img.original.url }}">
+{% endif %}
+{% endwith %}
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:locale" content="fa_IR">
+{% if sell_price_12m %}
+<meta property="product:price:amount" content="{{ sell_price_12m }}">
+<meta property="product:price:currency" content="IRR">
+{% endif %}
+{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">{{ schema_json|safe }}</script>
+{% endblock %}
+
+{% block canonical %}
+<link rel="canonical" href="{{ request.scheme }}://{{ request.get_host }}/farsh/{{ product.slug }}/">
+{% endblock %}
+
+{% block content %}
+{# Breadcrumb #}
+<nav aria-label="breadcrumb" class="mb-3" itemscope itemtype="https://schema.org/BreadcrumbList">
+    <ol class="breadcrumb small">
+        <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="{% url 'home' %}" itemprop="item"><span itemprop="name">خانه</span></a><meta itemprop="position" content="1">
+        </li>
+        <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="{% url 'shop_catalog' %}" itemprop="item"><span itemprop="name">فرش‌ها</span></a><meta itemprop="position" content="2">
+        </li>
+        {% if product.design_type %}
+        <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+            <a href="{% url 'shop_by_design' product.design_type.slug %}" itemprop="item"><span itemprop="name">{{ product.design_type.name }}</span></a><meta itemprop="position" content="3">
+        </li>
+        {% endif %}
+        <li class="breadcrumb-item active">{{ product.name }}</li>
+    </ol>
+</nav>
+
+{# دکمه سبد خرید شناور در موبایل #}
+<div class="position-fixed bottom-0 end-0 p-3 d-md-none" style="z-index: 1000;">
+    <a href="{% url 'orders:cart_detail' %}" class="btn btn-danger rounded-circle shadow-lg" style="width: 60px; height: 60px;">
+        <i class="bi bi-cart3 fs-4"></i>
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" id="mobile-cart-count">
+            0
+        </span>
+    </a>
+</div>
+
+<div class="row g-4">
+    {# گالری تصاویر #}
+    <div class="col-md-5">
+        <div class="hf-card p-3">
+            {# تصویر اصلی #}
+            <div id="mainImage" class="text-center mb-3" style="min-height:300px;">
+                {% with img=product.primary_image %}
+                {% if img %}
+                <img src="{{ img.original.url }}" alt="{{ img.get_effective_alt }}" class="img-fluid rounded"
+                     style="max-height:450px;object-fit:contain;" id="mainImg">
+                {% else %}
+                <div class="d-flex align-items-center justify-content-center" style="height:300px;background:var(--hf-gray-light);border-radius:8px;">
+                    <i class="bi bi-image text-muted" style="font-size:4rem;"></i>
+                </div>
+                {% endif %}
+                {% endwith %}
+            </div>
+
+            {# تامبنیل‌ها #}
+            {% if images.count > 1 %}
+            <div class="d-flex gap-2 overflow-auto pb-2">
+                {% for img in images %}
+                <img src="{% if img.thumbnail %}{{ img.thumbnail.url }}{% else %}{{ img.original.url }}{% endif %}"
+                     alt="{{ img.get_effective_alt }}" loading="lazy"
+                     class="rounded border {% if img.is_primary %}border-danger border-2{% endif %}"
+                     style="width:60px;height:60px;object-fit:contain;cursor:pointer;flex-shrink:0;"
+                     onclick="document.getElementById('mainImg').src='{{ img.original.url }}'">
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            {# ویدیوها #}
+            {% if videos %}
+            <div class="mt-3">
+                {% for vid in videos %}
+                <video controls class="w-100 rounded" style="max-height:300px;" preload="metadata">
+                    <source src="{{ vid.video_file.url }}">
+                </video>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+
+        {# فرم افزودن سریع به سبد - زیر تصاویر #}
+        <div class="hf-card p-3 mt-3">
+            <h6 class="mb-3"><i class="bi bi-cart-plus"></i> افزودن به سبد خرید</h6>
+            <form method="post" action="{% url 'orders:cart_add' product.id %}" id="quickAddForm">
+                {% csrf_token %}
+                <input type="hidden" name="next" value="{{ request.path }}">
+                
+                <div class="mb-3">
+                    <label class="form-label small">انتخاب سایز:</label>
+                    <select name="size_id" class="form-select" id="quickSizeSelect" required>
+                        <option value="">-- انتخاب کنید --</option>
+                        {% for item in size_prices %}
+                        {% if item.is_available %}
+                        <option value="{{ item.size.id }}" 
+                                data-price="{{ item.price }}"
+                                data-rule="{{ item.order_rule }}">
+                            {{ item.size.name }} - {{ item.price|price_comma }} تومان
+                        </option>
+                        {% endif %}
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label small">تعداد:</label>
+                    <div class="input-group">
+                        <button type="button" class="btn btn-outline-secondary" onclick="changeQty(-1)">
+                            <i class="bi bi-dash"></i>
+                        </button>
+                        <input type="number" name="quantity" id="quickQty" value="1" min="1" 
+                               class="form-control text-center" style="max-width: 80px;">
+                        <button type="button" class="btn btn-outline-secondary" onclick="changeQty(1)">
+                            <i class="bi bi-plus"></i>
+                        </button>
+                    </div>
+                    <small class="text-muted" id="pairWarning" style="display:none;">
+                        ⚠️ این سایز فقط به صورت زوج قابل سفارش است
+                    </small>
+                </div>
+
+                <div class="form-check mb-3" id="pairCheckDiv" style="display:none;">
+                    <input class="form-check-input" type="checkbox" name="is_pair" id="isPairCheck">
+                    <label class="form-check-label small" for="isPairCheck">
+                        سفارش زوجی
+                    </label>
+                </div>
+
+                <button type="submit" class="btn btn-hf-primary w-100">
+                    <i class="bi bi-cart-plus"></i>
+                    افزودن به سبد
+                </button>
+            </form>
+        </div>
+    </div>
+
+    {# اطلاعات محصول #}
+    <div class="col-md-7">
+        <div class="hf-card p-4">
+            {# عنوان + وضعیت #}
+            <div class="d-flex justify-content-between align-items-start mb-3">
+                <div>
+                    <h1 style="font-size:1.5rem;font-weight:700;color:var(--hf-dark);">{{ product.name }}</h1>
+                    <p class="text-muted mb-0">{{ product.manufacturer.name }} - آلبوم {{ product.album.name }}</p>
+                </div>
+                <div class="text-end">
+                    {% with badge=product.status_badge %}
+                    <span class="badge bg-{{ badge.1 }} fs-6 d-block mb-2">{{ badge.0 }}</span>
+                    {% endwith %}
+                    <a href="{% url 'orders:cart_detail' %}" class="btn btn-outline-danger btn-sm">
+                        <i class="bi bi-cart3"></i> سبد خرید
+                        <span class="badge bg-danger" id="cart-count-badge">0</span>
+                    </a>
+                </div>
+            </div>
+
+            {# امتیاز #}
+            <div class="mb-3">
+                {% for i in "12345" %}
+                {% if forloop.counter <= product.avg_rating %}
+                <i class="bi bi-star-fill text-warning"></i>
+                {% else %}
+                <i class="bi bi-star text-muted"></i>
+                {% endif %}
+                {% endfor %}
+                <span class="text-muted small">({{ product.rating_count }} نظر)</span>
+            </div>
+
+            {# باقی تمپلیت مانند قبل... #}

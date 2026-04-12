@@ -1,0 +1,223 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load jalali_tags %}
+{% load price_tags %}
+
+{% block page_title %}جزئیات سفارش #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="mb-3">
+    <a href="{% url 'dashboard:orders_manage' %}" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-right"></i> بازگشت به لیست
+    </a>
+</div>
+
+<div class="row">
+    {# اطلاعات سفارش #}
+    <div class="col-md-8">
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-info-circle"></i> اطلاعات سفارش #{{ order.id }}
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>مشتری:</strong> {{ order.customer.get_full_name }}<br>
+                        <strong>تلفن:</strong> {{ order.customer.phone }}<br>
+                        <strong>تاریخ ثبت:</strong> {{ order.created_at|jalali_datetime }}
+                    </div>
+                    <div class="col-md-6">
+                        <strong>وضعیت فعلی:</strong>
+                        {% if order.status == 'pending' %}
+                        <span class="badge bg-warning">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'confirmed' %}
+                        <span class="badge bg-primary">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'delivered' %}
+                        <span class="badge bg-success">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'cancelled' %}
+                        <span class="badge bg-danger">{{ order.get_status_display }}</span>
+                        {% else %}
+                        <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                        {% endif %}
+                        <br>
+                        <strong>روش پرداخت:</strong> {{ order.get_payment_method_display }}
+                    </div>
+                </div>
+                
+                <hr>
+                
+                <div class="row">
+                    <div class="col-md-6">
+                        <strong>مبلغ کل:</strong> <span class="text-primary fs-5">{{ order.total_amount|format_price }}</span><br>
+                        <strong>پرداخت شده:</strong> <span class="text-success">{{ order.paid_amount|format_price }}</span><br>
+                        <strong>مانده:</strong>
+                        {% with remaining=order.get_remaining_amount %}
+                        {% if remaining > 0 %}
+                        <span class="text-danger fs-5">{{ remaining|format_price }}</span>
+                        {% else %}
+                        <span class="text-success">
+                            <i class="bi bi-check-circle"></i> تسویه شده
+                        </span>
+                        {% endif %}
+                        {% endwith %}
+                    </div>
+                    <div class="col-md-6">
+                        {% if order.shipping_address %}
+                        <strong>آدرس ارسال:</strong><br>
+                        <small>{{ order.shipping_address }}</small>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if order.notes %}
+                <hr>
+                <strong>یادداشت مشتری:</strong><br>
+                <p class="text-muted">{{ order.notes }}</p>
+                {% endif %}
+                
+                {% if order.admin_notes %}
+                <hr>
+                <strong>یادداشت مدیر:</strong><br>
+                <p class="text-info">{{ order.admin_notes }}</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        {# آیتم‌های سفارش #}
+        <div class="card mb-3">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-box-seam"></i> آیتم‌های سفارش
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-sm">
+                        <thead class="table-light">
+                            <tr>
+                                <th>محصول</th>
+                                <th>سایز</th>
+                                <th>تعداد</th>
+                                <th>قیمت واحد</th>
+                                <th>جمع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>{{ item.product.name }}</td>
+                                <td>
+                                    {% if item.is_custom_size %}
+                                    <span class="badge bg-info">سفارشی</span>
+                                    {{ item.custom_length }}×{{ item.custom_width }}
+                                    {% elif item.size %}
+                                    {{ item.size.name }}
+                                    {% else %}
+                                    -
+                                    {% endif %}
+                                </td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.unit_price|format_price }}</td>
+                                <td><strong>{{ item.get_total_price|format_price }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <td colspan="4" class="text-end"><strong>جمع کل:</strong></td>
+                                <td><strong class="text-primary">{{ order.total_amount|format_price }}</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        {# تاریخچه تغییرات #}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="bi bi-clock-history"></i> تاریخچه تغییرات
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if logs %}
+                <div class="timeline">
+                    {% for log in logs %}
+                    <div class="timeline-item mb-3">
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <strong>{{ log.get_new_status_display }}</strong>
+                                <small class="text-muted">(از {{ log.get_old_status_display }})</small>
+                            </div>
+                            <small class="text-muted">{{ log.created_at|jalali_datetime }}</small>
+                        </div>
+                        <div class="text-muted">
+                            توسط: 
+                            {% if log.changed_by %}
+                                {{ log.changed_by.get_full_name|default:log.changed_by.phone }}
+                            {% else %}
+                                سیستم
+                            {% endif %}
+                        </div>
+                        {% if log.notes %}
+                        <div class="text-muted small mt-1">
+                            <i class="bi bi-chat-left-text"></i> {{ log.notes }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted">هنوز هیچ تغییری ثبت نشده است.</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    {# پنل تغییر وضعیت #}
+    <div class="col-md-4">
+        <div class="card sticky-top" style="top: 20px;">
+            <div class="card-header bg-primary text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-gear"></i> تغییر وضعیت
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <div class="mb-3">
+                        <label class="form-label">وضعیت جدید</label>
+                        <select name="status" class="form-select" required>
+                            <option value="">انتخاب کنید...</option>
+                            {% for value, label in status_choices %}
+                            <option value="{{ value }}" {% if order.status == value %}selected{% endif %}>{{ label }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">یادداشت (اختیاری)</label>
+                        <textarea name="notes" class="form-control" rows="3" placeholder="یادداشت خود را وارد کنید..."></textarea>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="bi bi-check-circle"></i> ذخیره تغییرات
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <div class="d-grid gap-2">
+                    <a href="{% url 'orders:order_detail' order.id %}" class="btn btn-outline-secondary btn-sm" target="_blank">
+                        <i class="bi bi-eye"></i> مشاهده نمای مشتری
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

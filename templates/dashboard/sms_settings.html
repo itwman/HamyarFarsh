@@ -1,0 +1,247 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block title %}تنظیمات پیامک{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-sms ms-2"></i>
+                        تنظیمات سرویس پیامک
+                    </h5>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-info">
+                        <i class="fas fa-info-circle ms-2"></i>
+                        این بخش برای پیکربندی اتصال به سرویس sms.ir می‌باشد.
+                        پس از تنظیم، سیستم می‌تواند در مراحل مختلف سفارش به صورت خودکار پیامک ارسال کند.
+                    </div>
+
+                    <form method="post" id="smsForm">
+                        {% csrf_token %}
+                        
+                        <!-- اطلاعات اتصال -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">اطلاعات اتصال به sms.ir</h6>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="sms_api_key" class="form-label">
+                                    <i class="fas fa-key ms-1"></i>
+                                    API Key
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="sms_api_key" 
+                                    name="sms_api_key"
+                                    dir="ltr"
+                                    value="{{ site_settings.sms_api_key }}"
+                                    placeholder="e.g., kqoYG5xxxxxxxxxxxxxxxx"
+                                >
+                                <small class="text-muted">
+                                    API Key را از پنل sms.ir دریافت کنید.
+                                </small>
+                            </div>
+                            
+                            <div class="col-md-6 mb-3">
+                                <label for="sms_sender" class="form-label">
+                                    <i class="fas fa-phone ms-1"></i>
+                                    شماره فرستنده
+                                </label>
+                                <input 
+                                    type="text" 
+                                    class="form-control" 
+                                    id="sms_sender" 
+                                    name="sms_sender"
+                                    dir="ltr"
+                                    value="{{ site_settings.sms_sender }}"
+                                    placeholder="مثال: 10000xxx"
+                                >
+                                <small class="text-muted">
+                                    شماره خط اختصاصی خود را وارد کنید.
+                                </small>
+                            </div>
+
+                            <div class="col-12">
+                                <button type="button" class="btn btn-outline-info btn-sm" id="testConnection">
+                                    <i class="fas fa-plug ms-1"></i>
+                                    تست اتصال و بررسی اعتبار
+                                </button>
+                                <div id="testResult" class="mt-2"></div>
+                            </div>
+                        </div>
+
+                        <!-- فعال‌سازی سرویس -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">تنظیمات عمومی</h6>
+                            </div>
+                            
+                            <div class="col-12 mb-3">
+                                <div class="form-check form-switch">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="sms_enabled" 
+                                        name="sms_enabled"
+                                        {% if site_settings.sms_enabled %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label" for="sms_enabled">
+                                        <strong>فعال‌سازی سرویس ارسال پیامک</strong>
+                                    </label>
+                                </div>
+                                <small class="text-muted d-block mt-1">
+                                    در صورت فعال بودن، سیستم پیامک‌های تنظیم شده را ارسال خواهد کرد.
+                                </small>
+                            </div>
+                        </div>
+
+                        <!-- تنظیمات ارسال خودکار -->
+                        <div class="row mb-4">
+                            <div class="col-12">
+                                <h6 class="border-bottom pb-2 mb-3">ارسال خودکار پیامک</h6>
+                                <p class="text-muted small">
+                                    مشخص کنید در کدام مراحل سفارش، پیامک به مشتری ارسال شود:
+                                </p>
+                            </div>
+                            
+                            <div class="col-md-6 col-lg-3 mb-3">
+                                <div class="form-check">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="sms_on_order" 
+                                        name="sms_on_order"
+                                        {% if site_settings.sms_on_order %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label" for="sms_on_order">
+                                        <i class="fas fa-cart-plus text-success ms-1"></i>
+                                        ثبت سفارش
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 col-lg-3 mb-3">
+                                <div class="form-check">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="sms_on_confirm" 
+                                        name="sms_on_confirm"
+                                        {% if site_settings.sms_on_confirm %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label" for="sms_on_confirm">
+                                        <i class="fas fa-check-circle text-primary ms-1"></i>
+                                        تأیید سفارش
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 col-lg-3 mb-3">
+                                <div class="form-check">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="sms_on_shipped" 
+                                        name="sms_on_shipped"
+                                        {% if site_settings.sms_on_shipped %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label" for="sms_on_shipped">
+                                        <i class="fas fa-shipping-fast text-warning ms-1"></i>
+                                        ارسال سفارش
+                                    </label>
+                                </div>
+                            </div>
+                            
+                            <div class="col-md-6 col-lg-3 mb-3">
+                                <div class="form-check">
+                                    <input 
+                                        class="form-check-input" 
+                                        type="checkbox" 
+                                        id="sms_on_delivered" 
+                                        name="sms_on_delivered"
+                                        {% if site_settings.sms_on_delivered %}checked{% endif %}
+                                    >
+                                    <label class="form-check-label" for="sms_on_delivered">
+                                        <i class="fas fa-box-open text-info ms-1"></i>
+                                        تحویل سفارش
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- دکمه‌های عملیات -->
+                        <div class="row">
+                            <div class="col-12">
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="fas fa-save ms-1"></i>
+                                    ذخیره تنظیمات
+                                </button>
+                                <a href="{% url 'dashboard:home' %}" class="btn btn-secondary">
+                                    <i class="fas fa-times ms-1"></i>
+                                    انصراف
+                                </a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.getElementById('testConnection').addEventListener('click', async function() {
+    const btn = this;
+    const resultDiv = document.getElementById('testResult');
+    
+    // نمایش حالت لودینگ
+    btn.disabled = true;
+    btn.innerHTML = '<i class="fas fa-spinner fa-spin ms-1"></i> در حال اتصال...';
+    resultDiv.innerHTML = '';
+    
+    try {
+        const response = await fetch('{% url "dashboard:sms_test" %}', {
+            method: 'GET',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            resultDiv.innerHTML = `
+                <div class="alert alert-success">
+                    <i class="fas fa-check-circle ms-2"></i>
+                    اتصال موفق! اعتبار باقیمانده: <strong>${data.credit ? data.credit.toLocaleString() : 'نامشخص'}</strong> ریال
+                </div>
+            `;
+        } else {
+            resultDiv.innerHTML = `
+                <div class="alert alert-danger">
+                    <i class="fas fa-exclamation-circle ms-2"></i>
+                    ${data.error || 'خطا در اتصال به سرویس'}
+                </div>
+            `;
+        }
+    } catch (error) {
+        resultDiv.innerHTML = `
+            <div class="alert alert-danger">
+                <i class="fas fa-exclamation-circle ms-2"></i>
+                خطا در ارسال درخواست: ${error.message}
+            </div>
+        `;
+    } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<i class="fas fa-plug ms-1"></i> تست اتصال و بررسی اعتبار';
+    }
+});
+</script>
+{% endblock %}

@@ -1,0 +1,77 @@
+{# تمپلیت دکمه‌های اشتراک‌گذاری - استفاده: {% include 'share_buttons.html' with url=product_url title=product.name %} #}
+{% load static %}
+
+<div class="share-buttons">
+    <div class="d-flex gap-2 flex-wrap">
+        {# تلگرام #}
+        <a href="https://t.me/share/url?url={{ url }}&text={{ title|urlencode }}" 
+           target="_blank" 
+           class="btn btn-sm btn-info"
+           title="اشتراک در تلگرام">
+            <i class="bi bi-telegram"></i> تلگرام
+        </a>
+        
+        {# واتساپ #}
+        <a href="https://wa.me/?text={{ title|urlencode }} {{ url }}" 
+           target="_blank" 
+           class="btn btn-sm btn-success"
+           title="اشتراک در واتساپ">
+            <i class="bi bi-whatsapp"></i> واتساپ
+        </a>
+        
+        {# ایتا #}
+        <a href="https://eitaa.com/share/url?url={{ url }}" 
+           target="_blank" 
+           class="btn btn-sm btn-primary"
+           title="اشتراک در ایتا">
+            <i class="bi bi-share"></i> ایتا
+        </a>
+        
+        {# کپی لینک #}
+        <button onclick="copyShareUrl('{{ url }}')" 
+                class="btn btn-sm btn-secondary"
+                title="کپی لینک">
+            <i class="bi bi-clipboard"></i> کپی لینک
+        </button>
+    </div>
+</div>
+
+<script>
+function copyShareUrl(url) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(() => {
+            alert('لینک کپی شد!');
+        }).catch(err => {
+            console.error('خطا در کپی:', err);
+            fallbackCopy(url);
+        });
+    } else {
+        fallbackCopy(url);
+    }
+}
+
+function fallbackCopy(text) {
+    const textArea = document.createElement('textarea');
+    textArea.value = text;
+    textArea.style.position = 'fixed';
+    textArea.style.left = '-999999px';
+    document.body.appendChild(textArea);
+    textArea.select();
+    try {
+        document.execCommand('copy');
+        alert('لینک کپی شد!');
+    } catch (err) {
+        alert('خطا در کپی لینک');
+    }
+    document.body.removeChild(textArea);
+}
+</script>
+
+<style>
+.share-buttons .btn {
+    min-width: 100px;
+}
+.share-buttons .btn i {
+    margin-left: 5px;
+}
+</style>

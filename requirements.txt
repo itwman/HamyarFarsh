@@ -1,0 +1,11 @@
+Django>=5.1,<5.2
+mysqlclient>=2.2
+Pillow>=10.4
+jdatetime>=5.0
+python-dotenv>=1.0
+arabic-reshaper>=3.0
+python-bidi>=0.6
+requests>=2.31
+python-dateutil>=2.9
+django-solo>=2.3
+django-ckeditor-5>=0.2.15

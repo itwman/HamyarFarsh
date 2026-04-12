@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+
+{% block meta_title %}حذف محصول{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <div class="hf-card p-4">
+                <h3 class="mb-4 text-danger">
+                    <i class="bi bi-exclamation-triangle"></i> حذف محصول
+                </h3>
+
+                <div class="alert alert-danger">
+                    <strong>هشدار!</strong><br>
+                    آیا مطمئن هستید که می‌خواهید این محصول را حذف کنید؟
+                </div>
+
+                <div class="p-3 rounded mb-4" style="background:var(--hf-gray-light);">
+                    <h5>{{ product.name }}</h5>
+                    <p class="mb-0 text-muted">
+                        {{ product.manufacturer.name }} - {{ product.album.name }}<br>
+                        {{ product.comb }} شانه
+                    </p>
+                </div>
+
+                <p class="text-danger small">
+                    <i class="bi bi-info-circle"></i>
+                    با حذف این محصول، تمام تصاویر، نظرات و قوانین مربوط به آن نیز حذف خواهند شد.
+                    این عمل غیرقابل بازگشت است.
+                </p>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i> بله، حذف شود
+                        </button>
+                        <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> انصراف
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,150 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-collection"></i> {{ title }}
+        </h5>
+        <a href="{% url 'catalog:album_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-right"></i> بازگشت
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post" novalidate>
+            {% csrf_token %}
+
+            {# اطلاعات اصلی #}
+            <div class="card mb-4">
+                <div class="card-header fw-bold bg-light">
+                    <i class="bi bi-info-circle"></i> اطلاعات اصلی
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.manufacturer.label }} <span class="text-danger">*</span></label>
+                        {{ form.manufacturer }}
+                        {% if form.manufacturer.errors %}<div class="text-danger small">{{ form.manufacturer.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-6">
+                        <label class="form-label">{{ form.name.label }} <span class="text-danger">*</span></label>
+                        {{ form.name }}
+                        {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.slug.label }}</label>
+                        {{ form.slug }}
+                        <small class="text-muted">خالی = خودکار</small>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.sort_order.label }}</label>
+                        {{ form.sort_order }}
+                    </div>
+                    <div class="col-md-4 d-flex align-items-end pb-2">
+                        <div class="form-check form-switch">
+                            {{ form.is_active }}
+                            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">فعال</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# مشخصات فنی #}
+            <div class="card mb-4">
+                <div class="card-header fw-bold bg-light">
+                    <i class="bi bi-gear"></i> مشخصات فنی
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.comb.label }} <span class="text-danger">*</span></label>
+                        {{ form.comb }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.density.label }}</label>
+                        {{ form.density }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.yarn_type.label }}</label>
+                        {{ form.yarn_type }}
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label">{{ form.weight_class.label }}</label>
+                        {{ form.weight_class }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">{{ form.description.label }}</label>
+                        {{ form.description }}
+                    </div>
+                </div>
+            </div>
+
+            {# قیمت و پرتی #}
+            <div class="card mb-4">
+                <div class="card-header fw-bold bg-light">
+                    <i class="bi bi-currency-exchange"></i> قیمت و پرتی ۹ متری
+                </div>
+                <div class="card-body row g-3">
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.base_price_12m.label }}</label>
+                        <div class="input-group">
+                            {{ form.base_price_12m }}
+                            <span class="input-group-text">تومان</span>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.nine_m_waste_type.label }}</label>
+                        {{ form.nine_m_waste_type }}
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label">{{ form.nine_m_waste_value.label }}</label>
+                        <div class="input-group">
+                            {{ form.nine_m_waste_value }}
+                            <span class="input-group-text" id="waste-unit">تومان</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {# SEO #}
+            <div class="mb-3" style="cursor:pointer;" onclick="document.getElementById('seo-section').classList.toggle('d-none')">
+                <strong class="text-muted"><i class="bi bi-search"></i> تنظیمات SEO (اختیاری) <i class="bi bi-chevron-down"></i></strong>
+            </div>
+            <div id="seo-section" class="d-none row g-3 mb-4">
+                <div class="col-12">
+                    <label class="form-label">{{ form.seo_title.label }}</label>
+                    {{ form.seo_title }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">{{ form.seo_description.label }}</label>
+                    {{ form.seo_description }}
+                </div>
+            </div>
+
+            <div class="mt-3">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i>
+                    {% if is_edit %}بروزرسانی{% else %}ذخیره{% endif %}
+                </button>
+                <a href="{% url 'catalog:album_list' %}" class="btn btn-outline-secondary me-2">انصراف</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // تغییر واحد پرتی بر اساس نوع
+    const wasteType = document.getElementById('id_waste_type') || document.querySelector('[name="nine_m_waste_type"]');
+    const wasteUnit = document.getElementById('waste-unit');
+    if (wasteType && wasteUnit) {
+        function updateUnit() {
+            wasteUnit.textContent = wasteType.value === 'percent' ? '%' : 'تومان';
+        }
+        wasteType.addEventListener('change', updateUnit);
+        updateUnit();
+    }
+</script>
+{% endblock %}

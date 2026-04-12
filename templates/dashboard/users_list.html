@@ -1,0 +1,120 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load jalali_tags %}
+
+{% block page_title %}مدیریت کاربران{% endblock %}
+
+{% block content %}
+{# فیلتر و جستجو #}
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3">
+            <div class="col-md-4">
+                <label class="form-label">جستجو</label>
+                <input type="text" name="search" class="form-control" 
+                       placeholder="نام، نام خانوادگی یا شماره موبایل" 
+                       value="{{ request.GET.search }}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">نقش</label>
+                <select name="role" class="form-select">
+                    <option value="">همه</option>
+                    {% for role_value, role_label in roles %}
+                    <option value="{{ role_value }}" {% if request.GET.role == role_value %}selected{% endif %}>
+                        {{ role_label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label d-block">&nbsp;</label>
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i> جستجو
+                </button>
+            </div>
+            <div class="col-md-3 text-end">
+                <label class="form-label d-block">&nbsp;</label>
+                <a href="{% url 'dashboard:users_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> پاک کردن فیلتر
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# جدول کاربران #}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-people"></i> 
+            لیست کاربران
+            <span class="badge bg-primary">{{ users.count }}</span>
+        </h5>
+    </div>
+    <div class="card-body p-0">
+        {% if users %}
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead class="table-light">
+                    <tr>
+                        <th>شناسه</th>
+                        <th>نام و نام خانوادگی</th>
+                        <th>شماره موبایل</th>
+                        <th>نقش</th>
+                        <th>وضعیت</th>
+                        <th>تاریخ عضویت</th>
+                        <th>عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td><strong>#{{ user.id }}</strong></td>
+                        <td>
+                            {% if user.get_full_name %}
+                                <strong>{{ user.get_full_name }}</strong>
+                            {% else %}
+                                <span class="text-muted">نام ثبت نشده</span>
+                            {% endif %}
+                        </td>
+                        <td dir="ltr" class="text-start">{{ user.phone }}</td>
+                        <td>
+                            <span class="badge 
+                                {% if user.role == 'admin' %}bg-danger
+                                {% elif user.role == 'staff' %}bg-warning
+                                {% else %}bg-info{% endif %}">
+                                {{ user.get_role_display }}
+                            </span>
+                        </td>
+                        <td>
+                            {% if user.is_active %}
+                                <span class="badge bg-success">فعال</span>
+                            {% else %}
+                                <span class="badge bg-secondary">غیرفعال</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.date_joined|date:"Y-m-d" }}</td>
+                        <td>
+                            <div class="btn-group btn-group-sm">
+                                <a href="#" class="btn btn-outline-primary" title="ویرایش">
+                                    <i class="bi bi-pencil"></i>
+                                </a>
+                                <a href="#" class="btn btn-outline-info" title="مشاهده">
+                                    <i class="bi bi-eye"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="text-center py-5">
+            <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
+            <p class="text-muted mt-3">هیچ کاربری یافت نشد</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

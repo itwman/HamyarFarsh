@@ -1,0 +1,1021 @@
+/* ================================================
+   گالری تصاویر و ویدیو - همیار فرش
+   Mobile First Design
+   ================================================ */
+
+/* ========== هدر گالری ========== */
+.gallery-hero {
+    background: linear-gradient(135deg, var(--hf-primary) 0%, var(--hf-primary-dark) 100%);
+    color: #fff;
+    padding: 1.5rem 0;
+    margin-bottom: 1rem;
+}
+.gallery-hero-content h1 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
+.gallery-hero-content p {
+    font-size: 0.85rem;
+    opacity: 0.85;
+    margin: 0;
+}
+@media (min-width: 992px) {
+    .gallery-hero {
+        padding: 2rem 0;
+        margin-bottom: 1.5rem;
+    }
+    .gallery-hero-content h1 {
+        font-size: 1.8rem;
+    }
+    .gallery-hero-content p {
+        font-size: 1rem;
+    }
+}
+
+/* ========== کانتینر ========== */
+.gallery-container {
+    padding-bottom: 3rem;
+}
+
+/* ========== Breadcrumb ========== */
+.gallery-breadcrumb {
+    font-size: 0.8rem;
+    background: transparent;
+    padding: 0;
+}
+.gallery-breadcrumb .breadcrumb-item + .breadcrumb-item::before {
+    content: "\F285";
+    font-family: "bootstrap-icons";
+    font-size: 0.65rem;
+}
+
+/* ========== نوار ابزار ========== */
+.gallery-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.6rem 1rem;
+    background: #fff;
+    border-radius: var(--hf-radius);
+    box-shadow: var(--hf-shadow);
+}
+.gallery-count {
+    font-size: 0.85rem;
+    color: var(--hf-gray);
+}
+.gallery-sort {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.gallery-sort label {
+    font-size: 0.8rem;
+    color: var(--hf-gray);
+    white-space: nowrap;
+    margin: 0;
+}
+.gallery-sort .form-select {
+    width: auto;
+    min-width: 130px;
+}
+
+/* ========== فیلترهای فعال ========== */
+.gallery-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    align-items: center;
+    margin-bottom: 1rem;
+    padding: 0.5rem 0;
+}
+.active-filter-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.7rem;
+    background: var(--hf-primary-bg);
+    color: var(--hf-primary);
+    border-radius: 20px;
+    font-size: 0.8rem;
+}
+.remove-filter {
+    color: var(--hf-primary);
+    font-weight: 700;
+    text-decoration: none;
+    margin-right: 0.2rem;
+}
+.clear-all-filters {
+    font-size: 0.8rem;
+    color: var(--hf-gray);
+}
+
+/* ========== سایدبار فیلتر (دسکتاپ) ========== */
+.gallery-filter-sidebar {
+    background: #fff;
+    border-radius: var(--hf-radius);
+    box-shadow: var(--hf-shadow);
+    padding: 1rem;
+    position: sticky;
+    top: 80px;
+}
+.filter-group {
+    margin-bottom: 1rem;
+}
+.filter-label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: var(--hf-dark);
+    margin-bottom: 0.3rem;
+}
+.filter-label i {
+    color: var(--hf-primary);
+    margin-left: 0.2rem;
+}
+.filter-actions {
+    margin-top: 1.2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--hf-border);
+}
+
+/* ========== دکمه فیلتر موبایل ========== */
+.gallery-mobile-filter-btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    margin-bottom: 0.75rem;
+    background: #fff;
+    border-radius: var(--hf-radius);
+    box-shadow: var(--hf-shadow);
+}
+.gallery-mobile-filter-btn .btn {
+    flex-shrink: 0;
+}
+.filter-badge {
+    display: inline-block;
+    width: 16px;
+    height: 16px;
+    line-height: 16px;
+    text-align: center;
+    background: #fff;
+    color: var(--hf-primary);
+    border-radius: 50%;
+    font-size: 0.65rem;
+    font-weight: 700;
+    margin-right: 0.3rem;
+}
+.gallery-sort-mobile {
+    flex: 1;
+}
+.gallery-sort-mobile .form-select {
+    font-size: 0.8rem;
+}
+
+/* ========== Drawer فیلتر موبایل ========== */
+.gallery-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1040;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+}
+.gallery-drawer-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+.gallery-drawer {
+    position: fixed;
+    top: 0;
+    right: -320px;
+    width: 300px;
+    max-width: 85vw;
+    height: 100vh;
+    background: #fff;
+    z-index: 1050;
+    transition: right 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    box-shadow: -4px 0 16px rgba(0,0,0,0.15);
+}
+.gallery-drawer.active {
+    right: 0;
+}
+.gallery-drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--hf-border);
+    background: var(--hf-primary-bg);
+}
+.gallery-drawer-header h5 {
+    margin: 0;
+    font-size: 1rem;
+    color: var(--hf-primary);
+}
+.gallery-drawer-body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* ================================================
+   گرید ویدیو
+   ================================================ */
+.video-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+@media (min-width: 576px) {
+    .video-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (min-width: 992px) {
+    .video-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+@media (min-width: 1200px) {
+    .video-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+/* ========== کارت ویدیو ========== */
+.video-card {
+    background: #fff;
+    border-radius: var(--hf-radius);
+    overflow: hidden;
+    box-shadow: var(--hf-shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.video-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--hf-shadow-lg);
+}
+.video-card-link {
+    display: block;
+    text-decoration: none;
+}
+.video-card-thumb {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    background: #1a1a1a;
+    overflow: hidden;
+}
+.video-card-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s;
+}
+.video-card:hover .video-card-thumb img {
+    transform: scale(1.05);
+}
+.video-card-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-size: 2.5rem;
+    background: #222;
+}
+.video-card-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.2);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.video-card:hover .video-card-overlay {
+    opacity: 1;
+}
+.video-card-overlay i {
+    font-size: 3rem;
+    color: #fff;
+    filter: drop-shadow(0 2px 4px rgba(0,0,0,0.4));
+}
+.video-duration {
+    position: absolute;
+    bottom: 6px;
+    left: 6px;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    font-size: 0.7rem;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-weight: 500;
+    direction: ltr;
+}
+.video-featured-badge {
+    position: absolute;
+    top: 6px;
+    right: 6px;
+    background: var(--hf-accent);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+.video-card-body {
+    padding: 0.75rem;
+}
+.video-card-title {
+    display: block;
+    font-size: 0.88rem;
+    font-weight: 600;
+    color: var(--hf-dark);
+    text-decoration: none;
+    line-height: 1.5;
+    margin-bottom: 0.4rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.video-card-title:hover {
+    color: var(--hf-primary);
+}
+.video-card-meta {
+    display: flex;
+    gap: 0.8rem;
+    font-size: 0.75rem;
+    color: var(--hf-gray);
+    margin-bottom: 0.5rem;
+}
+.meta-item i {
+    margin-left: 0.15rem;
+}
+.video-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.video-views {
+    font-size: 0.75rem;
+    color: var(--hf-gray);
+}
+.btn-outline-hf {
+    border: 1px solid var(--hf-primary);
+    color: var(--hf-primary);
+    font-size: 0.75rem;
+    padding: 0.15rem 0.6rem;
+    border-radius: 4px;
+}
+.btn-outline-hf:hover {
+    background: var(--hf-primary);
+    color: #fff;
+}
+
+/* ================================================
+   صفحه تک ویدیو
+   ================================================ */
+.video-detail-container {
+    padding-top: 1rem;
+    padding-bottom: 3rem;
+}
+
+/* پلیر */
+.video-player-wrap {
+    position: relative;
+    background: #000;
+    border-radius: var(--hf-radius);
+    overflow: hidden;
+    margin-bottom: 1rem;
+}
+.video-player {
+    width: 100%;
+    display: block;
+    max-height: 70vh;
+}
+
+/* انتخاب کیفیت */
+.video-quality-selector {
+    position: absolute;
+    top: 8px;
+    left: 8px;
+    z-index: 10;
+}
+.quality-btn {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.6rem;
+    opacity: 0.8;
+}
+.quality-btn:hover {
+    opacity: 1;
+}
+.quality-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: rgba(0,0,0,0.9);
+    border-radius: 6px;
+    min-width: 160px;
+    overflow: hidden;
+    margin-top: 4px;
+}
+.quality-menu.show {
+    display: block;
+}
+.quality-option {
+    display: block;
+    width: 100%;
+    border: none;
+    background: transparent;
+    color: #ddd;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.8rem;
+    text-align: right;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.quality-option:hover {
+    background: rgba(255,255,255,0.1);
+}
+.quality-option.active {
+    color: var(--hf-primary-light);
+    font-weight: 600;
+}
+.quality-option small {
+    color: #999;
+    margin-right: 0.3rem;
+}
+
+/* اطلاعات ویدیو */
+.video-info-section {
+    background: #fff;
+    border-radius: var(--hf-radius);
+    padding: 1rem;
+    box-shadow: var(--hf-shadow);
+    margin-bottom: 1rem;
+}
+.video-detail-title {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+}
+.video-detail-stats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: var(--hf-gray);
+    margin-bottom: 0.75rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--hf-border);
+}
+.video-detail-stats i {
+    margin-left: 0.15rem;
+}
+.video-description {
+    font-size: 0.88rem;
+    line-height: 1.8;
+    color: var(--hf-secondary);
+    margin-bottom: 1rem;
+}
+
+/* اطلاعات فنی */
+.video-tech-info {
+    border-top: 1px solid var(--hf-border);
+    padding-top: 0.75rem;
+}
+.video-tech-info h6 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: var(--hf-primary);
+    margin-bottom: 0.5rem;
+}
+.tech-info-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+}
+@media (min-width: 576px) {
+    .tech-info-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+.tech-item {
+    display: flex;
+    flex-direction: column;
+    padding: 0.4rem 0.6rem;
+    background: var(--hf-gray-light);
+    border-radius: 6px;
+}
+.tech-label {
+    font-size: 0.7rem;
+    color: var(--hf-gray);
+}
+.tech-value {
+    font-size: 0.82rem;
+    font-weight: 600;
+    direction: ltr;
+    text-align: right;
+}
+
+/* ========== کارت محصول (ستون کناری) ========== */
+.video-product-card {
+    background: #fff;
+    border-radius: var(--hf-radius);
+    padding: 1rem;
+    box-shadow: var(--hf-shadow);
+    margin-bottom: 1rem;
+}
+.video-product-card h5 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--hf-primary);
+}
+.product-card-img {
+    width: 100%;
+    border-radius: 6px;
+    margin-bottom: 0.75rem;
+}
+.product-spec-table {
+    font-size: 0.8rem;
+    margin-bottom: 0.75rem;
+}
+.product-spec-table td:first-child {
+    color: var(--hf-gray);
+    width: 90px;
+}
+.product-price-box {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.6rem 0.75rem;
+    background: var(--hf-primary-bg);
+    border-radius: 6px;
+    border: 1px solid var(--hf-primary);
+}
+.price-label {
+    font-size: 0.8rem;
+    color: var(--hf-gray);
+}
+.price-value {
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--hf-primary);
+}
+
+/* ========== اشتراک‌گذاری ========== */
+.video-share-card {
+    background: #fff;
+    border-radius: var(--hf-radius);
+    padding: 1rem;
+    box-shadow: var(--hf-shadow);
+    margin-bottom: 1rem;
+}
+.video-share-card h6 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+.share-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+.share-btn {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: none;
+    color: #fff;
+    font-size: 1.1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: transform 0.2s;
+}
+.share-btn:hover {
+    transform: scale(1.1);
+    color: #fff;
+}
+.share-btn.telegram {
+    background: #0088cc;
+}
+.share-btn.whatsapp {
+    background: #25d366;
+}
+.share-btn.copy-link {
+    background: var(--hf-secondary);
+}
+
+/* ========== ویدیوهای مشابه ========== */
+.similar-videos-section {
+    background: #fff;
+    border-radius: var(--hf-radius);
+    padding: 1rem;
+    box-shadow: var(--hf-shadow);
+}
+.similar-videos-section h5 {
+    font-size: 0.95rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: var(--hf-primary);
+}
+.similar-videos-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+.similar-video-item {
+    display: flex;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: inherit;
+    border-radius: 6px;
+    padding: 0.3rem;
+    transition: background 0.2s;
+}
+.similar-video-item:hover {
+    background: var(--hf-gray-light);
+    color: inherit;
+}
+.similar-thumb {
+    position: relative;
+    width: 140px;
+    min-width: 140px;
+    aspect-ratio: 16 / 9;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #1a1a1a;
+}
+.similar-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.similar-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #555;
+    font-size: 1.2rem;
+}
+.similar-duration {
+    position: absolute;
+    bottom: 3px;
+    left: 3px;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    font-size: 0.65rem;
+    padding: 0 4px;
+    border-radius: 2px;
+    direction: ltr;
+}
+.similar-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-width: 0;
+}
+.similar-title {
+    font-size: 0.78rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--hf-dark);
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.similar-meta {
+    font-size: 0.7rem;
+    color: var(--hf-gray);
+    margin-top: 0.2rem;
+}
+
+/* ================================================
+   گالری تصاویر - Masonry Grid
+   ================================================ */
+.image-masonry-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.6rem;
+}
+@media (min-width: 576px) {
+    .image-masonry-grid {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
+    }
+}
+@media (min-width: 768px) {
+    .image-masonry-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+@media (min-width: 1200px) {
+    .image-masonry-grid {
+        grid-template-columns: repeat(4, 1fr);
+        gap: 1rem;
+    }
+}
+
+/* ========== کارت تصویر ========== */
+.image-card {
+    background: #fff;
+    border-radius: var(--hf-radius);
+    overflow: hidden;
+    box-shadow: var(--hf-shadow);
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+.image-card:hover {
+    transform: translateY(-3px);
+    box-shadow: var(--hf-shadow-lg);
+}
+.image-card-inner {
+    position: relative;
+    cursor: pointer;
+    overflow: hidden;
+}
+.image-card-img {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s;
+}
+.image-card:hover .image-card-img {
+    transform: scale(1.05);
+}
+.image-card-hover {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.3);
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+.image-card:hover .image-card-hover {
+    opacity: 1;
+}
+.image-card-hover i {
+    font-size: 2rem;
+    color: #fff;
+}
+.image-card-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    padding: 0.4rem 0.5rem;
+    background: linear-gradient(transparent, rgba(0,0,0,0.7));
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+.image-card-name {
+    color: #fff;
+    font-size: 0.72rem;
+    font-weight: 600;
+    text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+}
+.image-card-comb {
+    color: #eee;
+    font-size: 0.65rem;
+}
+.image-card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.4rem 0.5rem;
+}
+.image-card-color {
+    font-size: 0.72rem;
+    color: var(--hf-gray);
+}
+.image-card-color i {
+    font-size: 0.65rem;
+    margin-left: 0.1rem;
+}
+.image-card-buy {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hf-primary);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 0.8rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+}
+.image-card-buy:hover {
+    background: var(--hf-primary-dark);
+    color: #fff;
+    transform: scale(1.1);
+}
+
+/* ================================================
+   Lightbox
+   ================================================ */
+.lightbox-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.92);
+    z-index: 2000;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.lightbox-overlay.active {
+    opacity: 1;
+    pointer-events: all;
+}
+.lightbox-container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+.lightbox-close {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    font-size: 1.3rem;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s;
+}
+.lightbox-close:hover {
+    background: rgba(255,255,255,0.3);
+}
+.lightbox-nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: #fff;
+    font-size: 1.5rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10;
+    transition: background 0.2s;
+}
+.lightbox-nav:hover {
+    background: rgba(255,255,255,0.3);
+}
+.lightbox-prev {
+    right: 12px;
+}
+.lightbox-next {
+    left: 12px;
+}
+.lightbox-image-wrap {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    max-height: calc(100vh - 100px);
+    padding: 3rem 4rem;
+}
+.lightbox-image {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    border-radius: 4px;
+}
+.lightbox-info {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1.5rem;
+    background: rgba(0,0,0,0.6);
+}
+.lightbox-product-info h4 {
+    color: #fff;
+    font-size: 1rem;
+    font-weight: 600;
+    margin: 0 0 0.2rem;
+}
+.lightbox-specs {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.8rem;
+    color: #bbb;
+}
+
+/* موبایل Lightbox */
+@media (max-width: 767px) {
+    .lightbox-nav {
+        width: 38px;
+        height: 38px;
+        font-size: 1.2rem;
+    }
+    .lightbox-prev {
+        right: 6px;
+    }
+    .lightbox-next {
+        left: 6px;
+    }
+    .lightbox-image-wrap {
+        padding: 2.5rem 1rem;
+    }
+    .lightbox-info {
+        flex-direction: column;
+        gap: 0.5rem;
+        text-align: center;
+        padding: 0.5rem;
+    }
+    .lightbox-specs {
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+}
+
+/* ================================================
+   حالت خالی
+   ================================================ */
+.gallery-empty {
+    text-align: center;
+    padding: 4rem 1rem;
+    color: var(--hf-gray);
+}
+.gallery-empty i {
+    font-size: 4rem;
+    display: block;
+    margin-bottom: 1rem;
+    opacity: 0.3;
+}
+.gallery-empty h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: var(--hf-secondary);
+}
+.gallery-empty p {
+    font-size: 0.88rem;
+    margin-bottom: 1.5rem;
+}
+
+/* ================================================
+   صفحه‌بندی
+   ================================================ */
+.gallery-pagination {
+    margin-top: 2rem;
+}
+.gallery-pagination .page-link {
+    color: var(--hf-primary);
+    border-color: var(--hf-border);
+    font-size: 0.85rem;
+    padding: 0.35rem 0.7rem;
+}
+.gallery-pagination .page-item.active .page-link {
+    background: var(--hf-primary);
+    border-color: var(--hf-primary);
+    color: #fff;
+}
+
+/* ================================================
+   دکمه‌های عمومی
+   ================================================ */
+.btn-hf-primary {
+    background: var(--hf-primary);
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    font-weight: 600;
+    transition: background 0.2s;
+}
+.btn-hf-primary:hover {
+    background: var(--hf-primary-dark);
+    color: #fff;
+}

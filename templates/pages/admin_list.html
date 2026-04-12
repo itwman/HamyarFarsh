@@ -1,0 +1,161 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+
+{% block page_title %}مدیریت محتوا{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-file-earmark-richtext"></i> مدیریت محتوا (CMS)</h5>
+    <div class="d-flex gap-2">
+        <a href="{% url 'pages:page_create' %}?type=page" class="btn btn-primary btn-sm">
+            <i class="bi bi-plus-circle"></i> صفحه جدید
+        </a>
+        <a href="{% url 'pages:page_create' %}?type=post" class="btn btn-success btn-sm">
+            <i class="bi bi-plus-circle"></i> مقاله جدید
+        </a>
+        <a href="{% url 'pages:category_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-tags"></i> دسته‌بندی‌ها
+        </a>
+    </div>
+</div>
+
+<!-- آمار -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <div class="fw-bold fs-4">{{ total }}</div>
+            <small class="text-muted">کل محتوا</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <div class="fw-bold fs-4 text-success">{{ published }}</div>
+            <small class="text-muted">منتشرشده</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <div class="fw-bold fs-4 text-warning">{{ draft }}</div>
+            <small class="text-muted">پیش‌نویس</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <div class="fw-bold fs-4 text-info">{{ posts_count }}</div>
+            <small class="text-muted">مقاله</small>
+        </div>
+    </div>
+</div>
+
+<!-- فیلتر -->
+<div class="card mb-4">
+    <div class="card-body py-2">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-3">
+                <input type="text" name="q" class="form-control form-control-sm" placeholder="جستجو..." value="{{ query }}">
+            </div>
+            <div class="col-md-2">
+                <select name="type" class="form-select form-select-sm">
+                    <option value="">همه انواع</option>
+                    <option value="page" {% if current_type == 'page' %}selected{% endif %}>صفحه ایستا</option>
+                    <option value="post" {% if current_type == 'post' %}selected{% endif %}>مقاله</option>
+                    <option value="guide" {% if current_type == 'guide' %}selected{% endif %}>راهنما</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select form-select-sm">
+                    <option value="">همه وضعیت‌ها</option>
+                    <option value="published" {% if current_status == 'published' %}selected{% endif %}>منتشرشده</option>
+                    <option value="draft" {% if current_status == 'draft' %}selected{% endif %}>پیش‌نویس</option>
+                    <option value="archived" {% if current_status == 'archived' %}selected{% endif %}>آرشیو</option>
+                </select>
+            </div>
+            <div class="col-md-2 d-flex gap-1">
+                <button type="submit" class="btn btn-sm btn-primary flex-fill"><i class="bi bi-filter"></i> فیلتر</button>
+                <a href="{% url 'pages:page_list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-x"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- جدول -->
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>عنوان</th>
+                    <th>نوع</th>
+                    <th>وضعیت</th>
+                    <th>دسته‌بندی</th>
+                    <th class="text-center">بازدید</th>
+                    <th>تاریخ</th>
+                    <th class="text-center">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pages %}
+                <tr>
+                    <td>
+                        <a href="{% url 'pages:page_edit' p.pk %}" class="text-decoration-none">
+                            <strong>{{ p.title }}</strong>
+                        </a>
+                        {% if p.featured_image %}
+                        <i class="bi bi-image text-success" title="دارای تصویر شاخص"></i>
+                        {% endif %}
+                        <br>
+                        <small class="text-muted" dir="ltr">/{% if p.page_type == 'page' %}page{% else %}blog{% endif %}/{{ p.slug }}/</small>
+                    </td>
+                    <td>
+                        {% if p.page_type == 'page' %}
+                        <span class="badge bg-primary">صفحه</span>
+                        {% elif p.page_type == 'post' %}
+                        <span class="badge bg-success">مقاله</span>
+                        {% else %}
+                        <span class="badge bg-info">راهنما</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if p.status == 'published' %}
+                        <span class="badge bg-success">منتشرشده</span>
+                        {% elif p.status == 'draft' %}
+                        <span class="badge bg-warning text-dark">پیش‌نویس</span>
+                        {% else %}
+                        <span class="badge bg-secondary">آرشیو</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ p.category.name|default:"-" }}</td>
+                    <td class="text-center">{{ p.view_count|intcomma }}</td>
+                    <td><small>{{ p.jalali_created }}</small></td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'pages:page_edit' p.pk %}" class="btn btn-outline-primary" title="ویرایش">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'pages:page_toggle_status' p.pk %}" class="btn btn-outline-warning" title="تغییر وضعیت">
+                                {% if p.status == 'published' %}<i class="bi bi-eye-slash"></i>{% else %}<i class="bi bi-eye"></i>{% endif %}
+                            </a>
+                            <a href="{{ p.get_absolute_url }}" class="btn btn-outline-success" target="_blank" title="مشاهده">
+                                <i class="bi bi-box-arrow-up-right"></i>
+                            </a>
+                            <form method="post" action="{% url 'pages:page_delete' p.pk %}" style="display:inline;" onsubmit="return confirm('حذف «{{ p.title }}»؟')">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-outline-danger" title="حذف"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <i class="bi bi-file-earmark-x" style="font-size:3rem;"></i>
+                        <p class="mt-2">هیچ محتوایی یافت نشد.</p>
+                        <a href="{% url 'pages:page_create' %}" class="btn btn-primary btn-sm">ایجاد اولین محتوا</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+{% load static %}
+{% load gallery_tags %}
+
+{% block meta_title %}{{ video.get_effective_seo_title }}{% endblock %}
+{% block meta_description %}{{ video.get_effective_seo_description }}{% endblock %}
+
+{% block canonical %}<link rel="canonical" href="{{ request.build_absolute_uri }}">{% endblock %}
+
+{% block og_tags %}
+<meta property="og:type" content="video.other">
+<meta property="og:title" content="{{ video.get_effective_seo_title }}">
+<meta property="og:description" content="{{ video.get_effective_seo_description }}">
+{% if video.thumbnail %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ video.thumbnail.url }}">
+{% endif %}
+<meta property="og:locale" content="fa_IR">
+{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">{{ schema_json }}</script>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/gallery.css' %}">
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<!-- Breadcrumb -->
+<div class="container mt-3">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb gallery-breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="{% url 'home' %}" itemprop="item"><span itemprop="name">خانه</span></a>
+                <meta itemprop="position" content="1">
+            </li>
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="{% url 'gallery:video_gallery' %}" itemprop="item"><span itemprop="name">گالری ویدیو</span></a>
+                <meta itemprop="position" content="2">
+            </li>
+            <li class="breadcrumb-item active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name">{{ video.get_effective_title }}</span>
+                <meta itemprop="position" content="3">
+            </li>
+        </ol>
+    </nav>
+</div>
+
+<div class="container video-detail-container">
+    <div class="row">
+
+        <!-- ========== ستون ویدیو ========== -->
+        <div class="col-lg-8">
+            <!-- پلیر ویدیو -->
+            <div class="video-player-wrap">
+                <video id="mainVideoPlayer"
+                       class="video-player"
+                       controls
+                       playsinline
+                       preload="metadata"
+                       {% if video.thumbnail %}poster="{{ video.thumbnail.url }}"{% endif %}>
+                    {% if video.video_720p %}
+                    <source src="{{ video.video_720p.url }}" type="video/mp4" data-quality="720p">
+                    {% endif %}
+                    {% if video.video_480p %}
+                    <source src="{{ video.video_480p.url }}" type="video/mp4" data-quality="480p">
+                    {% endif %}
+                    {% if video.original_file %}
+                    <source src="{{ video.original_file.url }}" type="video/mp4" data-quality="original">
+                    {% endif %}
+                    مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند.
+                </video>
+
+                <!-- انتخاب کیفیت -->
+                <div class="video-quality-selector">
+                    <button class="btn btn-sm btn-dark quality-btn" id="qualityToggle">
+                        <i class="bi bi-gear"></i> کیفیت
+                    </button>
+                    <div class="quality-menu" id="qualityMenu">
+                        {% if video.video_480p %}
+                        <button class="quality-option" data-src="{{ video.video_480p.url }}" data-label="480p">
+                            <i class="bi bi-phone"></i> 480p <small>(موبایل)</small>
+                        </button>
+                        {% endif %}
+                        {% if video.video_720p %}
+                        <button class="quality-option active" data-src="{{ video.video_720p.url }}" data-label="720p">
+                            <i class="bi bi-display"></i> 720p <small>(HD)</small>
+                        </button>
+                        {% endif %}
+                        {% if video.original_file %}
+                        <button class="quality-option" data-src="{{ video.original_file.url }}" data-label="اصلی">
+                            <i class="bi bi-stars"></i> اصلی <small>(بالاترین)</small>
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- اطلاعات ویدیو -->
+            <div class="video-info-section">
+                <h1 class="video-detail-title">{{ video.get_effective_title }}</h1>
+
+                <div class="video-detail-stats">
+                    <span><i class="bi bi-eye"></i> {{ video.view_count|format_views }} بازدید</span>
+                    <span><i class="bi bi-clock"></i> {{ video.duration|format_duration }}</span>
+                    <span><i class="bi bi-calendar3"></i> {{ video.jalali_uploaded }}</span>
+                </div>
+
+                {% if video.description %}
+                <div class="video-description">
+                    <p>{{ video.description }}</p>
+                </div>
+                {% endif %}
+
+                <!-- اطلاعات فنی -->
+                <div class="video-tech-info">
+                    <h6><i class="bi bi-info-circle"></i> اطلاعات فنی ویدیو</h6>
+                    <div class="tech-info-grid">
+                        {% if video.original_width and video.original_height %}
+                        <div class="tech-item">
+                            <span class="tech-label">ابعاد اصلی</span>
+                            <span class="tech-value">{{ video.original_width }}×{{ video.original_height }}</span>
+                        </div>
+                        {% endif %}
+                        {% if video.original_size %}
+                        <div class="tech-item">
+                            <span class="tech-label">حجم اصلی</span>
+                            <span class="tech-value">{{ video.original_size|format_size }}</span>
+                        </div>
+                        {% endif %}
+                        {% if video.size_720p %}
+                        <div class="tech-item">
+                            <span class="tech-label">حجم 720p</span>
+                            <span class="tech-value">{{ video.size_720p|format_size }}</span>
+                        </div>
+                        {% endif %}
+                        {% if video.size_480p %}
+                        <div class="tech-item">
+                            <span class="tech-label">حجم 480p</span>
+                            <span class="tech-value">{{ video.size_480p|format_size }}</span>
+                        </div>
+                        {% endif %}
+                        {% if video.get_size_reduction_percent %}
+                        <div class="tech-item">
+                            <span class="tech-label">کاهش حجم</span>
+                            <span class="tech-value text-success">{{ video.get_size_reduction_percent }}%</span>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========== ستون کناری ========== -->
+        <div class="col-lg-4">
+            <!-- کارت محصول -->
+            <div class="video-product-card">
+                <h5><i class="bi bi-box-seam"></i> مشخصات محصول</h5>
+
+                {% with product as p %}
+                {% if p.primary_image %}
+                <a href="/farsh/{{ p.slug }}/">
+                    <img src="{% if p.primary_image.thumbnail %}{{ p.primary_image.thumbnail.url }}{% else %}{{ p.primary_image.original.url }}{% endif %}"
+                         alt="{{ p.primary_image.get_effective_alt }}"
+                         class="product-card-img"
+                         loading="lazy">
+                </a>
+                {% endif %}
+
+                <table class="table table-sm product-spec-table">
+                    <tr>
+                        <td>نام نقشه</td>
+                        <td><strong>{{ p.name }}</strong></td>
+                    </tr>
+                    <tr>
+                        <td>شرکت</td>
+                        <td>{{ p.manufacturer.name }}</td>
+                    </tr>
+                    <tr>
+                        <td>شانه</td>
+                        <td>{{ p.album.comb }}</td>
+                    </tr>
+                    {% if p.background_color %}
+                    <tr>
+                        <td>رنگ زمینه</td>
+                        <td>{{ p.background_color.name }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if p.design_type %}
+                    <tr>
+                        <td>نوع طرح</td>
+                        <td>{{ p.design_type.name }}</td>
+                    </tr>
+                    {% endif %}
+                    {% if p.density %}
+                    <tr>
+                        <td>تراکم</td>
+                        <td>{{ p.density }}</td>
+                    </tr>
+                    {% endif %}
+                </table>
+
+                {% if sell_12 %}
+                <div class="product-price-box">
+                    <span class="price-label">قیمت ۱۲ متری:</span>
+                    <span class="price-value">{{ sell_12|intcomma_fa }} تومان</span>
+                </div>
+                {% endif %}
+
+                <a href="/farsh/{{ p.slug }}/" class="btn btn-hf-primary w-100 mt-2">
+                    <i class="bi bi-cart-plus"></i> مشاهده و خرید محصول
+                </a>
+                {% endwith %}
+            </div>
+
+            <!-- اشتراک‌گذاری -->
+            <div class="video-share-card">
+                <h6><i class="bi bi-share"></i> اشتراک‌گذاری</h6>
+                <div class="share-buttons">
+                    <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}&text={{ video.get_effective_title|urlencode }}"
+                       target="_blank" class="share-btn telegram" title="تلگرام">
+                        <i class="bi bi-telegram"></i>
+                    </a>
+                    <a href="https://wa.me/?text={{ video.get_effective_title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}"
+                       target="_blank" class="share-btn whatsapp" title="واتساپ">
+                        <i class="bi bi-whatsapp"></i>
+                    </a>
+                    <button class="share-btn copy-link" title="کپی لینک" onclick="copyVideoLink()">
+                        <i class="bi bi-link-45deg"></i>
+                    </button>
+                </div>
+            </div>
+
+            <!-- ویدیوهای مشابه -->
+            {% if similar_videos %}
+            <div class="similar-videos-section">
+                <h5><i class="bi bi-collection-play"></i> ویدیوهای مشابه</h5>
+                <div class="similar-videos-list">
+                    {% for sv in similar_videos %}
+                    <a href="{% url 'gallery:video_detail' sv.pk %}" class="similar-video-item">
+                        <div class="similar-thumb">
+                            {% if sv.thumbnail %}
+                            <img src="{{ sv.thumbnail.url }}"
+                                 alt="{{ sv.get_effective_alt }}"
+                                 loading="lazy"
+                                 width="168" height="94">
+                            {% else %}
+                            <div class="similar-placeholder"><i class="bi bi-film"></i></div>
+                            {% endif %}
+                            {% if sv.duration %}
+                            <span class="similar-duration">{{ sv.duration|format_duration }}</span>
+                            {% endif %}
+                        </div>
+                        <div class="similar-info">
+                            <span class="similar-title">{{ sv.get_effective_title|truncatechars:40 }}</span>
+                            <span class="similar-meta">
+                                <i class="bi bi-eye"></i> {{ sv.view_count|format_views }}
+                            </span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/gallery.js' %}"></script>
+<script>
+// تغییر کیفیت ویدیو
+document.addEventListener('DOMContentLoaded', function() {
+    const player = document.getElementById('mainVideoPlayer');
+    const qualityToggle = document.getElementById('qualityToggle');
+    const qualityMenu = document.getElementById('qualityMenu');
+
+    if (qualityToggle && qualityMenu) {
+        qualityToggle.addEventListener('click', function(e) {
+            e.stopPropagation();
+            qualityMenu.classList.toggle('show');
+        });
+
+        document.querySelectorAll('.quality-option').forEach(function(btn) {
+            btn.addEventListener('click', function() {
+                var src = this.dataset.src;
+                var currentTime = player.currentTime;
+                var wasPlaying = !player.paused;
+
+                player.src = src;
+                player.currentTime = currentTime;
+                if (wasPlaying) player.play();
+
+                // فعال کردن دکمه
+                document.querySelectorAll('.quality-option').forEach(function(b) {
+                    b.classList.remove('active');
+                });
+                this.classList.add('active');
+                qualityMenu.classList.remove('show');
+                qualityToggle.innerHTML = '<i class="bi bi-gear"></i> ' + this.dataset.label;
+            });
+        });
+
+        // بستن منو با کلیک بیرون
+        document.addEventListener('click', function() {
+            qualityMenu.classList.remove('show');
+        });
+    }
+});
+
+// کپی لینک ویدیو
+function copyVideoLink() {
+    navigator.clipboard.writeText(window.location.href).then(function() {
+        var btn = document.querySelector('.copy-link');
+        btn.innerHTML = '<i class="bi bi-check-lg"></i>';
+        setTimeout(function() {
+            btn.innerHTML = '<i class="bi bi-link-45deg"></i>';
+        }, 2000);
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,113 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load price_tags %}
+
+{% block meta_title %}ایجاد طرح اقساط{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="hf-card p-4">
+                <h4 class="mb-4" style="color:var(--hf-primary);">
+                    <i class="bi bi-plus-circle"></i>
+                    ایجاد طرح اقساط برای سفارش #{{ order.id }}
+                </h4>
+                
+                <div class="p-3 rounded mb-4" style="background:var(--hf-gray-light);">
+                    <h6>اطلاعات سفارش:</h6>
+                    <div class="small">
+                        <div><strong>مشتری:</strong> {{ order.user.get_full_name }}</div>
+                        <div><strong>مبلغ کل:</strong> {{ order.total_amount|price_comma }} تومان</div>
+                        <div><strong>روش پرداخت:</strong> {{ order.get_payment_method_display }}</div>
+                    </div>
+                </div>
+                
+                <form method="post" id="installmentForm">
+                    {% csrf_token %}
+                    
+                    <div class="row g-3 mb-4">
+                        <div class="col-md-6">
+                            {{ form.plan_type.label_tag }}
+                            {{ form.plan_type }}
+                            {% if form.plan_type.errors %}
+                            <div class="text-danger small">{{ form.plan_type.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.period.label_tag }}
+                            {{ form.period }}
+                            {% if form.period.errors %}
+                            <div class="text-danger small">{{ form.period.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.total_amount.label_tag }}
+                            {{ form.total_amount }}
+                            {% if form.total_amount.errors %}
+                            <div class="text-danger small">{{ form.total_amount.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.down_payment.label_tag }}
+                            {{ form.down_payment }}
+                            {% if form.down_payment.errors %}
+                            <div class="text-danger small">{{ form.down_payment.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.num_installments.label_tag }}
+                            {{ form.num_installments }}
+                            {% if form.num_installments.errors %}
+                            <div class="text-danger small">{{ form.num_installments.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.interest_rate.label_tag }}
+                            {{ form.interest_rate }}
+                            {% if form.interest_rate.errors %}
+                            <div class="text-danger small">{{ form.interest_rate.errors }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="col-md-6">
+                            {{ form.first_due_date.label_tag }}
+                            {{ form.first_due_date }}
+                            {% if form.first_due_date.errors %}
+                            <div class="text-danger small">{{ form.first_due_date.errors }}</div>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="alert alert-info mb-4">
+                        <small>
+                            <i class="bi bi-info-circle"></i>
+                            <strong>نکات مهم:</strong>
+                        </small>
+                        <ul class="small mb-0 mt-2">
+                            <li>حداکثر مبلغ قابل اقساط: 75 میلیون تومان</li>
+                            <li>چک صیادی: حداکثر 12 قسط</li>
+                            <li>طرح بتا: حداکثر 18 قسط</li>
+                            <li>اقساط به صورت خودکار با فاصله 30 روز (ماهانه) یا 60 روز (دوماهانه) ایجاد می‌شوند</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="d-flex gap-2 justify-content-between">
+                        <a href="{% url 'orders:detail' order.id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> انصراف
+                        </a>
+                        <button type="submit" class="btn btn-hf-primary">
+                            <i class="bi bi-check-circle"></i> ایجاد طرح اقساط
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,39 @@
+{% extends 'dashboard/base.html' %}
+{% block page_title %}لاگ پیامک‌ها{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-clock-history"></i> لاگ پیامک‌ها</h5>
+    <a href="{% url 'notifications:admin_dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+</div>
+<div class="card mb-3"><div class="card-body py-2">
+    <form method="get" class="d-flex gap-2">
+        <select name="status" class="form-select form-select-sm" style="width:auto;">
+            <option value="">همه</option>
+            <option value="sent" {% if current_status == 'sent' %}selected{% endif %}>ارسال‌شده</option>
+            <option value="failed" {% if current_status == 'failed' %}selected{% endif %}>ناموفق</option>
+            <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>در صف</option>
+        </select>
+        <button type="submit" class="btn btn-sm btn-primary"><i class="bi bi-filter"></i></button>
+    </form>
+</div></div>
+<div class="card"><div class="table-responsive">
+    <table class="table table-sm table-hover align-middle mb-0">
+        <thead class="table-light">
+            <tr><th>شماره</th><th>رویداد</th><th>متن</th><th>وضعیت</th><th>تاریخ</th></tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td dir="ltr">{{ log.phone }}</td>
+                <td>{{ log.event|default:"-" }}</td>
+                <td><small>{{ log.message|truncatechars:60 }}</small></td>
+                <td>{% if log.status == 'sent' %}<span class="badge bg-success">ارسال</span>{% elif log.status == 'failed' %}<span class="badge bg-danger">خطا</span>{% else %}<span class="badge bg-warning text-dark">صف</span>{% endif %}</td>
+                <td><small>{{ log.jalali_date }}</small></td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="text-center text-muted py-3">لاگی وجود ندارد.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div></div>
+{% endblock %}

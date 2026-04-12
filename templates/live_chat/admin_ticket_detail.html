@@ -1,0 +1,40 @@
+{% extends 'dashboard/base.html' %}
+{% block page_title %}تیکت #{{ ticket.pk }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 class="mb-0"><i class="bi bi-ticket"></i> #{{ ticket.pk }}: {{ ticket.subject }}</h5>
+    <div class="d-flex gap-2 align-items-center">
+        <span class="badge bg-{{ ticket.priority_color }}">{{ ticket.get_priority_display }}</span>
+        <span class="badge bg-{{ ticket.status_color }}">{{ ticket.get_status_display }}</span>
+        <span class="text-muted small">{{ ticket.user.get_full_name|default:ticket.user.phone }}</span>
+        <a href="{% url 'live_chat:admin_ticket_list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-right"></i></a>
+    </div>
+</div>
+
+<!-- پیام‌ها -->
+{% for r in replies %}
+<div class="card mb-2 {% if r.is_admin %}border-start border-3 border-primary{% endif %}">
+    <div class="card-body py-2">
+        <div class="d-flex justify-content-between">
+            <strong class="small">{% if r.is_admin %}<i class="bi bi-headset text-primary"></i> {{ r.user.get_full_name|default:"مدیر" }}{% else %}<i class="bi bi-person"></i> {{ r.user.get_full_name|default:"مشتری" }}{% endif %}</strong>
+            <small class="text-muted">{{ r.jalali_created }}</small>
+        </div>
+        <div class="mt-1" style="font-size:.9rem;">{{ r.message|linebreaksbr }}</div>
+        {% if r.attachment %}<a href="{{ r.attachment.url }}" class="btn btn-sm btn-outline-secondary mt-1"><i class="bi bi-paperclip"></i> پیوست</a>{% endif %}
+    </div>
+</div>
+{% endfor %}
+
+<!-- فرم پاسخ مدیر -->
+<div class="card mt-3"><div class="card-header py-2"><strong><i class="bi bi-reply"></i> پاسخ مدیر</strong></div>
+    <div class="card-body">
+        <form method="post">{% csrf_token %}
+            {{ form.message }}
+            <div class="row g-2 mt-2">
+                <div class="col-md-4"><label class="form-label">تغییر وضعیت</label>{{ form.status }}</div>
+                <div class="col-md-8 d-flex align-items-end"><button type="submit" class="btn btn-primary"><i class="bi bi-send"></i> ارسال پاسخ</button></div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

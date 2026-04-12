@@ -1,0 +1,207 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load price_tags %}
+{% load jalali_tags %}
+
+{% block meta_title %}فاکتور سفارش #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="hf-card p-4">
+                <div class="d-flex justify-content-between align-items-start mb-4">
+                    <div>
+                        <h3 style="color:var(--hf-primary);">
+                            <i class="bi bi-receipt"></i> فاکتور فروش
+                        </h3>
+                        <p class="text-muted mb-0">شماره سفارش: #{{ order.id }}</p>
+                    </div>
+                    <div class="text-end">
+                        <img src="/static/images/logo.png" alt="لوگو" style="max-height:60px;" class="mb-2">
+                        <div class="small text-muted">{{ order.created_at|jalali }}</div>
+                    </div>
+                </div>
+                
+                {% if has_price_change and order.payment_method == 'deposit_on_delivery' %}
+                <div class="alert alert-warning mb-4">
+                    <h6><i class="bi bi-exclamation-triangle"></i> تغییر قیمت</h6>
+                    <p class="mb-0 small">
+                        قیمت برخی محصولات از زمان ثبت سفارش تغییر کرده است. 
+                        مبلغ بیعانه پرداختی شما ثابت است و فقط مانده بر اساس قیمت روز محاسبه می‌شود.
+                    </p>
+                </div>
+                {% endif %}
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-6">
+                        <div class="p-3 rounded" style="background:var(--hf-gray-light);">
+                            <h6 class="mb-2">مشتری:</h6>
+                            <div class="small">
+                                <div><strong>نام:</strong> {{ order.user.get_full_name }}</div>
+                                {% if order.user.phone_number %}
+                                <div><strong>تلفن:</strong> {{ order.user.phone_number }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <div class="p-3 rounded" style="background:var(--hf-gray-light);">
+                            <h6 class="mb-2">آدرس ارسال:</h6>
+                            <div class="small">
+                                {% if order.shipping_address %}
+                                {{ order.shipping_address.full_address }}
+                                {% else %}
+                                <span class="text-muted">ثبت نشده</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-responsive mb-4">
+                    <table class="table table-hover align-middle">
+                        <thead style="background:var(--hf-primary);color:#fff;">
+                            <tr>
+                                <th>ردیف</th>
+                                <th>محصول</th>
+                                <th>سایز</th>
+                                <th>قیمت واحد</th>
+                                <th>تعداد</th>
+                                <th>مبلغ</th>
+                                {% if has_price_change %}
+                                <th>قیمت روز</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <strong>{{ item.product.name }}</strong><br>
+                                    <small class="text-muted">{{ item.product.manufacturer.name }}</small>
+                                </td>
+                                <td>{{ item.size.name }}</td>
+                                <td>{{ item.unit_price|price_comma }} تومان</td>
+                                <td>{{ item.quantity }}</td>
+                                <td><strong>{{ item.total_price|price_comma }} تومان</strong></td>
+                                {% if has_price_change %}
+                                <td>
+                                    {% if item.id in current_prices %}
+                                        {% if item.id in price_changes %}
+                                        <span class="text-{% if price_changes|get_item:item.id|get_item:'difference' > 0 %}danger{% else %}success{% endif %}">
+                                            {{ current_prices|get_item:item.id|price_comma }}
+                                            <small>
+                                                ({% if price_changes|get_item:item.id|get_item:'difference' > 0 %}+{% endif %}{{ price_changes|get_item:item.id|get_item:'percentage'|floatformat:1 }}%)
+                                            </small>
+                                        </span>
+                                        {% else %}
+                                        <span class="text-muted">بدون تغییر</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot style="background:var(--hf-gray-light);">
+                            <tr>
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>جمع کل:</strong></td>
+                                <td><strong>{{ order.total_amount|price_comma }} تومان</strong></td>
+                            </tr>
+                            {% if order.discount_amount > 0 %}
+                            <tr>
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end">تخفیف:</td>
+                                <td class="text-success">{{ order.discount_amount|price_comma }} تومان</td>
+                            </tr>
+                            {% endif %}
+                            <tr>
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>مبلغ قابل پرداخت:</strong></td>
+                                <td><strong>{{ order.total_amount|price_comma }} تومان</strong></td>
+                            </tr>
+                            <tr class="table-success">
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>پرداخت شده:</strong></td>
+                                <td><strong class="text-success">{{ order.paid_amount|price_comma }} تومان</strong></td>
+                            </tr>
+                            {% if has_price_change and new_total != order.total_amount %}
+                            <tr class="table-warning">
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>جمع با قیمت روز:</strong></td>
+                                <td><strong class="text-warning">{{ new_total|price_comma }} تومان</strong></td>
+                            </tr>
+                            <tr class="table-warning">
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>مانده (قیمت روز):</strong></td>
+                                <td><strong class="text-danger">{{ new_remaining|price_comma }} تومان</strong></td>
+                            </tr>
+                            {% else %}
+                            <tr class="table-danger">
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>مانده:</strong></td>
+                                <td><strong class="text-danger">{{ order.remaining_amount|price_comma }} تومان</strong></td>
+                            </tr>
+                            {% endif %}
+                        </tfoot>
+                    </table>
+                </div>
+                
+                <div class="row g-3 mb-4">
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background:var(--hf-gray-light);">
+                            <small class="text-muted d-block">روش پرداخت</small>
+                            <strong>{{ order.get_payment_method_display }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background:var(--hf-gray-light);">
+                            <small class="text-muted d-block">وضعیت پرداخت</small>
+                            <strong>{{ order.get_payment_status_display }}</strong>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 rounded" style="background:var(--hf-gray-light);">
+                            <small class="text-muted d-block">وضعیت سفارش</small>
+                            <strong>{{ order.get_status_display }}</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                {% if order.payment_method == 'deposit_on_delivery' %}
+                <div class="alert alert-info">
+                    <h6><i class="bi bi-info-circle"></i> توجه</h6>
+                    <ul class="small mb-0">
+                        <li>بیعانه پرداختی شما: <strong>{{ order.paid_amount|price_comma }} تومان</strong></li>
+                        <li>در صورت تغییر قیمت، مانده بر اساس قیمت روز محاسبه می‌شود</li>
+                        <li>بیعانه شما شامل افزایش قیمت نمی‌شود و ثابت می‌ماند</li>
+                        <li>در صورت انصراف، 50% بیعانه + هزینه ایاب‌ذهاب کسر می‌شود</li>
+                    </ul>
+                </div>
+                {% endif %}
+                
+                <div class="d-flex gap-2 justify-content-between mt-4">
+                    <div>
+                        <a href="{% url 'orders:detail' order.id %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-arrow-right"></i> بازگشت به سفارش
+                        </a>
+                    </div>
+                    <div class="d-flex gap-2">
+                        {% if user.is_staff and has_price_change %}
+                        <a href="{% url 'payments:apply_current_prices' order.id %}" class="btn btn-warning">
+                            <i class="bi bi-arrow-clockwise"></i> اعمال قیمت روز
+                        </a>
+                        {% endif %}
+                        <button onclick="window.print()" class="btn btn-hf-primary">
+                            <i class="bi bi-printer"></i> چاپ فاکتور
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+@media print {
+    .btn, nav, footer, .alert { display: none !important; }
+}
+</style>
+{% endblock %}

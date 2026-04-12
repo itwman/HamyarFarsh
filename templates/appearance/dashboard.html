@@ -1,0 +1,171 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}ظاهر سایت{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-palette2"></i> مدیریت ظاهر سایت</h5>
+    <a href="{% url 'appearance:custom_code' %}" class="btn btn-outline-primary btn-sm">
+        <i class="bi bi-code-slash"></i> کد سفارشی و رنگ‌بندی
+    </a>
+</div>
+
+<!-- ===== فهرست هدر ===== -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <strong><i class="bi bi-list"></i> فهرست هدر</strong>
+        <a href="{% url 'appearance:menu_create' %}?position=header" class="btn btn-primary btn-sm"><i class="bi bi-plus"></i> افزودن</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>عنوان</th>
+                    <th>لینک</th>
+                    <th>آیکون</th>
+                    <th class="text-center">ترتیب</th>
+                    <th>وضعیت</th>
+                    <th class="text-center">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in header_items %}
+                <tr>
+                    <td>
+                        <strong>{{ item.title }}</strong>
+                        {% for child in item.active_children %}
+                        <br><small class="text-muted ms-3">↳ {{ child.title }}</small>
+                        {% endfor %}
+                    </td>
+                    <td><small dir="ltr">{{ item.link|default:"-" }}</small></td>
+                    <td>{% if item.icon %}<i class="bi {{ item.icon }}"></i> {{ item.icon }}{% else %}-{% endif %}</td>
+                    <td class="text-center">{{ item.order }}</td>
+                    <td>{% if item.is_active %}<span class="badge bg-success">فعال</span>{% else %}<span class="badge bg-secondary">غیرفعال</span>{% endif %}</td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'appearance:menu_edit' item.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <form method="post" action="{% url 'appearance:menu_delete' item.pk %}" style="display:inline;" onsubmit="return confirm('حذف؟')">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-3">فهرست هدر خالی است. از منوی پیش‌فرض استفاده می‌شود.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== فهرست فوتر ===== -->
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <strong><i class="bi bi-list-nested"></i> فهرست فوتر</strong>
+        <a href="{% url 'appearance:menu_create' %}?position=footer" class="btn btn-info btn-sm"><i class="bi bi-plus"></i> افزودن</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>عنوان</th>
+                    <th>لینک</th>
+                    <th class="text-center">ترتیب</th>
+                    <th>وضعیت</th>
+                    <th class="text-center">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in footer_items %}
+                <tr>
+                    <td><strong>{{ item.title }}</strong></td>
+                    <td><small dir="ltr">{{ item.link|default:"-" }}</small></td>
+                    <td class="text-center">{{ item.order }}</td>
+                    <td>{% if item.is_active %}<span class="badge bg-success">فعال</span>{% else %}<span class="badge bg-secondary">غیرفعال</span>{% endif %}</td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'appearance:menu_edit' item.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <form method="post" action="{% url 'appearance:menu_delete' item.pk %}" style="display:inline;" onsubmit="return confirm('حذف؟')">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" class="text-center text-muted py-3">فهرست فوتر خالی. از صفحات CMS استفاده می‌شود.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- ===== ویجت‌های فوتر ===== -->
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center py-2">
+        <strong><i class="bi bi-columns-gap"></i> ویجت‌های فوتر</strong>
+        <a href="{% url 'appearance:widget_create' %}" class="btn btn-success btn-sm"><i class="bi bi-plus"></i> افزودن ویجت</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0">
+            <thead class="table-light">
+                <tr>
+                    <th>عنوان</th>
+                    <th>نوع</th>
+                    <th class="text-center">ستون</th>
+                    <th class="text-center">ترتیب</th>
+                    <th>وضعیت</th>
+                    <th class="text-center">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for w in widgets %}
+                <tr>
+                    <td><strong>{{ w.title }}</strong></td>
+                    <td><span class="badge bg-info">{{ w.get_widget_type_display }}</span></td>
+                    <td class="text-center">{{ w.column }}</td>
+                    <td class="text-center">{{ w.order }}</td>
+                    <td>{% if w.is_active %}<span class="badge bg-success">فعال</span>{% else %}<span class="badge bg-secondary">غیرفعال</span>{% endif %}</td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'appearance:widget_edit' w.pk %}" class="btn btn-outline-primary"><i class="bi bi-pencil"></i></a>
+                            <form method="post" action="{% url 'appearance:widget_delete' w.pk %}" style="display:inline;" onsubmit="return confirm('حذف؟')">
+                                {% csrf_token %}
+                                <button class="btn btn-outline-danger"><i class="bi bi-trash"></i></button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="6" class="text-center text-muted py-3">ویجتی ثبت نشده. فوتر پیش‌فرض استفاده می‌شود.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- رنگ‌بندی فعلی -->
+<div class="card mt-4">
+    <div class="card-header py-2"><strong><i class="bi bi-palette"></i> رنگ‌بندی فعلی</strong></div>
+    <div class="card-body d-flex gap-3 flex-wrap">
+        <div class="text-center">
+            <div style="width:50px;height:50px;border-radius:8px;background:{{ ss.primary_color }};border:1px solid #ddd;"></div>
+            <small>اصلی</small>
+        </div>
+        <div class="text-center">
+            <div style="width:50px;height:50px;border-radius:8px;background:{{ ss.secondary_color }};border:1px solid #ddd;"></div>
+            <small>ثانویه</small>
+        </div>
+        <div class="text-center">
+            <div style="width:50px;height:50px;border-radius:8px;background:{{ ss.header_bg_color }};border:1px solid #ddd;"></div>
+            <small>هدر</small>
+        </div>
+        <div class="text-center">
+            <div style="width:50px;height:50px;border-radius:8px;background:{{ ss.footer_bg_color }};border:1px solid #ddd;"></div>
+            <small>فوتر</small>
+        </div>
+        <a href="{% url 'appearance:custom_code' %}" class="btn btn-sm btn-outline-primary align-self-center ms-2">تغییر رنگ‌ها</a>
+    </div>
+</div>
+{% endblock %}

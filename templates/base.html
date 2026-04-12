@@ -1,0 +1,741 @@
+{% load static %}
+{% load jalali_tags %}
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    {# SEO Meta Tags #}
+    <title>{% block meta_title %}{{ site_settings.seo_title|default:"همیار فرش | فروشگاه آنلاین فرش ماشینی" }}{% endblock %}</title>
+    <meta name="description" content="{% block meta_description %}{{ site_settings.seo_description|default:"فروشگاه آنلاین فرش ماشینی همیار فرش - خرید نقدی و اقساطی فرش با ارسال رایگان" }}{% endblock %}">
+    <meta name="keywords" content="{% block meta_keywords %}{{ site_settings.seo_keywords|default:"فرش ماشینی, خرید فرش, فرش اقساطی, فرش ارزان" }}{% endblock %}">
+    <meta name="robots" content="index, follow">
+    {% block canonical %}<link rel="canonical" href="{{ request.build_absolute_uri }}">{% endblock %}
+
+    {# Open Graph #}
+    {% block og_tags %}
+    <meta property="og:type" content="website">
+    <meta property="og:title" content="{% block og_title %}{{ site_settings.site_name }}{% endblock %}">
+    <meta property="og:description" content="{% block og_description %}{{ site_settings.seo_description }}{% endblock %}">
+    <meta property="og:locale" content="fa_IR">
+    <meta property="og:site_name" content="{{ site_settings.site_name }}">
+    {% endblock %}
+
+    {# Favicon #}
+    {% if site_settings.favicon %}
+    <link rel="icon" href="{{ site_settings.favicon.url }}">
+    {% endif %}
+
+    {# PWA (فاز 22) #}
+    <link rel="manifest" href="{% static 'manifest.json' %}">
+    <meta name="theme-color" content="{{ site_settings.primary_color|default:'#C62828' }}">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="{{ site_settings.site_name|default:'همیار فرش' }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/pwa/icon-192.png' %}">
+    <link rel="apple-touch-icon" sizes="152x152" href="{% static 'images/pwa/icon-152.png' %}">
+    <link rel="apple-touch-icon" sizes="144x144" href="{% static 'images/pwa/icon-144.png' %}">
+
+    {# رنگ‌بندی پویا (فاز 16) #}
+    <style>
+    :root {
+        --hf-primary: {{ site_settings.primary_color|default:"#C62828" }};
+        --hf-secondary: {{ site_settings.secondary_color|default:"#1565C0" }};
+        --hf-header-bg: {{ site_settings.header_bg_color|default:"#FFFFFF" }};
+        --hf-footer-bg: {{ site_settings.footer_bg_color|default:"#212121" }};
+        --hf-primary-light: color-mix(in srgb, var(--hf-primary) 20%, white);
+        --hf-primary-bg: color-mix(in srgb, var(--hf-primary) 8%, white);
+    }
+    </style>
+
+    {# CSS - همه لوکال #}
+    <link rel="stylesheet" href="{% static 'css/bootstrap.rtl.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/icons-local.css' %}">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+
+    {# کد سفارشی head (فاز 16) #}
+    {% if site_settings.custom_head_code %}{{ site_settings.custom_head_code|safe }}{% endif %}
+
+    {# JSON-LD Schema.org #}
+    {% block json_ld %}
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Organization",
+        "name": "{{ site_settings.site_name }}",
+        "url": "{{ site_settings.website_url }}",
+        {% if site_settings.logo %}"logo": "{{ request.scheme }}://{{ request.get_host }}{{ site_settings.logo.url }}",{% endif %}
+        "contactPoint": {
+            "@type": "ContactPoint",
+            "telephone": "{{ site_settings.mobile }}",
+            "contactType": "sales",
+            "availableLanguage": "Persian"
+        }
+    }
+    </script>
+    {% endblock %}
+</head>
+<body>
+    {# کد سفارشی بعد از body (فاز 16) #}
+    {% if site_settings.custom_body_start %}{{ site_settings.custom_body_start|safe }}{% endif %}
+
+    {# نوار اعلان (فاز 19) #}
+    {% for ann in active_announcements %}
+    <div class="hf-announcement" id="ann-{{ ann.id }}"
+         style="background:{{ ann.bg_color }};color:{{ ann.text_color }};padding:8px 0;text-align:center;font-size:.85rem;position:relative;">
+        <div class="container d-flex justify-content-center align-items-center gap-2 flex-wrap">
+            {% if ann.icon %}<i class="bi {{ ann.icon }}"></i>{% endif %}
+            <span>{{ ann.text }}</span>
+            {% if ann.link %}
+            <a href="{{ ann.link }}" style="color:{{ ann.text_color }};text-decoration:underline;font-weight:600;">
+                {{ ann.link_text|default:"مشاهده" }}
+            </a>
+            {% endif %}
+            {% if ann.dismissible %}
+            <button onclick="dismissAnn({{ ann.id }})" class="btn-close btn-close-white position-absolute" style="left:12px;top:50%;transform:translateY(-50%);font-size:.6rem;"></button>
+            {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+
+    {# Top Bar #}
+    <div class="hf-topbar d-none d-md-block">
+        <div class="container d-flex justify-content-between align-items-center">
+            <div>
+                {% if site_settings.mobile %}
+                <a href="tel:{{ site_settings.mobile }}">
+                    <i class="bi bi-telephone-fill"></i> {{ site_settings.mobile }}
+                </a>
+                {% endif %}
+                {% if site_settings.whatsapp %}
+                <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank">
+                    <i class="bi bi-whatsapp"></i> واتساپ
+                </a>
+                {% endif %}
+                {% if site_settings.telegram_id %}
+                <a href="https://t.me/{{ site_settings.telegram_id }}" target="_blank">
+                    <i class="bi bi-telegram"></i> تلگرام
+                </a>
+                {% endif %}
+            </div>
+            <div>
+                {% jalali_now "%d %B %Y" as today %}
+                <span><i class="bi bi-calendar3"></i> {{ today }}</span>
+            </div>
+        </div>
+    </div>
+
+    {# Navbar — پویا (فاز 16) #}
+    <nav class="navbar navbar-expand-lg hf-navbar sticky-top" style="background:var(--hf-header-bg);">
+        <div class="container">
+            <a class="navbar-brand" href="{% url 'home' %}">
+                {% if site_settings.logo %}
+                <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}">
+                {% endif %}
+                {{ site_settings.site_name }}
+            </a>
+            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navMain">
+                <ul class="navbar-nav me-auto">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">
+                            <i class="bi bi-house-door"></i> خانه
+                        </a>
+                    </li>
+
+                    {# فهرست پویا از appearance #}
+                    {% for item in header_menu_items %}
+                    {% if item.active_children %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            {% if item.icon %}<i class="bi {{ item.icon }}"></i> {% endif %}{{ item.title }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for child in item.active_children %}
+                            <li><a class="dropdown-item" href="{{ child.link }}" {% if child.target_blank %}target="_blank"{% endif %}>
+                                {% if child.icon %}<i class="bi {{ child.icon }}"></i> {% endif %}{{ child.title }}
+                            </a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ item.css_class }}" href="{{ item.link }}" {% if item.target_blank %}target="_blank"{% endif %}>
+                            {% if item.icon %}<i class="bi {{ item.icon }}"></i> {% endif %}{{ item.title }}
+                        </a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+
+                    {# اگر فهرست پویا خالی بود، لینک‌های پیش‌فرض #}
+                    {% if not header_menu_items %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-images"></i> گالری
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'gallery:video_gallery' %}"><i class="bi bi-play-circle"></i> گالری ویدیو</a></li>
+                            <li><a class="dropdown-item" href="{% url 'gallery:image_gallery' %}"><i class="bi bi-image"></i> گالری تصاویر</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    {# لینک مدیریت (فقط برای ادمین) #}
+                    {% if user.is_authenticated and user.is_staff %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-grid"></i> مدیریت
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'dashboard:home' %}"><i class="bi bi-speedometer2"></i> داشبورد</a></li>
+                            <li><a class="dropdown-item" href="{% url 'products:product_list' %}"><i class="bi bi-box-seam"></i> محصولات</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pages:page_list' %}"><i class="bi bi-file-earmark-richtext"></i> محتوا</a></li>
+                            <li><a class="dropdown-item" href="{% url 'home_manager:dashboard' %}"><i class="bi bi-house-gear"></i> صفحه اصلی</a></li>
+                            <li><a class="dropdown-item" href="{% url 'appearance:dashboard' %}"><i class="bi bi-palette2"></i> ظاهر سایت</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                </ul>
+                <ul class="navbar-nav">
+                    {# علاقه‌مندی + مقایسه (فاز 18) #}
+                    <li class="nav-item d-none" id="pwaInstallItem">
+                        <a class="nav-link" href="#" onclick="installPWA();return false;" id="pwaInstallBtn" style="display:none;color:var(--hf-primary);" title="نصب اپلیکیشن">
+                            <i class="bi bi-download"></i> <small class="d-none d-md-inline">نصب</small>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'wishlist:compare_page' %}" title="مقایسه">
+                            <i class="bi bi-arrow-left-right"></i>
+                            {% if compare_count %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info" style="font-size:.6rem;">{{ compare_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link position-relative" href="{% url 'wishlist:page' %}" title="علاقه‌مندی‌ها">
+                            <i class="bi bi-heart"></i>
+                            {% if wishlist_count %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.6rem;" id="wishlistBadge">{{ wishlist_count }}</span>
+                            {% endif %}
+                        </a>
+                    </li>
+                    {# زنگ نوتیفیکیشن (فاز 19) #}
+                    {% if user.is_authenticated %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link position-relative" href="#" data-bs-toggle="dropdown" title="اطلاع‌رسانی">
+                            <i class="bi bi-bell"></i>
+                            {% if unread_notif_count %}
+                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:.6rem;" id="notifBadge">{{ unread_notif_count }}</span>
+                            {% endif %}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" style="min-width:320px;max-height:400px;overflow-y:auto;" id="notifDropdown">
+                            <li class="dropdown-header d-flex justify-content-between align-items-center">
+                                <strong>اطلاع‌رسانی‌ها</strong>
+                                <a href="#" onclick="markAllRead()" class="small text-decoration-none">خواندن همه</a>
+                            </li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li class="text-center py-2 text-muted small" id="notifLoading">در حال بارگذاری...</li>
+                            <li><hr class="dropdown-divider my-1"></li>
+                            <li><a class="dropdown-item text-center small" href="{% url 'notifications:page' %}">مشاهده همه</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    {% if user.is_authenticated %}
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                                <i class="bi bi-person-circle"></i>
+                                {{ user.get_full_name|default:user.phone }}
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person"></i> پروفایل</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right"></i> خروج</a></li>
+                            </ul>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'accounts:login' %}">
+                                <i class="bi bi-box-arrow-in-left"></i> ورود
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="btn btn-hf-primary btn-sm my-2 my-lg-0 ms-2" href="{% url 'accounts:register' %}">
+                                ثبت‌نام
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    {# Messages #}
+    {% if messages %}
+    <div class="hf-messages">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {# Main Content #}
+    <main class="{% block main_class %}container py-4{% endblock %}">
+        {% block content %}{% endblock %}
+    </main>
+
+    {# Footer — پویا (فاز 16) #}
+    <footer class="hf-footer" style="background:var(--hf-footer-bg);">
+        <div class="container">
+            {% if footer_widget_columns %}
+            {# فوتر پویا از ویجت‌ها #}
+            <div class="row">
+                {% for col_num, widgets in footer_widget_columns.items %}
+                <div class="col-md-{% widthratio 12 footer_widget_columns|length 1 %} mb-4">
+                    {% for widget in widgets %}
+                    <div class="mb-3">
+                        <h5>{{ widget.title }}</h5>
+
+                        {% if widget.widget_type == 'text' %}
+                        <p class="small">{{ widget.content }}</p>
+
+                        {% elif widget.widget_type == 'html' %}
+                        {{ widget.content|safe }}
+
+                        {% elif widget.widget_type == 'links' %}
+                        {% for link_item in widget.get_footer_links %}
+                        <a href="{{ link_item.link }}" class="d-block py-1" {% if link_item.target_blank %}target="_blank"{% endif %}>
+                            {% if link_item.icon %}<i class="bi {{ link_item.icon }}"></i> {% endif %}{{ link_item.title }}
+                        </a>
+                        {% endfor %}
+                        {# صفحات CMS فوتری #}
+                        {% for fp in footer_pages %}
+                        <a href="/{% if fp.page_type == 'page' %}page{% else %}blog{% endif %}/{{ fp.slug }}/" class="d-block py-1">{{ fp.title }}</a>
+                        {% endfor %}
+
+                        {% elif widget.widget_type == 'social' %}
+                        <div class="d-flex gap-2 flex-wrap">
+                            {% if site_settings.whatsapp %}
+                            <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-whatsapp"></i></a>
+                            {% endif %}
+                            {% if site_settings.telegram_id %}
+                            <a href="https://t.me/{{ site_settings.telegram_id }}" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-telegram"></i></a>
+                            {% endif %}
+                            {% if site_settings.instagram_id %}
+                            <a href="https://instagram.com/{{ site_settings.instagram_id }}" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-instagram"></i></a>
+                            {% endif %}
+                            {% if site_settings.eitaa_id %}
+                            <a href="https://eitaa.com/{{ site_settings.eitaa_id }}" target="_blank" class="btn btn-sm btn-outline-light">ایتا</a>
+                            {% endif %}
+                            {% if site_settings.bale_id %}
+                            <a href="https://ble.ir/{{ site_settings.bale_id }}" target="_blank" class="btn btn-sm btn-outline-light">بله</a>
+                            {% endif %}
+                        </div>
+
+                        {% elif widget.widget_type == 'contact' %}
+                        {% if site_settings.mobile %}
+                        <a href="tel:{{ site_settings.mobile }}" class="d-block py-1"><i class="bi bi-telephone"></i> {{ site_settings.mobile }}</a>
+                        {% endif %}
+                        {% if site_settings.phone %}
+                        <a href="tel:{{ site_settings.phone }}" class="d-block py-1"><i class="bi bi-telephone-fill"></i> {{ site_settings.phone }}</a>
+                        {% endif %}
+                        {% if site_settings.address %}
+                        <p class="small mt-2"><i class="bi bi-geo-alt"></i> {{ site_settings.address }}</p>
+                        {% endif %}
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            {# فوتر پیش‌فرض (اگر ویجت نداشت) #}
+            <div class="row">
+                <div class="col-md-4 mb-4">
+                    <h5>{{ site_settings.site_name }}</h5>
+                    <p class="small">فروشگاه آنلاین فرش ماشینی با امکان خرید نقدی و اقساطی. ارسال به سراسر ایران.</p>
+                    {% if site_settings.address %}
+                    <p class="small"><i class="bi bi-geo-alt"></i> {{ site_settings.address }}</p>
+                    {% endif %}
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>دسترسی سریع</h5>
+                    <a href="{% url 'home' %}" class="d-block py-1">صفحه اصلی</a>
+                    {% for fp in footer_pages %}
+                    <a href="/{% if fp.page_type == 'page' %}page{% else %}blog{% endif %}/{{ fp.slug }}/" class="d-block py-1">{{ fp.title }}</a>
+                    {% endfor %}
+                </div>
+                <div class="col-md-4 mb-4">
+                    <h5>ارتباط با ما</h5>
+                    {% if site_settings.mobile %}
+                    <a href="tel:{{ site_settings.mobile }}" class="d-block py-1"><i class="bi bi-telephone"></i> {{ site_settings.mobile }}</a>
+                    {% endif %}
+                    {% if site_settings.whatsapp %}
+                    <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" class="d-block py-1"><i class="bi bi-whatsapp"></i> واتساپ</a>
+                    {% endif %}
+                    {% if site_settings.telegram_id %}
+                    <a href="https://t.me/{{ site_settings.telegram_id }}" target="_blank" class="d-block py-1"><i class="bi bi-telegram"></i> تلگرام</a>
+                    {% endif %}
+                    {% if site_settings.instagram_id %}
+                    <a href="https://instagram.com/{{ site_settings.instagram_id }}" target="_blank" class="d-block py-1"><i class="bi bi-instagram"></i> اینستاگرام</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            {# کد سفارشی فوتر — نماد اعتماد، ساماندهی (فاز 16) #}
+            {% if site_settings.custom_footer_code %}
+            <div class="text-center py-3 border-top border-secondary">
+                {{ site_settings.custom_footer_code|safe }}
+            </div>
+            {% endif %}
+
+            {# فرم عضویت خبرنامه پیامکی (فاز 20) #}
+            {% if site_settings.newsletter_enabled %}
+            <div class="border-top border-secondary pt-4 pb-3">
+                <div class="row justify-content-center">
+                    <div class="col-md-6 text-center">
+                        <h6 class="mb-2"><i class="bi bi-envelope-paper"></i> {{ site_settings.newsletter_title|default:"خبرنامه" }}</h6>
+                        <p class="small mb-3" style="opacity:.8;">{{ site_settings.newsletter_text|default:"جهت اطلاع از فروش‌های ویژه و تخفیف‌ها شماره موبایل خود را وارد کنید" }}</p>
+                        <form id="newsletterForm" class="d-flex gap-2 justify-content-center flex-wrap">
+                            <input type="text" id="nlPhone" class="form-control" dir="ltr" inputmode="numeric"
+                                   placeholder="09xxxxxxxxx" pattern="09[0-9]{9}" maxlength="11"
+                                   style="max-width:180px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;">
+                            <input type="text" id="nlName" class="form-control" placeholder="نام (اختیاری)"
+                                   style="max-width:150px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;">
+                            <button type="submit" class="btn btn-light btn-sm fw-bold">
+                                <i class="bi bi-send"></i> عضویت
+                            </button>
+                        </form>
+                        <div id="nlResult" class="small mt-2" style="display:none;"></div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="hf-footer-bottom">
+                <p class="mb-0">
+                    &copy; {% jalali_now "%Y" %} {{ site_settings.site_name }}. تمامی حقوق محفوظ است.
+                    <br><small>طراحی و توسعه توسط <a href="https://icsd.ir" target="_blank">ICSD</a></small>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    {# JS - همه لوکال #}
+    <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+
+    {# کد سفارشی قبل از /body (فاز 16) #}
+    {% if site_settings.custom_body_end %}{{ site_settings.custom_body_end|safe }}{% endif %}
+
+    {# چت آنلاین (فاز 21) #}
+    {% if site_settings.live_chat_external_code %}
+        {# سرویس خارجی (Raychat/Goftino/Crisp) #}
+        {{ site_settings.live_chat_external_code|safe }}
+    {% elif site_settings.live_chat_enabled %}
+        {# چت داخلی #}
+        <div id="chatWidget" style="position:fixed;bottom:20px;left:20px;z-index:9998;">
+            {# دکمه شناور #}
+            <button id="chatToggle" onclick="toggleChatBox()"
+                    style="width:56px;height:56px;border-radius:50%;border:none;
+                    background:var(--hf-primary);color:#fff;font-size:1.5rem;
+                    box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer;transition:transform .2s;">
+                <i class="bi bi-chat-dots" id="chatIcon"></i>
+            </button>
+
+            {# باکس چت #}
+            <div id="chatBox" style="display:none;position:absolute;bottom:70px;left:0;
+                    width:340px;background:#fff;border-radius:16px;overflow:hidden;
+                    box-shadow:0 8px 32px rgba(0,0,0,.15);">
+                {# هدر #}
+                <div style="background:var(--hf-primary);color:#fff;padding:14px 16px;
+                        display:flex;justify-content:space-between;align-items:center;">
+                    <div><strong><i class="bi bi-headset"></i> پشتیبانی آنلاین</strong><br>
+                        <small style="opacity:.8;">پاسخگوی شما هستیم</small>
+                    </div>
+                    <button onclick="toggleChatBox()" style="background:none;border:none;color:#fff;font-size:1.2rem;"><i class="bi bi-x-lg"></i></button>
+                </div>
+
+                {# محتوا #}
+                <div id="chatContent" style="padding:16px;">
+                    {# فرم شروع #}
+                    <div id="chatStartForm">
+                        <div class="mb-2">
+                            <input type="text" id="chatName" class="form-control form-control-sm" placeholder="نام شما" required>
+                        </div>
+                        <div class="mb-2">
+                            <input type="text" id="chatPhone" class="form-control form-control-sm" placeholder="موبایل (اختیاری)" dir="ltr">
+                        </div>
+                        <div class="mb-2">
+                            <textarea id="chatFirstMsg" class="form-control form-control-sm" rows="2" placeholder="پیام شما..."></textarea>
+                        </div>
+                        <button onclick="startChat()" class="btn btn-sm w-100" style="background:var(--hf-primary);color:#fff;"><i class="bi bi-send"></i> ارسال</button>
+                    </div>
+
+                    {# پیام‌ها #}
+                    <div id="chatMessages" style="display:none;">
+                        <div id="chatMsgList" style="max-height:250px;overflow-y:auto;margin-bottom:10px;"></div>
+                        <div class="input-group">
+                            <input type="text" id="chatInput" class="form-control form-control-sm" placeholder="پیام..." onkeypress="if(event.key==='Enter')sendChatMsg()">
+                            <button onclick="sendChatMsg()" class="btn btn-sm" style="background:var(--hf-primary);color:#fff;"><i class="bi bi-send"></i></button>
+                        </div>
+                    </div>
+
+                    <div id="chatResult" style="display:none;" class="small mt-2 text-center"></div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        var chatSessionKey = null;
+        var chatPollTimer = null;
+
+        function toggleChatBox() {
+            var box = document.getElementById('chatBox');
+            var icon = document.getElementById('chatIcon');
+            if (box.style.display === 'none') {
+                box.style.display = 'block';
+                icon.className = 'bi bi-x-lg';
+            } else {
+                box.style.display = 'none';
+                icon.className = 'bi bi-chat-dots';
+            }
+        }
+
+        function startChat() {
+            var name = document.getElementById('chatName').value.trim();
+            var phone = document.getElementById('chatPhone').value.trim();
+            var msg = document.getElementById('chatFirstMsg').value.trim();
+            if (!name || !msg) { alert('نام و پیام الزامی است.'); return; }
+
+            fetch('/chat/start/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCsrf()},
+                body: 'name=' + encodeURIComponent(name) + '&phone=' + encodeURIComponent(phone) + '&message=' + encodeURIComponent(msg) + '&page_url=' + encodeURIComponent(location.href)
+            }).then(function(r){ return r.json(); }).then(function(data) {
+                if (data.success) {
+                    chatSessionKey = data.session_key;
+                    document.getElementById('chatStartForm').style.display = 'none';
+                    document.getElementById('chatMessages').style.display = 'block';
+                    loadChatMessages();
+                    chatPollTimer = setInterval(loadChatMessages, 5000);
+                } else {
+                    var res = document.getElementById('chatResult');
+                    res.style.display = 'block'; res.style.color = 'red';
+                    res.textContent = data.message || 'خطا';
+                }
+            });
+        }
+
+        function sendChatMsg() {
+            var input = document.getElementById('chatInput');
+            var msg = input.value.trim();
+            if (!msg || !chatSessionKey) return;
+            input.value = '';
+
+            fetch('/chat/send/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCsrf()},
+                body: 'session_key=' + chatSessionKey + '&message=' + encodeURIComponent(msg)
+            }).then(function() { loadChatMessages(); });
+        }
+
+        function loadChatMessages() {
+            if (!chatSessionKey) return;
+            fetch('/chat/messages/?session_key=' + chatSessionKey)
+                .then(function(r){ return r.json(); })
+                .then(function(data) {
+                    var list = document.getElementById('chatMsgList');
+                    var html = '';
+                    data.messages.forEach(function(m) {
+                        var align = m.is_admin ? 'text-start' : 'text-end';
+                        var bg = m.is_admin ? '#f0f0f0' : 'var(--hf-primary)';
+                        var color = m.is_admin ? '#333' : '#fff';
+                        html += '<div class="mb-2 ' + align + '">' +
+                            '<span style="display:inline-block;padding:6px 10px;border-radius:10px;font-size:.85rem;max-width:80%;background:' + bg + ';color:' + color + ';">' +
+                            m.message + '</span><br><small style="font-size:.65rem;color:#999;">' + m.time + '</small></div>';
+                    });
+                    list.innerHTML = html;
+                    list.scrollTop = list.scrollHeight;
+                });
+        }
+        </script>
+    {% endif %}
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // بستن خودکار پیام‌ها
+            setTimeout(function() {
+                document.querySelectorAll('.hf-messages .alert').forEach(function(el) {
+                    var bsAlert = bootstrap.Alert.getOrCreateInstance(el);
+                    bsAlert.close();
+                });
+            }, 5000);
+
+            // بارگذاری نوتیفیکیشن‌ها (فاز 19)
+            var notifDropdown = document.getElementById('notifDropdown');
+            if (notifDropdown) {
+                notifDropdown.addEventListener('show.bs.dropdown', loadNotifications);
+            }
+        });
+
+        // === نوار اعلان — dismiss ===
+        function dismissAnn(id) {
+            document.getElementById('ann-' + id).style.display = 'none';
+            fetch('/notifications/dismiss/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded',
+                           'X-CSRFToken': getCsrf()},
+                body: 'id=' + id
+            });
+        }
+
+        // === نوتیفیکیشن dropdown ===
+        function loadNotifications() {
+            var list = document.getElementById('notifList');
+            if (!list) return;
+            fetch('/notifications/api/list/')
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    if (data.notifications.length === 0) {
+                        list.innerHTML = '<div class="py-3 text-center"><small class="text-muted">اطلاع‌رسانی‌ای ندارید</small></div>';
+                        return;
+                    }
+                    var html = '';
+                    data.notifications.forEach(function(n) {
+                        html += '<a href="' + (n.link || '#') + '" class="d-block px-3 py-2 text-decoration-none border-bottom '
+                            + (n.is_read ? '' : 'bg-light fw-bold') + '" onclick="markRead(' + n.id + ')">';
+                        html += '<div class="d-flex gap-2 align-items-start">';
+                        html += '<i class="bi ' + n.icon + ' text-' + n.color + ' mt-1"></i>';
+                        html += '<div><div style="font-size:.8rem;">' + n.title + '</div>';
+                        html += '<small class="text-muted" style="font-size:.7rem;">' + n.message + '</small><br>';
+                        html += '<small class="text-muted" style="font-size:.65rem;">' + n.date + '</small>';
+                        html += '</div></div></a>';
+                    });
+                    list.innerHTML = html;
+                });
+        }
+
+        function markRead(id) {
+            fetch('/notifications/api/mark-read/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded',
+                           'X-CSRFToken': getCsrf()},
+                body: 'id=' + id
+            });
+        }
+
+        function markAllRead() {
+            fetch('/notifications/api/mark-all-read/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded',
+                           'X-CSRFToken': getCsrf()}
+            }).then(function() {
+                var badge = document.getElementById('notifBadge');
+                if (badge) badge.style.display = 'none';
+                loadNotifications();
+            });
+        }
+
+        function getCsrf() {
+            var c = document.cookie.match(/csrftoken=([^;]+)/);
+            return c ? c[1] : '';
+        }
+
+        // dismiss اعلان (فاز 19)
+        function dismissAnn(id) {
+            document.getElementById('ann-' + id).style.display = 'none';
+            fetch('/notifications/dismiss/', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCsrf()},
+                body: 'id=' + id
+            });
+        }
+
+        // عضویت خبرنامه (فاز 20)
+        var nlForm = document.getElementById('newsletterForm');
+        if (nlForm) {
+            nlForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                var phone = document.getElementById('nlPhone').value.trim();
+                var name = document.getElementById('nlName').value.trim();
+                var result = document.getElementById('nlResult');
+
+                if (!/^09\d{9}$/.test(phone)) {
+                    result.style.display = 'block';
+                    result.style.color = '#ff6b6b';
+                    result.textContent = 'شماره موبایل نامعتبر است. فرمت: 09xxxxxxxxx';
+                    return;
+                }
+
+                fetch('/newsletter/subscribe/', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCsrf()},
+                    body: 'phone=' + phone + '&name=' + encodeURIComponent(name)
+                })
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    result.style.display = 'block';
+                    if (data.success) {
+                        result.style.color = '#69db7c';
+                        result.textContent = data.message;
+                        document.getElementById('nlPhone').value = '';
+                        document.getElementById('nlName').value = '';
+                    } else {
+                        result.style.color = '#ff6b6b';
+                        result.textContent = data.message;
+                    }
+                })
+                .catch(function() {
+                    result.style.display = 'block';
+                    result.style.color = '#ff6b6b';
+                    result.textContent = 'خطا در ارتباط با سرور';
+                });
+            });
+        }
+
+        // ===== PWA — Service Worker + A2HS (فاز 22) =====
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('/sw.js').then(function(reg) {
+                console.log('SW registered:', reg.scope);
+            }).catch(function(err) {
+                console.log('SW registration failed:', err);
+            });
+        }
+
+        // A2HS (Add to Home Screen)
+        var deferredPrompt = null;
+        window.addEventListener('beforeinstallprompt', function(e) {
+            e.preventDefault();
+            deferredPrompt = e;
+            // نمایش دکمه نصب
+            var btn = document.getElementById('pwaInstallBtn');
+            if (btn) btn.style.display = 'inline-block';
+            var item = document.getElementById('pwaInstallItem');
+            if (item) item.classList.remove('d-none');
+        });
+
+        function installPWA() {
+            if (!deferredPrompt) return;
+            deferredPrompt.prompt();
+            deferredPrompt.userChoice.then(function(choice) {
+                if (choice.outcome === 'accepted') {
+                    console.log('PWA installed');
+                }
+                deferredPrompt = null;
+                var btn = document.getElementById('pwaInstallBtn');
+                if (btn) btn.style.display = 'none';
+            });
+        }
+    </script>
+</body>
+</html>

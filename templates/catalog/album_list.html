@@ -1,0 +1,156 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load jalali_tags %}
+{% load humanize %}
+
+{% block page_title %}آلبوم‌ها{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5><i class="bi bi-collection"></i> آلبوم‌ها</h5>
+    <a href="{% url 'catalog:album_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> افزودن آلبوم
+    </a>
+</div>
+
+{# فیلتر و جستجو #}
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-3">
+                <input type="text" name="q" value="{{ query }}" class="form-control"
+                       placeholder="جستجو نام آلبوم/شرکت...">
+            </div>
+            <div class="col-md-3">
+                <select name="manufacturer" class="form-select">
+                    <option value="">همه شرکت‌ها</option>
+                    {% for m in manufacturers %}
+                    <option value="{{ m.pk }}" {% if selected_manufacturer == m.pk|stringformat:"d" %}selected{% endif %}>{{ m.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="comb" class="form-select">
+                    <option value="">همه شانه‌ها</option>
+                    {% for val, label in comb_choices %}
+                    <option value="{{ val }}" {% if selected_comb == val|stringformat:"d" %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-2">
+                <select name="status" class="form-select">
+                    <option value="">همه</option>
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>فعال</option>
+                    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>غیرفعال</option>
+                </select>
+            </div>
+            <div class="col-md-1">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i></button>
+            </div>
+            <div class="col-md-1">
+                <a href="{% url 'catalog:album_list' %}" class="btn btn-outline-secondary w-100"><i class="bi bi-x-lg"></i></a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# جدول #}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th class="text-center" style="width:40px;">#</th>
+                    <th>نام آلبوم</th>
+                    <th>شرکت</th>
+                    <th class="text-center">شانه</th>
+                    <th class="text-center">جنس نخ</th>
+                    <th class="text-center">وزن</th>
+                    <th class="text-center">پرتی ۹م</th>
+                    <th class="text-center">قیمت پایه ۱۲م</th>
+                    <th class="text-center">وضعیت</th>
+                    <th class="text-center" style="width:160px;">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for album in albums %}
+                <tr>
+                    <td class="text-center text-muted">{{ forloop.counter }}</td>
+                    <td><strong>{{ album.name }}</strong></td>
+                    <td>{{ album.manufacturer.name }}</td>
+                    <td class="text-center">
+                        <span class="badge bg-primary">{{ album.comb_display }}</span>
+                    </td>
+                    <td class="text-center">{{ album.get_yarn_type_display }}</td>
+                    <td class="text-center">{{ album.get_weight_class_display }}</td>
+                    <td class="text-center small">
+                        {% if album.nine_m_waste_type == 'fixed' %}
+                        {{ album.nine_m_waste_value|floatformat:0|intcomma }} ت
+                        {% else %}
+                        {{ album.nine_m_waste_value }}%
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if album.base_price_12m %}
+                        <strong class="text-primary">{{ album.base_price_12m|intcomma }}</strong>
+                        {% else %}
+                        <span class="text-muted">-</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        {% if album.is_active %}
+                        <span class="badge bg-success">فعال</span>
+                        {% else %}
+                        <span class="badge bg-secondary">غیرفعال</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'catalog:album_edit' album.pk %}" class="btn btn-outline-primary" title="ویرایش">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'catalog:album_toggle' album.pk %}" class="btn btn-outline-warning" title="تغییر وضعیت">
+                                <i class="bi bi-toggle-{% if album.is_active %}on{% else %}off{% endif %}"></i>
+                            </a>
+                            <a href="{% url 'catalog:album_delete' album.pk %}" class="btn btn-outline-danger" title="حذف">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="10" class="text-center text-muted py-5">
+                        <i class="bi bi-inbox" style="font-size:2rem;"></i>
+                        <p class="mt-2">آلبومی ثبت نشده است.</p>
+                        <a href="{% url 'catalog:album_create' %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-lg"></i> افزودن اولین آلبوم
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {% if albums.has_other_pages %}
+    <div class="card-footer">
+        <nav>
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                {% if albums.has_previous %}
+                <li class="page-item"><a class="page-link" href="?page={{ albums.previous_page_number }}">&laquo;</a></li>
+                {% endif %}
+                {% for num in albums.paginator.page_range %}
+                <li class="page-item {% if albums.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if albums.has_next %}
+                <li class="page-item"><a class="page-link" href="?page={{ albums.next_page_number }}">&raquo;</a></li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

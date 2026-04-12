@@ -1,0 +1,124 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-ticket-perforated"></i> {{ title }}</h5>
+    <a href="{% url 'coupons:coupon_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <!-- کد -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">کد تخفیف</label>
+                    <div class="input-group">
+                        {{ form.code }}
+                        <button type="button" class="btn btn-outline-secondary" id="btnGenerate" title="تولید کد تصادفی">
+                            <i class="bi bi-shuffle"></i>
+                        </button>
+                    </div>
+                    {% if form.code.errors %}<div class="text-danger small">{{ form.code.errors.0 }}</div>{% endif %}
+                </div>
+
+                <!-- نوع -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">نوع تخفیف</label>
+                    {{ form.coupon_type }}
+                </div>
+
+                <!-- مقدار -->
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">مقدار تخفیف</label>
+                    {{ form.amount }}
+                    <small class="text-muted" id="amountHelp">درصدی: 1-100 / مبلغی: تومان</small>
+                </div>
+
+                <!-- سقف تخفیف -->
+                <div class="col-md-4" id="maxDiscountField">
+                    <label class="form-label">سقف تخفیف (تومان)</label>
+                    {{ form.max_discount }}
+                    <small class="text-muted">فقط برای نوع درصدی</small>
+                </div>
+
+                <!-- حداقل مبلغ سفارش -->
+                <div class="col-md-4">
+                    <label class="form-label">حداقل مبلغ سفارش</label>
+                    {{ form.min_order_amount }}
+                </div>
+
+                <!-- تعداد استفاده -->
+                <div class="col-md-2">
+                    <label class="form-label">حد کل</label>
+                    {{ form.max_usage_total }}
+                    <small class="text-muted">0 = نامحدود</small>
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">حد کاربر</label>
+                    {{ form.max_usage_per_user }}
+                </div>
+
+                <!-- تاریخ -->
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">تاریخ شروع</label>
+                    {{ form.start_date }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">تاریخ پایان</label>
+                    {{ form.end_date }}
+                </div>
+
+                <!-- محدودیت محصولات -->
+                <div class="col-md-6">
+                    <label class="form-label">محدود به محصولات (اختیاری)</label>
+                    {{ form.limited_to_products }}
+                    <small class="text-muted">خالی = همه محصولات. Ctrl+Click برای انتخاب چندتایی</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">محدود به دسته‌بندی (اختیاری)</label>
+                    {{ form.limited_to_categories }}
+                </div>
+
+                <!-- فعال -->
+                <div class="col-md-6">
+                    <label class="form-label">توضیحات (داخلی)</label>
+                    {{ form.description }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label">فعال</label>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {% if is_edit %}بروزرسانی{% else %}ذخیره{% endif %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// تولید کد تصادفی
+document.getElementById('btnGenerate').addEventListener('click', function() {
+    fetch('{% url "coupons:generate_code" %}')
+        .then(r => r.json())
+        .then(data => { document.getElementById('id_code').value = data.code; });
+});
+
+// نمایش/مخفی فیلد سقف تخفیف
+function toggleMaxDiscount() {
+    var type = document.getElementById('id_coupon_type').value;
+    document.getElementById('maxDiscountField').style.display = (type === 'percent') ? '' : 'none';
+}
+document.getElementById('id_coupon_type').addEventListener('change', toggleMaxDiscount);
+toggleMaxDiscount();
+</script>
+{% endblock %}

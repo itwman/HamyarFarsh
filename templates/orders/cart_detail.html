@@ -1,0 +1,245 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load price_tags %}
+
+{% block meta_title %}سبد خرید | {{ site_settings.site_title }}{% endblock %}
+{% block meta_description %}سبد خرید شما در {{ site_settings.site_title }}{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row">
+        <div class="col-12">
+            <h1 class="mb-4">
+                <i class="bi bi-cart3"></i>
+                سبد خرید
+            </h1>
+        </div>
+    </div>
+
+    {% if cart_items %}
+    <div class="row">
+        <!-- آیتم‌های سبد -->
+        <div class="col-lg-8">
+            <div class="card shadow-sm mb-4">
+                <div class="card-body">
+                    <table class="table table-hover align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>محصول</th>
+                                <th>سایز</th>
+                                <th>قیمت واحد</th>
+                                <th>تعداد</th>
+                                <th>جمع</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in cart_items %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        {% if item.product.primary_image %}
+                                        <img src="{{ item.product.primary_image.thumbnail.url }}" 
+                                             alt="{{ item.product.name }}"
+                                             class="img-thumbnail me-3"
+                                             style="width: 80px; height: 80px; object-fit: cover;">
+                                        {% endif %}
+                                        <div>
+                                            <a href="{% url 'shop:product_detail' item.product.slug %}" 
+                                               class="text-decoration-none fw-bold">
+                                                {{ item.product.name }}
+                                            </a>
+                                            <br>
+                                            <small class="text-muted">
+                                                {{ item.product.album.manufacturer.name }} - 
+                                                {{ item.product.album.comb }} شانه
+                                            </small>
+                                            {% if item.is_pair %}
+                                            <br>
+                                            <span class="badge bg-info">سفارش زوجی</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if item.size %}
+                                        <strong>{{ item.size.name }}</strong>
+                                    {% else %}
+                                        <span class="text-muted">سایز انتخاب نشده</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <strong>{{ item.unit_price|price_comma }}</strong> تومان
+                                </td>
+                                <td>
+                                    <div class="input-group" style="width: 120px;">
+                                        <button class="btn btn-outline-secondary btn-sm" 
+                                                type="button"
+                                                onclick="updateQuantity('{{ item.product.id }}', '{{ item.size.id|default:'none' }}', {{ item.quantity }} - {% if item.is_pair %}2{% else %}1{% endif %})">
+                                            <i class="bi bi-dash"></i>
+                                        </button>
+                                        <input type="number" 
+                                               class="form-control form-control-sm text-center"
+                                               value="{{ item.quantity }}"
+                                               min="{% if item.is_pair %}2{% else %}1{% endif %}"
+                                               step="{% if item.is_pair %}2{% else %}1{% endif %}"
+                                               id="qty-{{ item.product.id }}-{{ item.size.id|default:'none' }}"
+                                               onchange="updateQuantity('{{ item.product.id }}', '{{ item.size.id|default:'none' }}', this.value)">
+                                        <button class="btn btn-outline-secondary btn-sm" 
+                                                type="button"
+                                                onclick="updateQuantity('{{ item.product.id }}', '{{ item.size.id|default:'none' }}', {{ item.quantity }} + {% if item.is_pair %}2{% else %}1{% endif %})">
+                                            <i class="bi bi-plus"></i>
+                                        </button>
+                                    </div>
+                                </td>
+                                <td>
+                                    <strong class="text-primary">{{ item.total_price|price_comma }}</strong> تومان
+                                </td>
+                                <td>
+                                    <form method="post" action="{% url 'orders:cart_remove' %}" 
+                                          onsubmit="return confirm('آیا از حذف این محصول اطمینان دارید؟');">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="product_id" value="{{ item.product.id }}">
+                                        <input type="hidden" name="size_id" value="{{ item.size.id|default:'none' }}">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">
+                                            <i class="bi bi-trash"></i>
+                                        </button>
+                                    </form>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                    <div class="text-end mt-3">
+                        <a href="{% url 'orders:cart_clear' %}" 
+                           class="btn btn-outline-danger"
+                           onclick="return confirm('آیا از خالی کردن سبد خرید اطمینان دارید؟');">
+                            <i class="bi bi-trash"></i>
+                            خالی کردن سبد
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- خلاصه سفارش -->
+        <div class="col-lg-4">
+            <div class="card shadow-sm sticky-top" style="top: 20px;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">خلاصه سفارش</h5>
+                </div>
+                <div class="card-body">
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>جمع کل محصولات:</span>
+                        <strong id="total-price">{{ total_price|price_comma }} تومان</strong>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between mb-3">
+                        <span>هزینه ارسال:</span>
+                        <strong id="shipping-cost">
+                            {% if free_shipping %}
+                                <span class="text-success">رایگان</span>
+                            {% else %}
+                                {{ shipping_cost|price_comma }} تومان
+                            {% endif %}
+                        </strong>
+                    </div>
+                    
+                    {% if not free_shipping %}
+                    <div class="alert alert-info small">
+                        <i class="bi bi-info-circle"></i>
+                        برای ارسال رایگان، خرید نقدی آنلاین بالای {{ min_free_shipping|price_comma }} تومان لازم است.
+                    </div>
+                    {% endif %}
+                    
+                    <hr>
+                    
+                    <div class="d-flex justify-content-between mb-4">
+                        <strong>مبلغ قابل پرداخت:</strong>
+                        <strong class="text-danger fs-5" id="total-with-shipping">
+                            {{ total_with_shipping|price_comma }} تومان
+                        </strong>
+                    </div>
+                    
+                    <a href="{% url 'orders:checkout' %}" class="btn btn-primary w-100 btn-lg mb-2">
+                        <i class="bi bi-check-circle"></i>
+                        تکمیل سفارش
+                    </a>
+                    
+                    <a href="{% url 'shop:catalog' %}" class="btn btn-outline-secondary w-100">
+                        <i class="bi bi-arrow-right"></i>
+                        ادامه خرید
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    {% else %}
+    <!-- سبد خالی -->
+    <div class="row">
+        <div class="col-12">
+            <div class="card shadow-sm text-center py-5">
+                <div class="card-body">
+                    <i class="bi bi-cart-x display-1 text-muted"></i>
+                    <h3 class="mt-4 mb-3">سبد خرید شما خالی است</h3>
+                    <p class="text-muted mb-4">هنوز هیچ محصولی به سبد خرید اضافه نکرده‌اید.</p>
+                    <a href="{% url 'shop:catalog' %}" class="btn btn-primary btn-lg">
+                        <i class="bi bi-arrow-right"></i>
+                        مشاهده محصولات
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function updateQuantity(productId, sizeId, newQuantity) {
+    newQuantity = parseInt(newQuantity);
+    
+    if (newQuantity < 1) {
+        if (confirm('آیا می‌خواهید این محصول را از سبد حذف کنید؟')) {
+            newQuantity = 0;
+        } else {
+            return;
+        }
+    }
+    
+    // ارسال درخواست AJAX
+    fetch('{% url "orders:cart_update" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: `product_id=${productId}&size_id=${sizeId}&quantity=${newQuantity}`
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // بروزرسانی نمایش
+            document.getElementById('total-price').textContent = 
+                data.total_price.toLocaleString('fa-IR') + ' تومان';
+            document.getElementById('shipping-cost').textContent = 
+                data.free_shipping ? 'رایگان' : data.shipping_cost.toLocaleString('fa-IR') + ' تومان';
+            document.getElementById('total-with-shipping').textContent = 
+                data.total_with_shipping.toLocaleString('fa-IR') + ' تومان';
+            
+            if (newQuantity === 0) {
+                location.reload();
+            }
+        } else {
+            alert('خطا در بروزرسانی: ' + data.error);
+            location.reload();
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('خطا در بروزرسانی سبد خرید');
+    });
+}
+</script>
+{% endblock %}

@@ -1,0 +1,375 @@
+/* ================================================
+   همیار فرش - فونت وزیرمتن (ارقام فارسی)
+   ================================================ */
+
+@font-face {
+    font-family: 'Vazirmatn FD';
+    src: url('../fonts/vazirmatn/Vazirmatn-FD-Light.woff2') format('woff2');
+    font-weight: 300;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Vazirmatn FD';
+    src: url('../fonts/vazirmatn/Vazirmatn-FD-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Vazirmatn FD';
+    src: url('../fonts/vazirmatn/Vazirmatn-FD-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Vazirmatn FD';
+    src: url('../fonts/vazirmatn/Vazirmatn-FD-SemiBold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Vazirmatn FD';
+    src: url('../fonts/vazirmatn/Vazirmatn-FD-Bold.woff2') format('woff2');
+    font-weight: 700;
+    font-style: normal;
+    font-display: swap;
+}
+@font-face {
+    font-family: 'Vazirmatn FD';
+    src: url('../fonts/vazirmatn/Vazirmatn-FD-Black.woff2') format('woff2');
+    font-weight: 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+/* ================================================
+   CSS Variables - تم قرمز دیجی‌کالایی
+   ================================================ */
+:root {
+    --hf-primary: #C62828;
+    --hf-primary-dark: #8E0000;
+    --hf-primary-light: #FF5F52;
+    --hf-primary-bg: #FFF5F5;
+    --hf-secondary: #424242;
+    --hf-accent: #FF6F00;
+    --hf-success: #2E7D32;
+    --hf-info: #1565C0;
+    --hf-warning: #F57F17;
+    --hf-danger: #C62828;
+    --hf-light: #FAFAFA;
+    --hf-dark: #212121;
+    --hf-gray: #757575;
+    --hf-gray-light: #F5F5F5;
+    --hf-border: #E0E0E0;
+    --hf-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    --hf-shadow-lg: 0 4px 16px rgba(0,0,0,0.12);
+    --hf-radius: 8px;
+    --hf-radius-lg: 12px;
+    --hf-font: 'Vazirmatn FD', Tahoma, Arial, sans-serif;
+}
+
+/* ================================================
+   Base Styles
+   ================================================ */
+* {
+    font-family: var(--hf-font) !important;
+}
+
+body {
+    background-color: var(--hf-gray-light);
+    color: var(--hf-dark);
+    font-size: 14px;
+    line-height: 1.8;
+    direction: rtl;
+}
+
+a {
+    color: var(--hf-primary);
+    text-decoration: none;
+    transition: color 0.2s;
+}
+a:hover {
+    color: var(--hf-primary-dark);
+}
+
+/* ================================================
+   Navbar
+   ================================================ */
+.hf-navbar {
+    background: #fff;
+    box-shadow: var(--hf-shadow);
+    padding: 0;
+    min-height: 64px;
+}
+.hf-navbar .navbar-brand {
+    font-weight: 700;
+    font-size: 1.3rem;
+    color: var(--hf-primary) !important;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.hf-navbar .navbar-brand img {
+    height: 40px;
+    width: auto;
+}
+.hf-navbar .nav-link {
+    color: var(--hf-secondary) !important;
+    font-weight: 500;
+    padding: 20px 16px !important;
+    transition: all 0.2s;
+    position: relative;
+}
+.hf-navbar .nav-link:hover,
+.hf-navbar .nav-link.active {
+    color: var(--hf-primary) !important;
+}
+.hf-navbar .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    height: 3px;
+    background: var(--hf-primary);
+    border-radius: 3px 3px 0 0;
+}
+
+/* Navbar top bar */
+.hf-topbar {
+    background: var(--hf-primary);
+    color: #fff;
+    font-size: 12px;
+    padding: 6px 0;
+}
+.hf-topbar a {
+    color: rgba(255,255,255,0.9);
+    margin-inline-start: 16px;
+}
+.hf-topbar a:hover {
+    color: #fff;
+}
+.hf-topbar i {
+    margin-inline-end: 4px;
+}
+
+/* ================================================
+   Buttons
+   ================================================ */
+.btn-hf-primary {
+    background: var(--hf-primary);
+    color: #fff;
+    border: none;
+    border-radius: var(--hf-radius);
+    padding: 10px 24px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-hf-primary:hover {
+    background: var(--hf-primary-dark);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(198,40,40,0.3);
+}
+.btn-hf-outline {
+    background: transparent;
+    color: var(--hf-primary);
+    border: 2px solid var(--hf-primary);
+    border-radius: var(--hf-radius);
+    padding: 8px 22px;
+    font-weight: 600;
+    transition: all 0.2s;
+}
+.btn-hf-outline:hover {
+    background: var(--hf-primary);
+    color: #fff;
+}
+
+/* ================================================
+   Cards
+   ================================================ */
+.hf-card {
+    background: #fff;
+    border-radius: var(--hf-radius-lg);
+    box-shadow: var(--hf-shadow);
+    border: none;
+    overflow: hidden;
+    transition: all 0.3s;
+}
+.hf-card:hover {
+    box-shadow: var(--hf-shadow-lg);
+    transform: translateY(-2px);
+}
+.hf-card .card-img-top {
+    aspect-ratio: 1/1;
+    object-fit: contain;
+    background: #fff;
+    padding: 8px;
+}
+.hf-card .card-body {
+    padding: 16px;
+}
+.hf-card .card-title {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--hf-dark);
+    margin-bottom: 8px;
+}
+.hf-card .hf-price {
+    color: var(--hf-primary);
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+.hf-card .hf-price-old {
+    color: var(--hf-gray);
+    text-decoration: line-through;
+    font-size: 0.85rem;
+    margin-inline-start: 8px;
+}
+
+/* ================================================
+   Badge status
+   ================================================ */
+.badge-available { background: var(--hf-success); }
+.badge-unavailable { background: var(--hf-gray); }
+.badge-exhibition { background: var(--hf-info); }
+.badge-coming { background: var(--hf-accent); }
+
+/* ================================================
+   Auth pages
+   ================================================ */
+.hf-auth-card {
+    max-width: 420px;
+    margin: 60px auto;
+    background: #fff;
+    border-radius: var(--hf-radius-lg);
+    box-shadow: var(--hf-shadow-lg);
+    padding: 40px 32px;
+}
+.hf-auth-card h2 {
+    color: var(--hf-primary);
+    font-weight: 700;
+    margin-bottom: 24px;
+    text-align: center;
+}
+.hf-auth-card .form-control:focus {
+    border-color: var(--hf-primary);
+    box-shadow: 0 0 0 0.2rem rgba(198,40,40,0.15);
+}
+
+/* ================================================
+   Admin Panel
+   ================================================ */
+.hf-sidebar {
+    background: #fff;
+    min-height: 100vh;
+    box-shadow: 2px 0 8px rgba(0,0,0,0.06);
+    padding-top: 20px;
+}
+.hf-sidebar .nav-link {
+    color: var(--hf-secondary);
+    padding: 12px 20px;
+    border-radius: var(--hf-radius);
+    margin: 2px 12px;
+    font-weight: 500;
+}
+.hf-sidebar .nav-link:hover {
+    background: var(--hf-primary-bg);
+    color: var(--hf-primary);
+}
+.hf-sidebar .nav-link.active {
+    background: var(--hf-primary);
+    color: #fff;
+}
+.hf-sidebar .nav-link i {
+    width: 24px;
+    text-align: center;
+    margin-inline-end: 8px;
+}
+
+/* ================================================
+   Footer
+   ================================================ */
+.hf-footer {
+    background: var(--hf-dark);
+    color: rgba(255,255,255,0.7);
+    padding: 40px 0 20px;
+    margin-top: 60px;
+}
+.hf-footer h5 {
+    color: #fff;
+    font-weight: 700;
+    margin-bottom: 16px;
+    font-size: 1rem;
+}
+.hf-footer a {
+    color: rgba(255,255,255,0.7);
+    display: block;
+    padding: 4px 0;
+    font-size: 13px;
+}
+.hf-footer a:hover {
+    color: #fff;
+}
+.hf-footer-bottom {
+    border-top: 1px solid rgba(255,255,255,0.1);
+    padding-top: 16px;
+    margin-top: 24px;
+    text-align: center;
+    font-size: 12px;
+}
+
+/* ================================================
+   Messages (alerts)
+   ================================================ */
+.hf-messages {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 9999;
+    min-width: 320px;
+    max-width: 500px;
+}
+.hf-messages .alert {
+    border-radius: var(--hf-radius);
+    box-shadow: var(--hf-shadow-lg);
+    border: none;
+    animation: hfSlideDown 0.3s ease;
+}
+
+@keyframes hfSlideDown {
+    from { opacity: 0; transform: translateY(-20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* ================================================
+   Forms
+   ================================================ */
+.form-control, .form-select {
+    border-radius: var(--hf-radius);
+    border-color: var(--hf-border);
+    padding: 10px 14px;
+}
+.form-control:focus, .form-select:focus {
+    border-color: var(--hf-primary);
+    box-shadow: 0 0 0 0.2rem rgba(198,40,40,0.12);
+}
+.form-label {
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: var(--hf-secondary);
+}
+
+/* ================================================
+   Responsive
+   ================================================ */
+@media (max-width: 768px) {
+    .hf-topbar { font-size: 11px; }
+    .hf-navbar .navbar-brand { font-size: 1.1rem; }
+    .hf-auth-card { margin: 20px 16px; padding: 28px 20px; }
+    .hf-card .card-body { padding: 12px; }
+    body { font-size: 13px; }
+}

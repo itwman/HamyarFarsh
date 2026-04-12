@@ -1,0 +1,19 @@
+{% extends 'base.html' %}
+
+{% block meta_title %}آفلاین | همیار فرش{% endblock %}
+
+{% block content %}
+<div class="container py-5 text-center">
+    <i class="bi bi-wifi-off" style="font-size:5rem;color:var(--hf-primary);"></i>
+    <h2 class="mt-4" style="color:var(--hf-primary);">اتصال به اینترنت قطع شده</h2>
+    <p class="text-muted mt-3">
+        لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید.
+    </p>
+    <button onclick="location.reload()" class="btn btn-hf-primary btn-lg mt-3">
+        <i class="bi bi-arrow-clockwise"></i> تلاش مجدد
+    </button>
+    <div class="mt-4">
+        <a href="/" class="text-decoration-none">بازگشت به صفحه اصلی</a>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,192 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load price_tags %}
+
+{% block meta_title %}محاسبه‌گر اقساط{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="hf-card p-4">
+                <h3 class="mb-4" style="color:var(--hf-primary);">
+                    <i class="bi bi-calculator"></i> محاسبه‌گر اقساط
+                </h3>
+                
+                <form method="post" id="installmentForm">
+                    {% csrf_token %}
+                    
+                    <div class="row g-3">
+                        {# مبلغ کل #}
+                        <div class="col-md-6">
+                            <label class="form-label">مبلغ کل فاکتور (تومان)</label>
+                            {{ form.total_amount }}
+                            {% if form.total_amount.errors %}
+                            <div class="text-danger small">{{ form.total_amount.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        {# پیش‌پرداخت #}
+                        <div class="col-md-6">
+                            <label class="form-label">پیش‌پرداخت (تومان)</label>
+                            {{ form.down_payment }}
+                            {% if form.down_payment.errors %}
+                            <div class="text-danger small">{{ form.down_payment.errors.0 }}</div>
+                            {% endif %}
+                            <small class="text-muted d-block">اختیاری - مبلغ صفر یعنی بدون پیش‌پرداخت</small>
+                        </div>
+                        
+                        {# نوع طرح #}
+                        <div class="col-12">
+                            <label class="form-label d-block">نوع طرح اقساطی</label>
+                            <div class="d-flex gap-4">
+                                {% for value, label in form.plan_type.field.choices %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="plan_type" 
+                                           id="plan_{{ value }}" value="{{ value }}"
+                                           {% if form.plan_type.value == value %}checked{% endif %}>
+                                    <label class="form-check-label" for="plan_{{ value }}">
+                                        {{ label }}
+                                        {% if value == 'check' %}
+                                        <small class="text-muted">(حداکثر 12 ماه)</small>
+                                        {% else %}
+                                        <small class="text-muted">(حداکثر 18 ماه)</small>
+                                        {% endif %}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        {# تعداد اقساط #}
+                        <div class="col-md-6">
+                            <label class="form-label">تعداد اقساط</label>
+                            {{ form.num_installments }}
+                            {% if form.num_installments.errors %}
+                            <div class="text-danger small">{{ form.num_installments.errors.0 }}</div>
+                            {% endif %}
+                        </div>
+                        
+                        {# دوره پرداخت #}
+                        <div class="col-md-6">
+                            <label class="form-label d-block">دوره پرداخت</label>
+                            <div class="d-flex gap-4">
+                                {% for value, label in form.period.field.choices %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="period" 
+                                           id="period_{{ value }}" value="{{ value }}"
+                                           {% if form.period.value == value or forloop.first and not form.period.value %}checked{% endif %}>
+                                    <label class="form-check-label" for="period_{{ value }}">
+                                        {{ label }}
+                                    </label>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        
+                        {# دکمه محاسبه #}
+                        <div class="col-12">
+                            <button type="submit" class="btn btn-hf-primary">
+                                <i class="bi bi-calculator"></i> محاسبه اقساط
+                            </button>
+                        </div>
+                        
+                        {# نمایش خطاهای عمومی #}
+                        {% if form.non_field_errors %}
+                        <div class="col-12">
+                            <div class="alert alert-danger">
+                                {{ form.non_field_errors.0 }}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </form>
+                
+                {# نتیجه محاسبات #}
+                {% if result %}
+                <div class="mt-4 p-4 rounded" style="background:var(--hf-primary-bg);border:2px solid var(--hf-primary);">
+                    <h5 class="mb-3" style="color:var(--hf-primary);">
+                        <i class="bi bi-check-circle-fill"></i> نتیجه محاسبات
+                    </h5>
+                    
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="p-3 rounded bg-white">
+                                <small class="text-muted d-block">مبلغ قابل اقساط</small>
+                                <h5 class="mb-0">{{ result.financed_amount|price_comma }} <small>تومان</small></h5>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="p-3 rounded bg-white">
+                                <small class="text-muted d-block">مجموع سود ({{ result.interest_rate }}% × {{ result.months }} ماه)</small>
+                                <h5 class="mb-0 text-warning">{{ result.total_interest|price_comma }} <small>تومان</small></h5>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="p-3 rounded bg-white">
+                                <small class="text-muted d-block">مبلغ کل با سود</small>
+                                <h5 class="mb-0 text-danger">{{ result.total_with_interest|price_comma }} <small>تومان</small></h5>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12">
+                            <div class="p-4 rounded text-center" style="background:#fff;">
+                                <small class="text-muted d-block mb-2">مبلغ هر قسط ({{ result.num_installments }} قسط {{ result.period_label }})</small>
+                                <h3 class="mb-0" style="color:var(--hf-primary);">
+                                    {{ result.installment_amount|price_comma }} <small>تومان</small>
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    {# جدول اقساط #}
+                    <div class="mt-4">
+                        <h6 class="mb-3">جدول اقساط تفصیلی:</h6>
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th>شماره قسط</th>
+                                        <th>مبلغ قسط</th>
+                                        <th>تاریخ سررسید تقریبی</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for i in result.installment_range %}
+                                    <tr>
+                                        <td>{{ i }}</td>
+                                        <td>{{ result.installment_amount|price_comma }} تومان</td>
+                                        <td>
+                                            {% if result.period == 'monthly' %}
+                                            ماه {{ i }}
+                                            {% else %}
+                                            ماه {{ forloop.counter|add:forloop.counter|add:"-1" }}
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    
+                    {# توضیحات #}
+                    <div class="alert alert-info mt-3 mb-0">
+                        <h6><i class="bi bi-info-circle"></i> توضیحات مهم:</h6>
+                        <ul class="mb-0 small">
+                            <li>سقف خرید اقساطی: {{ result.installment_max|price_comma }} تومان</li>
+                            <li>مبلغ بالاتر از سقف باید به صورت نقدی پرداخت شود</li>
+                            <li>چک‌های صیادی باید به نام شرکت باشد</li>
+                            <li>طرح بتا فقط برای بازنشستگان بانک رفاه</li>
+                            <li>نرخ سود ممکن است متغیر باشد</li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

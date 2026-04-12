@@ -1,0 +1,195 @@
+{% extends "base.html" %}
+{% load static %}
+{% load gallery_tags %}
+
+{% block meta_title %}{{ product.display_title }} | گالری تصاویر همیار فرش{% endblock %}
+{% block meta_description %}تصویر {{ product.display_title }}. مشاهده فرش‌های مشابه بر اساس رنگ، طرح و شانه.{% endblock %}
+
+{% block og_tags %}
+<meta property="og:type" content="article">
+<meta property="og:title" content="{{ product.display_title }}">
+{% if image.featured_image %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ image.featured_image.url }}">
+{% endif %}
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+<meta property="og:locale" content="fa_IR">
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/gallery.css' %}">
+<link rel="stylesheet" href="{% static 'css/pinterest-gallery.css' %}">
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<div class="container pin-detail-container">
+
+    <!-- ========== بخش اصلی: تصویر + اطلاعات (Pinterest Modal Style) ========== -->
+    <div class="pin-detail-card">
+        <div class="row g-0">
+            <!-- تصویر بزرگ -->
+            <div class="col-lg-6">
+                <div class="pin-detail-img-wrap">
+                    {% if image.featured_image %}
+                    <img src="{{ image.featured_image.url }}" alt="{{ image.get_effective_alt }}" class="pin-detail-img">
+                    {% else %}
+                    <img src="{{ image.original.url }}" alt="{{ image.get_effective_alt }}" class="pin-detail-img">
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- اطلاعات محصول -->
+            <div class="col-lg-6">
+                <div class="pin-detail-info">
+                    <!-- دکمه‌های بالا -->
+                    <div class="pin-detail-actions">
+                        <a href="{% url 'gallery:image_gallery' %}" class="pin-back-btn">
+                            <i class="bi bi-arrow-right"></i> بازگشت
+                        </a>
+                        <div class="d-flex gap-2">
+                            <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}" target="_blank" class="pin-share-btn" title="تلگرام">
+                                <i class="bi bi-telegram"></i>
+                            </a>
+                            <a href="https://wa.me/?text={{ product.display_title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" target="_blank" class="pin-share-btn" title="واتساپ">
+                                <i class="bi bi-whatsapp"></i>
+                            </a>
+                            <button class="pin-share-btn" onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}');this.innerHTML='<i class=\'bi bi-check-lg\'></i>';setTimeout(()=>{this.innerHTML='<i class=\'bi bi-link-45deg\'></i>'},1500)" title="کپی لینک">
+                                <i class="bi bi-link-45deg"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- عنوان -->
+                    <h1 class="pin-detail-title">{{ product.display_title }}</h1>
+
+                    <!-- تگ‌های ویژگی -->
+                    <div class="pin-detail-tags">
+                        <span class="pin-detail-tag"><i class="bi bi-hash"></i> {{ product.album.comb }} شانه</span>
+                        {% if product.background_color %}
+                        <span class="pin-detail-tag" style="{% if product.background_color.color_code %}border-right:3px solid {{ product.background_color.color_code }};{% endif %}">
+                            <i class="bi bi-palette"></i> {{ product.background_color.name }}
+                        </span>
+                        {% endif %}
+                        {% if product.design_type_display %}
+                        <span class="pin-detail-tag"><i class="bi bi-flower1"></i> {{ product.design_type_display }}</span>
+                        {% endif %}
+                        {% if product.weave_type %}
+                        <span class="pin-detail-tag"><i class="bi bi-grid-3x3"></i> {{ product.weave_type.name }}</span>
+                        {% endif %}
+                        {% if product.feature %}
+                        <span class="pin-detail-tag"><i class="bi bi-star"></i> {{ product.feature.name }}</span>
+                        {% endif %}
+                        {% if product.color_tone %}
+                        <span class="pin-detail-tag"><i class="bi bi-brightness-high"></i> {{ product.color_tone.name }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- مشخصات فنی -->
+                    <div class="pin-detail-specs">
+                        <div class="pin-spec-row">
+                            <span class="pin-spec-label">شرکت</span>
+                            <span class="pin-spec-value">{{ product.manufacturer.name }}</span>
+                        </div>
+                        <div class="pin-spec-row">
+                            <span class="pin-spec-label">آلبوم</span>
+                            <span class="pin-spec-value">{{ product.album.name }}</span>
+                        </div>
+                        {% if product.density %}
+                        <div class="pin-spec-row">
+                            <span class="pin-spec-label">تراکم</span>
+                            <span class="pin-spec-value">{{ product.density }}</span>
+                        </div>
+                        {% endif %}
+                        <div class="pin-spec-row">
+                            <span class="pin-spec-label">جنس نخ</span>
+                            <span class="pin-spec-value">{{ product.yarn_type }}</span>
+                        </div>
+                        <div class="pin-spec-row">
+                            <span class="pin-spec-label">وزن</span>
+                            <span class="pin-spec-value">{{ product.weight_class }}</span>
+                        </div>
+                    </div>
+
+                    <!-- قیمت -->
+                    {% if sell_12 %}
+                    <div class="pin-detail-price">
+                        <span class="pin-price-label">قیمت ۱۲ متری</span>
+                        <span class="pin-price-value">{{ sell_12|intcomma_fa }} <small>تومان</small></span>
+                    </div>
+                    {% endif %}
+
+                    <!-- دکمه خرید -->
+                    <a href="/farsh/{{ product.slug }}/" class="btn btn-hf-primary w-100 pin-buy-main">
+                        <i class="bi bi-cart-plus"></i> مشاهده و خرید محصول
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== تصاویر مشابه ========== -->
+    {% if similar_images %}
+    <div class="pin-similar-section">
+        <h2 class="pin-similar-title">
+            <i class="bi bi-grid-3x3-gap"></i> فرش‌های مشابه
+        </h2>
+        <p class="pin-similar-subtitle">بر اساس رنگ، طرح، شانه و ویژگی‌های مشترک</p>
+
+        <div class="pin-grid">
+            {% for sim in similar_images %}
+            <div class="pin-card">
+                <a href="{% url 'gallery:image_detail' sim.pk %}" class="pin-card-link">
+                    <div class="pin-card-img-wrap">
+                        {% if sim.featured_image %}
+                        <img src="{{ sim.featured_image.url }}" alt="{{ sim.get_effective_alt }}" loading="lazy" class="pin-card-img">
+                        {% elif sim.thumbnail %}
+                        <img src="{{ sim.thumbnail.url }}" alt="{{ sim.get_effective_alt }}" loading="lazy" class="pin-card-img">
+                        {% else %}
+                        <img src="{{ sim.original.url }}" alt="{{ sim.get_effective_alt }}" loading="lazy" class="pin-card-img">
+                        {% endif %}
+                        <div class="pin-card-overlay">
+                            <span class="pin-overlay-btn"><i class="bi bi-search"></i></span>
+                        </div>
+                        <!-- امتیاز شباهت -->
+                        {% if sim.similarity_score %}
+                        <span class="pin-similarity-badge" title="امتیاز شباهت">
+                            {{ sim.similarity_score }}
+                            <i class="bi bi-lightning-fill"></i>
+                        </span>
+                        {% endif %}
+                    </div>
+                </a>
+                <div class="pin-card-body">
+                    <a href="{% url 'gallery:image_detail' sim.pk %}" class="pin-card-title">{{ sim.product.display_title|truncatechars:40 }}</a>
+                    <div class="pin-card-meta">
+                        {% if sim.product.background_color %}
+                        <span class="pin-tag">{{ sim.product.background_color.name }}</span>
+                        {% endif %}
+                        {% if sim.product.design_type_display %}
+                        <span class="pin-tag">{{ sim.product.design_type_display|truncatechars:12 }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="pin-card-footer">
+                        {% with price=sim.product.get_sell_price_12m %}
+                        {% if price %}
+                        <span class="pin-price">{{ price|intcomma_fa }} <small>ت</small></span>
+                        {% endif %}
+                        {% endwith %}
+                        <a href="/farsh/{{ sim.product.slug }}/" class="pin-buy-btn" title="خرید">
+                            <i class="bi bi-cart-plus"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/gallery.js' %}"></script>
+{% endblock %}

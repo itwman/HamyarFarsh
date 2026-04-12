@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+
+{% block meta_title %}{{ verbose_name }} | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h5 style="color: var(--hf-primary);"><i class="bi bi-tags"></i> لیست {{ verbose_name }}</h5>
+    <div class="d-flex gap-2">
+        <a href="{% url 'categories_dashboard' %}" class="btn btn-sm btn-hf-outline"><i class="bi bi-arrow-right"></i> بازگشت</a>
+        {% if verbose_name == 'رنگ زمینه' %}
+        <a href="{% url 'color_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus-lg"></i> افزودن</a>
+        {% elif verbose_name == 'نوع طرح' %}
+        <a href="{% url 'design_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus-lg"></i> افزودن</a>
+        {% elif verbose_name == 'نوع بافت' %}
+        <a href="{% url 'weave_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus-lg"></i> افزودن</a>
+        {% elif verbose_name == 'ویژگی' %}
+        <a href="{% url 'feature_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus-lg"></i> افزودن</a>
+        {% elif verbose_name == 'تناژ رنگ' %}
+        <a href="{% url 'tone_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus-lg"></i> افزودن</a>
+        {% endif %}
+    </div>
+</div>
+
+{% comment %} جستجو {% endcomment %}
+<form method="get" class="mb-3">
+    <div class="input-group input-group-sm" style="max-width:400px;">
+        <input type="text" name="q" class="form-control" placeholder="جستجو..." value="{{ query }}">
+        <button class="btn btn-hf-outline" type="submit"><i class="bi bi-search"></i></button>
+        {% if query %}<a href="?" class="btn btn-outline-secondary"><i class="bi bi-x"></i></a>{% endif %}
+    </div>
+</form>
+
+<div class="hf-card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead style="background:var(--hf-primary-bg);">
+                <tr>
+                    <th>#</th>
+                    <th>نام</th>
+                    <th>اسلاگ</th>
+                    {% if verbose_name == 'رنگ زمینه' %}<th>رنگ</th>{% endif %}
+                    {% if verbose_name == 'نوع طرح' %}<th>توضیح</th>{% endif %}
+                    <th>وضعیت</th>
+                    <th>عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in items %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td class="fw-bold">{{ item.name }}</td>
+                    <td><code>{{ item.slug }}</code></td>
+                    {% if verbose_name == 'رنگ زمینه' %}
+                    <td>
+                        {% if item.color_code %}
+                        <span class="d-inline-block rounded" style="width:24px;height:24px;background:{{ item.color_code }};border:1px solid #ddd;"></span>
+                        <small class="text-muted ms-1">{{ item.color_code }}</small>
+                        {% else %}
+                        <span class="text-muted">—</span>
+                        {% endif %}
+                    </td>
+                    {% endif %}
+                    {% if verbose_name == 'نوع طرح' %}
+                    <td><small class="text-muted">{{ item.description|truncatewords:10|default:"—" }}</small></td>
+                    {% endif %}
+                    <td>
+                        {% if item.is_active %}
+                        <span class="badge badge-available">فعال</span>
+                        {% else %}
+                        <span class="badge badge-unavailable">غیرفعال</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            {% if verbose_name == 'رنگ زمینه' %}
+                            <a href="{% url 'color_edit' item.pk %}" class="btn btn-sm btn-outline-secondary" title="ویرایش"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'color_toggle' item.pk %}" class="btn btn-sm btn-outline-warning" title="تغییر وضعیت"><i class="bi bi-toggle-on"></i></a>
+                            <a href="{% url 'color_delete' item.pk %}" class="btn btn-sm btn-outline-danger" title="حذف"><i class="bi bi-trash"></i></a>
+                            {% elif verbose_name == 'نوع طرح' %}
+                            <a href="{% url 'design_edit' item.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'design_toggle' item.pk %}" class="btn btn-sm btn-outline-warning"><i class="bi bi-toggle-on"></i></a>
+                            <a href="{% url 'design_delete' item.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                            {% elif verbose_name == 'نوع بافت' %}
+                            <a href="{% url 'weave_edit' item.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'weave_delete' item.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                            {% elif verbose_name == 'ویژگی' %}
+                            <a href="{% url 'feature_edit' item.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'feature_delete' item.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                            {% elif verbose_name == 'تناژ رنگ' %}
+                            <a href="{% url 'tone_edit' item.pk %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></a>
+                            <a href="{% url 'tone_delete' item.pk %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" class="text-center text-muted py-4">هنوز {{ verbose_name }} ثبت نشده است.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

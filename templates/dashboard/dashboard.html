@@ -1,0 +1,261 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load price_tags %}
+
+{% block meta_title %}داشبورد مدیریت{% endblock %}
+
+{% block extra_css %}
+<style>
+.stat-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    padding: 1.5rem;
+    transition: transform 0.2s;
+}
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--hf-primary);
+}
+.stat-label {
+    color: #666;
+    font-size: 0.9rem;
+}
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <h2 class="mb-4" style="color:var(--hf-primary);">
+        <i class="bi bi-speedometer2"></i> داشبورد مدیریت
+    </h2>
+
+    {# آمار کلی #}
+    <div class="row g-3 mb-4">
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_orders|intcomma }}</div>
+                <div class="stat-label">کل سفارش‌ها</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number" style="color:#ff9800;">{{ pending_orders|intcomma }}</div>
+                <div class="stat-label">در انتظار پردازش</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number" style="color:#4caf50;">{{ completed_orders|intcomma }}</div>
+                <div class="stat-label">تحویل شده</div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_revenue|price_comma }}</div>
+                <div class="stat-label">کل فروش (تومان)</div>
+            </div>
+        </div>
+    </div>
+
+    {# آمار این ماه #}
+    <div class="row g-3 mb-4">
+        <div class="col-md-6">
+            <div class="stat-card">
+                <h6 class="mb-3"><i class="bi bi-calendar-month"></i> سفارشات این ماه</h6>
+                <div class="stat-number">{{ this_month_orders|intcomma }}</div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="stat-card">
+                <h6 class="mb-3"><i class="bi bi-cash-stack"></i> فروش این ماه</h6>
+                <div class="stat-number">{{ this_month_revenue|price_comma }}</div>
+            </div>
+        </div>
+    </div>
+
+    {# نمودارها #}
+    <div class="row g-4 mb-4">
+        <div class="col-md-6">
+            <div class="hf-card p-3">
+                <h5 class="mb-3"><i class="bi bi-graph-up"></i> روند سفارشات (6 ماه)</h5>
+                <div class="chart-container">
+                    <canvas id="ordersChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="hf-card p-3">
+                <h5 class="mb-3"><i class="bi bi-currency-dollar"></i> روند فروش (6 ماه)</h5>
+                <div class="chart-container">
+                    <canvas id="revenueChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4">
+        {# محصولات پرفروش #}
+        <div class="col-md-6">
+            <div class="hf-card p-3">
+                <h5 class="mb-3"><i class="bi bi-trophy"></i> محصولات پرفروش</h5>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>رتبه</th>
+                                <th>محصول</th>
+                                <th>تعداد فروش</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for product in top_products %}
+                            <tr>
+                                <td><span class="badge bg-primary">{{ forloop.counter }}</span></td>
+                                <td>
+                                    <strong>{{ product.name }}</strong><br>
+                                    <small class="text-muted">{{ product.album.manufacturer.name }}</small>
+                                </td>
+                                <td><strong>{{ product.total_sold|intcomma }}</strong></td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">داده‌ای موجود نیست</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {# سفارشات جدید #}
+        <div class="col-md-6">
+            <div class="hf-card p-3">
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="mb-0"><i class="bi bi-cart-check"></i> سفارشات اخیر</h5>
+                    <a href="{% url 'dashboard:orders_list' %}" class="btn btn-sm btn-outline-primary">
+                        مشاهده همه
+                    </a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle">
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>مشتری</th>
+                                <th>مبلغ</th>
+                                <th>وضعیت</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in recent_orders %}
+                            <tr>
+                                <td><a href="{% url 'dashboard:order_detail' order.pk %}">#{{ order.id }}</a></td>
+                                <td>{{ order.customer.get_full_name|default:order.customer.phone }}</td>
+                                <td>{{ order.total_amount|price_comma }}</td>
+                                <td>
+                                    <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                                </td>
+                            </tr>
+                            {% empty %}
+                            <tr>
+                                <td colspan="4" class="text-center text-muted">سفارشی موجود نیست</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/chart.min.js' %}"></script>
+<script>
+// داده‌های نمودار
+const monthlyData = {{ monthly_stats|safe }};
+const months = monthlyData.map(item => item.month);
+const orders = monthlyData.map(item => item.orders);
+const revenue = monthlyData.map(item => item.revenue);
+
+// نمودار سفارشات
+const ordersCtx = document.getElementById('ordersChart').getContext('2d');
+new Chart(ordersCtx, {
+    type: 'line',
+    data: {
+        labels: months,
+        datasets: [{
+            label: 'تعداد سفارش',
+            data: orders,
+            borderColor: '#C62828',
+            backgroundColor: 'rgba(198, 40, 40, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    precision: 0
+                }
+            }
+        }
+    }
+});
+
+// نمودار فروش
+const revenueCtx = document.getElementById('revenueChart').getContext('2d');
+new Chart(revenueCtx, {
+    type: 'bar',
+    data: {
+        labels: months,
+        datasets: [{
+            label: 'فروش (تومان)',
+            data: revenue,
+            backgroundColor: '#4CAF50',
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: {
+                    callback: function(value) {
+                        return value.toLocaleString('fa-IR');
+                    }
+                }
+            }
+        }
+    }
+});
+</script>
+{% endblock %}

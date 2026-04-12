@@ -1,0 +1,62 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-{% if is_edit %}pencil{% else %}plus-circle{% endif %}"></i> {{ title }}</h5>
+    <a href="{% url 'pages:category_list' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label">نام دسته‌بندی</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">اسلاگ</label>
+                    {{ form.slug }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">توضیحات</label>
+                    {{ form.description }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">تصویر</label>
+                    {{ form.image }}
+                    {% if is_edit and category.image %}
+                    <img src="{{ category.image.url }}" style="max-width:120px;margin-top:8px;border-radius:6px;" alt="">
+                    {% endif %}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">ترتیب</label>
+                    {{ form.sort_order }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label">فعال</label>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">عنوان SEO</label>
+                    {{ form.seo_title }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">توضیحات SEO</label>
+                    {{ form.seo_description }}
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {% if is_edit %}بروزرسانی{% else %}ذخیره{% endif %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

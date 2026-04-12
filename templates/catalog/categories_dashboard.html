@@ -1,0 +1,134 @@
+{% extends 'base.html' %}
+
+{% block meta_title %}مدیریت دسته‌بندی‌ها | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h4 style="color: var(--hf-primary);"><i class="bi bi-tags"></i> مدیریت دسته‌بندی‌ها و سایزها</h4>
+</div>
+
+<div class="row g-3">
+    {% comment %} رنگ زمینه {% endcomment %}
+    <div class="col-md-4 col-6">
+        <div class="hf-card p-3 h-100">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-palette" style="font-size:1.5rem;color:var(--hf-primary);margin-inline-end:8px;"></i>
+                <h6 class="mb-0 fw-bold">رنگ‌های زمینه</h6>
+            </div>
+            <p class="text-muted small mb-2">{{ color_count }} رنگ تعریف‌شده</p>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+                {% for c in colors|slice:":12" %}
+                <span class="badge rounded-pill" style="{% if c.color_code %}background:{{ c.color_code }};{% else %}background:var(--hf-gray);{% endif %}font-size:11px;">{{ c.name }}</span>
+                {% endfor %}
+                {% if color_count > 12 %}<span class="badge bg-secondary rounded-pill" style="font-size:11px;">+{{ color_count|add:"-12" }}</span>{% endif %}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'color_list' %}" class="btn btn-sm btn-hf-outline flex-fill"><i class="bi bi-list"></i> لیست</a>
+                <a href="{% url 'color_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus"></i></a>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} نوع طرح {% endcomment %}
+    <div class="col-md-4 col-6">
+        <div class="hf-card p-3 h-100">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-grid-3x3-gap" style="font-size:1.5rem;color:var(--hf-primary);margin-inline-end:8px;"></i>
+                <h6 class="mb-0 fw-bold">انواع طرح</h6>
+            </div>
+            <p class="text-muted small mb-2">{{ design_count }} طرح تعریف‌شده</p>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+                {% for d in designs|slice:":8" %}
+                <span class="badge bg-secondary rounded-pill" style="font-size:11px;">{{ d.name }}</span>
+                {% endfor %}
+                {% if design_count > 8 %}<span class="badge bg-dark rounded-pill" style="font-size:11px;">+{{ design_count|add:"-8" }}</span>{% endif %}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'design_list' %}" class="btn btn-sm btn-hf-outline flex-fill"><i class="bi bi-list"></i> لیست</a>
+                <a href="{% url 'design_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus"></i></a>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} نوع بافت {% endcomment %}
+    <div class="col-md-4 col-6">
+        <div class="hf-card p-3 h-100">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-layers" style="font-size:1.5rem;color:var(--hf-primary);margin-inline-end:8px;"></i>
+                <h6 class="mb-0 fw-bold">انواع بافت</h6>
+            </div>
+            <p class="text-muted small mb-2">{{ weave_count }} نوع بافت</p>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+                {% for w in weaves %}
+                <span class="badge bg-secondary rounded-pill" style="font-size:11px;">{{ w.name }}</span>
+                {% endfor %}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'weave_list' %}" class="btn btn-sm btn-hf-outline flex-fill"><i class="bi bi-list"></i> لیست</a>
+                <a href="{% url 'weave_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus"></i></a>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} ویژگی {% endcomment %}
+    <div class="col-md-4 col-6">
+        <div class="hf-card p-3 h-100">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-star" style="font-size:1.5rem;color:var(--hf-primary);margin-inline-end:8px;"></i>
+                <h6 class="mb-0 fw-bold">ویژگی‌ها</h6>
+            </div>
+            <p class="text-muted small mb-2">{{ feature_count }} ویژگی</p>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+                {% for f in features %}
+                <span class="badge bg-secondary rounded-pill" style="font-size:11px;">{{ f.name }}</span>
+                {% endfor %}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'feature_list' %}" class="btn btn-sm btn-hf-outline flex-fill"><i class="bi bi-list"></i> لیست</a>
+                <a href="{% url 'feature_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus"></i></a>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} تناژ رنگ {% endcomment %}
+    <div class="col-md-4 col-6">
+        <div class="hf-card p-3 h-100">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-brightness-high" style="font-size:1.5rem;color:var(--hf-primary);margin-inline-end:8px;"></i>
+                <h6 class="mb-0 fw-bold">تناژ رنگ</h6>
+            </div>
+            <p class="text-muted small mb-2">{{ tone_count }} تناژ</p>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+                {% for t in tones %}
+                <span class="badge bg-secondary rounded-pill" style="font-size:11px;">{{ t.name }}</span>
+                {% endfor %}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'tone_list' %}" class="btn btn-sm btn-hf-outline flex-fill"><i class="bi bi-list"></i> لیست</a>
+                <a href="{% url 'tone_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus"></i></a>
+            </div>
+        </div>
+    </div>
+
+    {% comment %} سایزها {% endcomment %}
+    <div class="col-md-4 col-6">
+        <div class="hf-card p-3 h-100">
+            <div class="d-flex align-items-center mb-2">
+                <i class="bi bi-rulers" style="font-size:1.5rem;color:var(--hf-primary);margin-inline-end:8px;"></i>
+                <h6 class="mb-0 fw-bold">سایزهای فرش</h6>
+            </div>
+            <p class="text-muted small mb-2">{{ size_count }} سایز تعریف‌شده</p>
+            <div class="d-flex flex-wrap gap-1 mb-3">
+                {% for s in sizes|slice:":8" %}
+                <span class="badge bg-secondary rounded-pill" style="font-size:11px;">{{ s.name }}</span>
+                {% endfor %}
+                {% if size_count > 8 %}<span class="badge bg-dark rounded-pill" style="font-size:11px;">+{{ size_count|add:"-8" }}</span>{% endif %}
+            </div>
+            <div class="d-flex gap-2">
+                <a href="{% url 'size_list' %}" class="btn btn-sm btn-hf-outline flex-fill"><i class="bi bi-list"></i> لیست</a>
+                <a href="{% url 'size_create' %}" class="btn btn-sm btn-hf-primary"><i class="bi bi-plus"></i></a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

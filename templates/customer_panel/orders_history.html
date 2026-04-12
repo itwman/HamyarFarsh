@@ -1,0 +1,138 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load price_tags %}
+
+{% block meta_title %}تاریخچه سفارشات{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color:var(--hf-primary);">
+            <i class="bi bi-bag"></i> تاریخچه سفارشات
+        </h2>
+        <a href="{% url 'customer_panel:dashboard' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-right"></i> بازگشت
+        </a>
+    </div>
+
+    {# فیلتر وضعیت #}
+    <div class="hf-card p-3 mb-3">
+        <form method="get" class="row g-2 align-items-end">
+            <div class="col-md-6">
+                <label class="form-label">فیلتر بر اساس وضعیت:</label>
+                <select name="status" class="form-select">
+                    <option value="">همه سفارشات</option>
+                    {% for value, label in status_choices %}
+                    <option value="{{ value }}" {% if current_status == value %}selected{% endif %}>
+                        {{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-6">
+                <button type="submit" class="btn btn-hf-primary">
+                    <i class="bi bi-filter"></i> اعمال فیلتر
+                </button>
+                <a href="{% url 'customer_panel:orders_history' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> حذف فیلتر
+                </a>
+            </div>
+        </form>
+    </div>
+
+    {# لیست سفارشات #}
+    {% if orders %}
+    <div class="hf-card">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead style="background:var(--hf-primary);color:#fff;">
+                    <tr>
+                        <th>شماره</th>
+                        <th>تاریخ</th>
+                        <th>مبلغ کل</th>
+                        <th>روش پرداخت</th>
+                        <th>وضعیت</th>
+                        <th class="text-center">عملیات</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in orders %}
+                    <tr>
+                        <td><strong>#{{ order.id }}</strong></td>
+                        <td>{{ order.created_at|date:"Y/m/d H:i" }}</td>
+                        <td>{{ order.total_amount|price_comma }} تومان</td>
+                        <td>{{ order.get_payment_method_display }}</td>
+                        <td>
+                            {% if order.status == 'pending' %}
+                            <span class="badge bg-warning">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'confirmed' %}
+                            <span class="badge bg-info">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'delivered' %}
+                            <span class="badge bg-success">{{ order.get_status_display }}</span>
+                            {% elif order.status == 'cancelled' %}
+                            <span class="badge bg-danger">{{ order.get_status_display }}</span>
+                            {% else %}
+                            <span class="badge bg-secondary">{{ order.get_status_display }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-center">
+                            <a href="{% url 'customer_panel:order_detail' order.pk %}" 
+                               class="btn btn-sm btn-outline-primary">
+                                <i class="bi bi-eye"></i> جزئیات
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {# صفحه‌بندی #}
+        {% if orders.has_other_pages %}
+        <div class="p-3 border-top">
+            <nav>
+                <ul class="pagination justify-content-center mb-0">
+                    {% if orders.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ orders.previous_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}">
+                            قبلی
+                        </a>
+                    </li>
+                    {% endif %}
+
+                    <li class="page-item disabled">
+                        <span class="page-link">
+                            صفحه {{ orders.number }} از {{ orders.paginator.num_pages }}
+                        </span>
+                    </li>
+
+                    {% if orders.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?page={{ orders.next_page_number }}{% if current_status %}&status={{ current_status }}{% endif %}">
+                            بعدی
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="hf-card p-5 text-center">
+        <i class="bi bi-inbox" style="font-size:4rem;color:#ccc;"></i>
+        <h4 class="mt-3 mb-2">سفارشی یافت نشد</h4>
+        <p class="text-muted mb-4">
+            {% if current_status %}
+            هیچ سفارشی با این وضعیت وجود ندارد.
+            {% else %}
+            شما هنوز سفارشی ثبت نکرده‌اید.
+            {% endif %}
+        </p>
+        <a href="{% url 'shop:catalog' %}" class="btn btn-hf-primary">
+            <i class="bi bi-shop"></i> شروع خرید
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,0 +1,179 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load price_tags %}
+
+{% block meta_title %}جزئیات سفارش #{{ order.id }}{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 style="color:var(--hf-primary);">
+            <i class="bi bi-receipt"></i> جزئیات سفارش #{{ order.id }}
+        </h2>
+        <a href="{% url 'customer_panel:orders_history' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-right"></i> بازگشت
+        </a>
+    </div>
+
+    <div class="row g-4">
+        {# اطلاعات سفارش #}
+        <div class="col-md-8">
+            <div class="hf-card p-4 mb-4">
+                <h5 class="mb-3">
+                    <i class="bi bi-info-circle"></i> اطلاعات سفارش
+                </h5>
+                <div class="row">
+                    <div class="col-md-6 mb-2">
+                        <strong>تاریخ ثبت:</strong> {{ order.created_at|date:"Y/m/d H:i" }}
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <strong>روش پرداخت:</strong> {{ order.get_payment_method_display }}
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <strong>وضعیت:</strong>
+                        {% if order.status == 'delivered' %}
+                        <span class="badge bg-success">{{ order.get_status_display }}</span>
+                        {% elif order.status == 'cancelled' %}
+                        <span class="badge bg-danger">{{ order.get_status_display }}</span>
+                        {% else %}
+                        <span class="badge bg-info">{{ order.get_status_display }}</span>
+                        {% endif %}
+                    </div>
+                    <div class="col-md-6 mb-2">
+                        <strong>مبلغ کل:</strong> {{ order.total_amount|price_comma }} تومان
+                    </div>
+                </div>
+            </div>
+
+            {# آیتم‌های سفارش #}
+            <div class="hf-card p-4">
+                <h5 class="mb-3">
+                    <i class="bi bi-basket"></i> محصولات سفارش
+                </h5>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>محصول</th>
+                                <th>سایز</th>
+                                <th>تعداد</th>
+                                <th>قیمت واحد</th>
+                                <th>جمع</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in order.items.all %}
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-2">
+                                        {% with img=item.product.primary_image %}
+                                        {% if img and img.thumbnail %}
+                                        <img src="{{ img.thumbnail.url }}" alt="{{ item.product.name }}" 
+                                             style="width:60px;height:60px;object-fit:cover;border-radius:4px;">
+                                        {% endif %}
+                                        {% endwith %}
+                                        <div>
+                                            <strong>{{ item.product.name }}</strong><br>
+                                            <small class="text-muted">{{ item.product.album.manufacturer.name }}</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>{{ item.size.name }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td>{{ item.unit_price|price_comma }}</td>
+                                <td><strong>{{ item.get_total_price|price_comma }}</strong></td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                        <tfoot>
+                            <tr class="table-light">
+                                <td colspan="4" class="text-end"><strong>جمع کل:</strong></td>
+                                <td><strong style="color:var(--hf-primary);">{{ order.total_amount|price_comma }} تومان</strong></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        {# آدرس و اطلاعات جانبی #}
+        <div class="col-md-4">
+            {# آدرس ارسال #}
+            {% if order.shipping_address %}
+            <div class="hf-card p-3 mb-3">
+                <h6 class="mb-3">
+                    <i class="bi bi-geo-alt"></i> آدرس ارسال
+                </h6>
+                <p class="mb-1"><strong>{{ order.shipping_address.province }}، {{ order.shipping_address.city }}</strong></p>
+                <p class="mb-2">{{ order.shipping_address.full_address }}</p>
+                {% if order.shipping_address.postal_code %}
+                <p class="mb-1"><small>کد پستی: {{ order.shipping_address.postal_code }}</small></p>
+                {% endif %}
+                {% if order.shipping_address.phone %}
+                <p class="mb-0"><small><i class="bi bi-telephone"></i> {{ order.shipping_address.phone }}</small></p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+            {# پیگیری سفارش #}
+            <div class="hf-card p-3">
+                <h6 class="mb-3">
+                    <i class="bi bi-clock-history"></i> پیگیری سفارش
+                </h6>
+                <div class="timeline">
+                    <div class="timeline-item">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <div>
+                            <strong>ثبت سفارش</strong><br>
+                            <small>{{ order.created_at|date:"Y/m/d H:i" }}</small>
+                        </div>
+                    </div>
+                    {% if order.confirmed_at %}
+                    <div class="timeline-item">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <div>
+                            <strong>تأیید سفارش</strong><br>
+                            <small>{{ order.confirmed_at|date:"Y/m/d H:i" }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if order.shipped_at %}
+                    <div class="timeline-item">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <div>
+                            <strong>ارسال شده</strong><br>
+                            <small>{{ order.shipped_at|date:"Y/m/d H:i" }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if order.delivered_at %}
+                    <div class="timeline-item">
+                        <i class="bi bi-check-circle-fill text-success"></i>
+                        <div>
+                            <strong>تحویل داده شده</strong><br>
+                            <small>{{ order.delivered_at|date:"Y/m/d H:i" }}</small>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.timeline-item {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+.timeline-item:last-child {
+    border-bottom: none;
+}
+.timeline-item i {
+    font-size: 1.2rem;
+}
+</style>
+{% endblock %}

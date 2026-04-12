@@ -1,0 +1,186 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load price_tags %}
+
+{% block page_title %}گزارشات فروش{% endblock %}
+
+{% block content %}
+{# فیلتر بازه زمانی #}
+<div class="card mb-4">
+    <div class="card-body">
+        <div class="d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="bi bi-funnel"></i> انتخاب بازه زمانی</h5>
+            <div class="btn-group" role="group">
+                <a href="?period=7days" class="btn btn-sm {% if period == '7days' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    7 روز
+                </a>
+                <a href="?period=30days" class="btn btn-sm {% if period == '30days' or not period %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    30 روز
+                </a>
+                <a href="?period=90days" class="btn btn-sm {% if period == '90days' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    90 روز
+                </a>
+                <a href="?period=year" class="btn btn-sm {% if period == 'year' %}btn-primary{% else %}btn-outline-primary{% endif %}">
+                    یک سال
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# کارت‌های آماری #}
+<div class="row g-4 mb-4">
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-cart3 text-primary" style="font-size: 2rem;"></i>
+                <h3 class="mt-3 mb-0">{{ stats.total_orders }}</h3>
+                <p class="text-muted mb-0">کل سفارشات</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-check-circle text-success" style="font-size: 2rem;"></i>
+                <h3 class="mt-3 mb-0">{{ stats.completed_orders }}</h3>
+                <p class="text-muted mb-0">تکمیل شده</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-x-circle text-danger" style="font-size: 2rem;"></i>
+                <h3 class="mt-3 mb-0">{{ stats.cancelled_orders }}</h3>
+                <p class="text-muted mb-0">لغو شده</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="card text-center">
+            <div class="card-body">
+                <i class="bi bi-cash-coin text-warning" style="font-size: 2rem;"></i>
+                <h3 class="mt-3 mb-0">{{ stats.total_revenue|price_only }}</h3>
+                <p class="text-muted mb-0">کل درآمد (تومان)</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# نمودار روند فروش #}
+<div class="row g-4 mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> روند فروش</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="trendChart" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# آمار میانگین #}
+<div class="row g-4">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-calculator"></i> میانگین ارزش سفارش</h5>
+            </div>
+            <div class="card-body text-center">
+                <h2 class="text-primary">{{ stats.avg_order_value|floatformat:0|price_only }} تومان</h2>
+                <p class="text-muted mb-0">میانگین مبلغ هر سفارش تکمیل شده</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-percent"></i> نرخ تکمیل سفارشات</h5>
+            </div>
+            <div class="card-body text-center">
+                {% if stats.total_orders > 0 %}
+                    {% widthratio stats.completed_orders stats.total_orders 100 as completion_rate %}
+                    <h2 class="text-success">{{ stats.completed_orders }} / {{ stats.total_orders }}</h2>
+                    <p class="text-muted mb-0">({{ completion_rate }}%)</p>
+                {% else %}
+                    <h2 class="text-muted">0%</h2>
+                    <p class="text-muted mb-0">هنوز سفارشی ثبت نشده</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// نمودار روند فروش
+const ctx = document.getElementById('trendChart');
+if (ctx) {
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ labels|safe }},
+            datasets: [{
+                label: 'تعداد سفارشات',
+                data: {{ orders_data|safe }},
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                tension: 0.4,
+                yAxisID: 'y',
+            }, {
+                label: 'درآمد (تومان)',
+                data: {{ revenue_data|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.4,
+                yAxisID: 'y1',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            plugins: {
+                legend: {
+                    position: 'top',
+                }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: {
+                        display: true,
+                        text: 'تعداد سفارشات'
+                    }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: {
+                        display: true,
+                        text: 'درآمد (تومان)'
+                    },
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                },
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

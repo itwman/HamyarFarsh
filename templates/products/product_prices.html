@@ -1,0 +1,109 @@
+{% extends 'base.html' %}
+{% load humanize %}
+
+{% block meta_title %}جدول قیمت: {{ product.name }} | {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-10">
+
+        {# سربرگ #}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h4 style="color: var(--hf-primary);">
+                <i class="bi bi-currency-exchange"></i> جدول قیمت: {{ product.name }}
+            </h4>
+            <a href="{% url 'product_list' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-arrow-right"></i> بازگشت
+            </a>
+        </div>
+
+        {# اطلاعات محصول #}
+        <div class="hf-card p-4 mb-4">
+            <div class="row g-3">
+                <div class="col-md-3">
+                    <small class="text-muted">شرکت:</small>
+                    <div class="fw-bold">{{ product.manufacturer.name }}</div>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">آلبوم:</small>
+                    <div class="fw-bold">{{ product.album.name }} ({{ product.comb }} شانه)</div>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">قیمت خرید ۱۲ متری:</small>
+                    <div class="fw-bold" style="direction:ltr;text-align:right;">{{ purchase_price|intcomma }} تومان</div>
+                </div>
+                <div class="col-md-3">
+                    <small class="text-muted">قیمت فروش ۱۲ متری:</small>
+                    <div class="fw-bold" style="color:var(--hf-primary);direction:ltr;text-align:right;">{{ sell_price_12m|intcomma }} تومان</div>
+                </div>
+            </div>
+
+            {# فرمول #}
+            <div class="mt-3 p-2 rounded small" style="background:var(--hf-gray-light);">
+                <strong>فرمول:</strong>
+                قیمت خرید × {{ site_settings.profit_percent }}% سود + {{ site_settings.shipping_cost|intcomma }} حمل =
+                گرد شده به بالا ({{ site_settings.rounding_step|intcomma }})
+                {% if product.album.nine_m_waste_type == 'fixed' %}
+                <br><strong>پرتی ۹ متری:</strong> {{ product.album.nine_m_waste_value|intcomma }} تومان (ثابت)
+                {% elif product.album.nine_m_waste_value %}
+                <br><strong>پرتی ۹ متری:</strong> {{ product.album.nine_m_waste_value }}% (درصدی)
+                {% endif %}
+            </div>
+        </div>
+
+        {# جدول قیمت سایزها #}
+        <div class="hf-card">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead style="background: var(--hf-primary); color: #fff;">
+                        <tr>
+                            <th>سایز</th>
+                            <th>ابعاد</th>
+                            <th>مساحت</th>
+                            <th>قیمت (تومان)</th>
+                            <th>قانون سفارش</th>
+                            <th>وضعیت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in size_prices %}
+                        <tr class="{% if not item.is_available %}table-secondary{% endif %} {% if item.size.is_nine_meter %}table-warning{% endif %}">
+                            <td class="fw-bold">
+                                {{ item.size.name }}
+                                {% if item.size.is_nine_meter %}
+                                <span class="badge bg-warning text-dark">پرتی</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ item.size.dimensions_display }}</td>
+                            <td>{{ item.size.area_display }}</td>
+                            <td style="direction:ltr;text-align:right;" class="fw-bold">
+                                {% if item.price %}
+                                {{ item.price|intcomma }}
+                                {% else %}
+                                -
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.order_rule == 'even' %}
+                                <span class="badge bg-info">فقط زوج</span>
+                                {% else %}
+                                <span class="badge bg-success">آزاد</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if item.is_available %}
+                                <i class="bi bi-check-circle-fill text-success"></i>
+                                {% else %}
+                                <i class="bi bi-x-circle-fill text-danger"></i>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+{% endblock %}

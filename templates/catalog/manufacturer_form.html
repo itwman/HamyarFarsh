@@ -1,0 +1,95 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">
+            <i class="bi bi-building"></i> {{ title }}
+        </h5>
+        <a href="{% url 'catalog:manufacturer_list' %}" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-arrow-right"></i> بازگشت
+        </a>
+    </div>
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data" novalidate>
+            {% csrf_token %}
+
+            <div class="row g-3">
+                <div class="col-md-8">
+                    <label class="form-label">{{ form.name.label }} <span class="text-danger">*</span></label>
+                    {{ form.name }}
+                    {% if form.name.errors %}<div class="text-danger small">{{ form.name.errors.0 }}</div>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">{{ form.slug.label }}</label>
+                    {{ form.slug }}
+                    <small class="text-muted">خالی بگذارید تا خودکار ساخته شود</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.logo.label }}</label>
+                    {{ form.logo }}
+                    {% if is_edit and manufacturer.logo %}
+                    <small class="text-muted">لوگو فعلی: {{ manufacturer.logo.name }}</small>
+                    {% endif %}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">{{ form.phone.label }}</label>
+                    {{ form.phone }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">{{ form.mobile.label }}</label>
+                    {{ form.mobile }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.website.label }}</label>
+                    {{ form.website }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">{{ form.sort_order.label }}</label>
+                    {{ form.sort_order }}
+                </div>
+                <div class="col-md-3 d-flex align-items-end pb-2">
+                    <div class="form-check form-switch">
+                        {{ form.is_active }}
+                        <label class="form-check-label" for="{{ form.is_active.id_for_label }}">فعال</label>
+                    </div>
+                </div>
+                <div class="col-12">
+                    <label class="form-label">{{ form.address.label }}</label>
+                    {{ form.address }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {{ form.description }}
+                </div>
+            </div>
+
+            <hr>
+            <div class="mb-3" style="cursor:pointer;" onclick="document.getElementById('seo-section').classList.toggle('d-none')">
+                <strong class="text-muted"><i class="bi bi-search"></i> تنظیمات SEO (اختیاری) <i class="bi bi-chevron-down"></i></strong>
+            </div>
+            <div id="seo-section" class="d-none row g-3">
+                <div class="col-12">
+                    <label class="form-label">{{ form.seo_title.label }}</label>
+                    {{ form.seo_title }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label">{{ form.seo_description.label }}</label>
+                    {{ form.seo_description }}
+                </div>
+            </div>
+
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-lg"></i>
+                    {% if is_edit %}بروزرسانی{% else %}ذخیره{% endif %}
+                </button>
+                <a href="{% url 'catalog:manufacturer_list' %}" class="btn btn-outline-secondary me-2">انصراف</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

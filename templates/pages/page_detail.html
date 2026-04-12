@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block meta_title %}{{ page.get_effective_seo_title }}{% endblock %}
+{% block meta_description %}{{ page.get_effective_seo_description }}{% endblock %}
+
+{% block og_tags %}
+<meta property="og:title" content="{{ page.get_effective_seo_title }}">
+<meta property="og:description" content="{{ page.get_effective_seo_description }}">
+<meta property="og:type" content="website">
+<meta property="og:url" content="{{ request.build_absolute_uri }}">
+{% if page.featured_image %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ page.featured_image.url }}">
+{% endif %}
+{% endblock %}
+
+{% block canonical %}<link rel="canonical" href="{{ request.build_absolute_uri }}">{% endblock %}
+
+{% block json_ld %}
+<script type="application/ld+json">{{ schema_json|safe }}</script>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" class="mb-4">
+        <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
+            <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <a href="/" itemprop="item"><span itemprop="name">خانه</span></a>
+                <meta itemprop="position" content="1">
+            </li>
+            <li class="breadcrumb-item active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
+                <span itemprop="name">{{ page.title }}</span>
+                <meta itemprop="position" content="2">
+            </li>
+        </ol>
+    </nav>
+
+    <div class="row">
+        <div class="col-lg-9">
+            <article class="hf-card p-4 mb-4">
+                {% if page.featured_image %}
+                <img src="{{ page.featured_image.url }}" alt="{{ page.title }}" class="img-fluid rounded mb-4" style="max-height:400px;width:100%;object-fit:cover;">
+                {% endif %}
+
+                <h1 class="mb-3" style="color:var(--hf-primary);">{{ page.title }}</h1>
+
+                <div class="page-content" style="line-height:2; font-size:15px;">
+                    {{ page.content|safe }}
+                </div>
+            </article>
+        </div>
+
+        <!-- سایدبار -->
+        <div class="col-lg-3">
+            <!-- صفحات مرتبط -->
+            {% with related_pages=page.get_related_pages %}
+            {% if related_pages %}
+            <div class="hf-card p-3 mb-3">
+                <h6 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-link-45deg"></i> صفحات مرتبط</h6>
+                {% for rp in related_pages %}
+                <a href="{{ rp.get_absolute_url }}" class="d-block py-1 text-decoration-none">
+                    <i class="bi bi-chevron-left"></i> {{ rp.title }}
+                </a>
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% endwith %}
+
+            <!-- تماس -->
+            <div class="hf-card p-3">
+                <h6 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-telephone"></i> تماس با ما</h6>
+                {% if site_settings.mobile %}
+                <p class="mb-1"><i class="bi bi-phone"></i> {{ site_settings.mobile }}</p>
+                {% endif %}
+                {% if site_settings.phone %}
+                <p class="mb-1"><i class="bi bi-telephone"></i> {{ site_settings.phone }}</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,252 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block extra_css %}
+<!-- Summernote CSS -->
+<link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.css" rel="stylesheet">
+<style>
+.note-editor { direction: rtl; }
+.note-editor .note-editing-area .note-editable { direction: rtl; text-align: right; font-family: 'Vazirmatn', sans-serif; font-size: 15px; min-height: 350px; }
+.note-editor .note-toolbar { direction: ltr; }
+.seo-preview { background: #fff; border: 1px solid #ddd; border-radius: 8px; padding: 16px; margin-top: 8px; }
+.seo-preview-title { color: #1a0dab; font-size: 18px; font-weight: 500; margin-bottom: 2px; }
+.seo-preview-url { color: #006621; font-size: 13px; margin-bottom: 4px; direction: ltr; text-align: left; }
+.seo-preview-desc { color: #545454; font-size: 13px; }
+.image-preview { max-width: 200px; max-height: 150px; object-fit: cover; border-radius: 8px; margin-top: 8px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0">
+        <i class="bi bi-{% if is_edit %}pencil-square{% else %}plus-circle{% endif %}"></i>
+        {{ title }}
+    </h5>
+    <a href="{% url 'pages:page_list' %}" class="btn btn-outline-secondary btn-sm">
+        <i class="bi bi-arrow-right"></i> بازگشت به لیست
+    </a>
+</div>
+
+<form method="post" enctype="multipart/form-data" id="pageForm">
+    {% csrf_token %}
+    <div class="row g-4">
+        <!-- ستون اصلی -->
+        <div class="col-lg-8">
+            <!-- عنوان -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">عنوان</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors.0 }}</div>{% endif %}
+                    </div>
+                    <div class="mb-0">
+                        <label class="form-label">اسلاگ (URL)</label>
+                        {{ form.slug }}
+                        <small class="text-muted">خالی بگذارید تا خودکار از عنوان تولید شود</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ویرایشگر محتوا -->
+            <div class="card mb-3">
+                <div class="card-header py-2">
+                    <strong><i class="bi bi-pencil-square"></i> محتوا</strong>
+                </div>
+                <div class="card-body p-0">
+                    {{ form.content }}
+                </div>
+            </div>
+
+            <!-- خلاصه -->
+            <div class="card mb-3">
+                <div class="card-header py-2"><strong><i class="bi bi-text-paragraph"></i> خلاصه</strong></div>
+                <div class="card-body">
+                    {{ form.excerpt }}
+                    <small class="text-muted">نمایش در لیست مقالات و به‌عنوان meta description</small>
+                </div>
+            </div>
+
+            <!-- SEO -->
+            <div class="card mb-3">
+                <div class="card-header py-2"><strong><i class="bi bi-search"></i> تنظیمات SEO</strong></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">عنوان SEO</label>
+                        {{ form.seo_title }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">توضیحات SEO</label>
+                        {{ form.seo_description }}
+                    </div>
+                    <div class="seo-preview">
+                        <div class="seo-preview-title" id="seoTitle">{{ form.instance.get_effective_seo_title|default:"عنوان صفحه | همیار فرش" }}</div>
+                        <div class="seo-preview-url">hamyarfarsh.com/page/{% if is_edit %}{{ form.instance.slug }}{% else %}...{% endif %}/</div>
+                        <div class="seo-preview-desc" id="seoDesc">{{ form.instance.get_effective_seo_description|default:"توضیحات صفحه..." }}</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ستون کناری -->
+        <div class="col-lg-4">
+            <!-- انتشار -->
+            <div class="card mb-3">
+                <div class="card-header py-2"><strong><i class="bi bi-send"></i> انتشار</strong></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">وضعیت</label>
+                        {{ form.status }}
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">تاریخ انتشار</label>
+                        {{ form.publish_date }}
+                        <small class="text-muted d-block">خالی = زمان انتشار</small>
+                    </div>
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="bi bi-check-lg"></i>
+                            {% if is_edit %}بروزرسانی{% else %}ذخیره{% endif %}
+                        </button>
+                        {% if is_edit %}
+                        <a href="{{ page_obj.get_absolute_url }}" class="btn btn-outline-success" target="_blank">
+                            <i class="bi bi-eye"></i> مشاهده
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- نوع و دسته‌بندی -->
+            <div class="card mb-3">
+                <div class="card-header py-2"><strong><i class="bi bi-bookmark"></i> نوع و دسته‌بندی</strong></div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label class="form-label">نوع محتوا</label>
+                        {{ form.page_type }}
+                    </div>
+                    <div class="mb-0" id="categoryField">
+                        <label class="form-label">دسته‌بندی</label>
+                        {{ form.category }}
+                        <small class="text-muted">فقط برای مقالات</small>
+                    </div>
+                </div>
+            </div>
+
+            <!-- تصویر شاخص -->
+            <div class="card mb-3">
+                <div class="card-header py-2"><strong><i class="bi bi-image"></i> تصویر شاخص</strong></div>
+                <div class="card-body">
+                    {% if is_edit and page_obj.featured_image %}
+                    <img src="{{ page_obj.featured_image.url }}" class="image-preview d-block mb-2" alt="تصویر شاخص">
+                    {% endif %}
+                    {{ form.featured_image }}
+                </div>
+            </div>
+
+            <!-- نمایش در فهرست -->
+            <div class="card mb-3">
+                <div class="card-header py-2"><strong><i class="bi bi-list-ul"></i> فهرست سایت</strong></div>
+                <div class="card-body">
+                    <div class="form-check mb-2">
+                        {{ form.show_in_header }}
+                        <label class="form-check-label" for="{{ form.show_in_header.id_for_label }}">نمایش در فهرست هدر</label>
+                    </div>
+                    <div class="form-check mb-3">
+                        {{ form.show_in_footer }}
+                        <label class="form-check-label" for="{{ form.show_in_footer.id_for_label }}">نمایش در فهرست فوتر</label>
+                    </div>
+                    <div>
+                        <label class="form-label">ترتیب در فهرست</label>
+                        {{ form.menu_order }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<!-- jQuery (Summernote dependency) -->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<!-- Summernote JS -->
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-bs5.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/lang/summernote-fa-IR.min.js"></script>
+<script>
+$(document).ready(function() {
+    // ویرایشگر Summernote
+    $('#id_content').summernote({
+        lang: 'fa-IR',
+        height: 400,
+        direction: 'rtl',
+        placeholder: 'محتوای صفحه را وارد کنید...',
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'strikethrough', 'clear']],
+            ['fontname', ['fontname']],
+            ['fontsize', ['fontsize']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video', 'hr']],
+            ['view', ['fullscreen', 'codeview', 'help']],
+        ],
+        fontNames: ['Vazirmatn', 'Tahoma', 'Arial', 'Times New Roman'],
+        fontNamesIgnoreCheck: ['Vazirmatn'],
+        callbacks: {
+            onImageUpload: function(files) {
+                for (var i = 0; i < files.length; i++) {
+                    uploadImage(files[i]);
+                }
+            }
+        }
+    });
+
+    // آپلود تصویر به سرور
+    function uploadImage(file) {
+        var data = new FormData();
+        data.append('file', file);
+        $.ajax({
+            url: '{% url "pages:editor_upload_image" %}',
+            method: 'POST',
+            data: data,
+            contentType: false,
+            processData: false,
+            headers: {'X-CSRFToken': '{{ csrf_token }}'},
+            success: function(resp) {
+                if (resp.url) {
+                    $('#id_content').summernote('insertImage', resp.url);
+                }
+            },
+            error: function() {
+                alert('خطا در آپلود تصویر');
+            }
+        });
+    }
+
+    // نمایش/مخفی فیلد دسته‌بندی بر اساس نوع
+    function toggleCategory() {
+        var type = $('#id_page_type').val();
+        if (type === 'post') {
+            $('#categoryField').show();
+        } else {
+            $('#categoryField').hide();
+        }
+    }
+    toggleCategory();
+    $('#id_page_type').on('change', toggleCategory);
+
+    // پیش‌نمایش SEO زنده
+    function updateSeoPreview() {
+        var title = $('#id_seo_title').val() || ($('#id_title').val() + ' | همیار فرش');
+        var desc = $('#id_seo_description').val() || $('#id_excerpt').val() || 'توضیحات صفحه...';
+        $('#seoTitle').text(title.substring(0, 60));
+        $('#seoDesc').text(desc.substring(0, 160));
+    }
+    $('#id_title, #id_seo_title, #id_seo_description, #id_excerpt').on('input', updateSeoPreview);
+});
+</script>
+{% endblock %}

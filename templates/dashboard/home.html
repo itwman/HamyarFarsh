@@ -1,0 +1,204 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load price_tags %}
+
+{% block page_title %}صفحه اصلی داشبورد{% endblock %}
+
+{% block content %}
+<div class="row g-4 mb-4">
+    {# کارت‌های آماری #}
+    <div class="col-md-3">
+        <div class="stats-card bg-primary text-white">
+            <div class="stats-icon">
+                <i class="bi bi-cart3"></i>
+            </div>
+            <div class="stats-content">
+                <h3>{{ total_orders|default:0 }}</h3>
+                <p>کل سفارشات</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card bg-success text-white">
+            <div class="stats-icon">
+                <i class="bi bi-cash-coin"></i>
+            </div>
+            <div class="stats-content">
+                <h3>{{ total_revenue|price_only }}</h3>
+                <p>کل درآمد (تومان)</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card bg-warning text-white">
+            <div class="stats-icon">
+                <i class="bi bi-hourglass-split"></i>
+            </div>
+            <div class="stats-content">
+                <h3>{{ pending_orders|default:0 }}</h3>
+                <p>سفارشات در انتظار</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3">
+        <div class="stats-card bg-info text-white">
+            <div class="stats-icon">
+                <i class="bi bi-people"></i>
+            </div>
+            <div class="stats-content">
+                <h3>{{ total_customers|default:0 }}</h3>
+                <p>مشتریان</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4 mb-4">
+    {# نمودار فروش روزانه #}
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-graph-up"></i> روند فروش (7 روز اخیر)</h5>
+            </div>
+            <div class="card-body">
+                <canvas id="salesChart" height="80"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    {# محصولات پرفروش #}
+    <div class="col-lg-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0"><i class="bi bi-trophy"></i> محصولات پرفروش</h5>
+            </div>
+            <div class="card-body">
+                {% if top_products %}
+                <div class="list-group list-group-flush">
+                    {% for product in top_products %}
+                    <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+                        <div>
+                            <strong>{{ product.product__name }}</strong>
+                            <br>
+                            <small class="text-muted">{{ product.total_quantity }} عدد</small>
+                        </div>
+                        <span class="badge bg-primary rounded-pill">
+                            {{ product.total_revenue|price_only }}
+                        </span>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <p class="text-muted text-center">هنوز فروشی ثبت نشده</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    {# آخرین سفارشات #}
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="mb-0"><i class="bi bi-clock-history"></i> آخرین سفارشات</h5>
+            </div>
+            <div class="card-body p-0">
+                {% if latest_orders %}
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0">
+                        <thead class="table-light">
+                            <tr>
+                                <th>شماره</th>
+                                <th>مشتری</th>
+                                <th>مبلغ</th>
+                                <th>وضعیت</th>
+                                <th>روش پرداخت</th>
+                                <th>تاریخ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for order in latest_orders %}
+                            <tr>
+                                <td><strong>#{{ order.id }}</strong></td>
+                                <td>{{ order.customer.get_full_name|default:order.customer.phone }}</td>
+                                <td>{{ order.total_amount|price_only }} تومان</td>
+                                <td>
+                                    <span class="badge 
+                                        {% if order.status == 'completed' %}bg-success
+                                        {% elif order.status == 'pending' %}bg-warning
+                                        {% elif order.status == 'cancelled' %}bg-danger
+                                        {% else %}bg-secondary{% endif %}">
+                                        {{ order.get_status_display }}
+                                    </span>
+                                </td>
+                                <td>{{ order.get_payment_method_display }}</td>
+                                <td>{{ order.created_at|date:"Y-m-d" }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <p class="text-muted text-center py-4">هنوز سفارشی ثبت نشده</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/chart.min.js' %}"></script>
+<script>
+// نمودار فروش روزانه
+const ctx = document.getElementById('salesChart');
+if (ctx) {
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: {{ daily_labels|safe }},
+            datasets: [{
+                label: 'تعداد سفارشات',
+                data: {{ daily_orders|safe }},
+                borderColor: 'rgb(54, 162, 235)',
+                backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                yAxisID: 'y',
+            }, {
+                label: 'درآمد (تومان)',
+                data: {{ daily_revenue|safe }},
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                yAxisID: 'y1',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: true,
+            interaction: {
+                mode: 'index',
+                intersect: false,
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    grid: {
+                        drawOnChartArea: false,
+                    },
+                },
+            }
+        }
+    });
+}
+</script>
+{% endblock %}

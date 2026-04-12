@@ -1,0 +1,91 @@
+{% load static %}
+{# فیلترهای مشترک گالری ویدیو و تصاویر #}
+{# استفاده: {% include "gallery/includes/filters.html" with gallery_type="video" %} #}
+
+<form method="get" action="{% if gallery_type == 'video' %}{% url 'gallery:video_gallery' %}{% else %}{% url 'gallery:image_gallery' %}{% endif %}" class="gallery-filter-form" id="{% if is_drawer %}drawerFilterForm{% else %}sidebarFilterForm{% endif %}">
+
+    <!-- جستجو -->
+    <div class="filter-group">
+        <label class="filter-label"><i class="bi bi-search"></i> جستجو</label>
+        <input type="text" name="q" class="form-control form-control-sm"
+               placeholder="نام نقشه، شرکت، رنگ..." value="{{ query }}">
+    </div>
+
+    <!-- رنگ زمینه -->
+    <div class="filter-group">
+        <label class="filter-label"><i class="bi bi-palette"></i> رنگ زمینه</label>
+        <select name="color" class="form-select form-select-sm">
+            <option value="">همه رنگ‌ها</option>
+            {% for c in colors %}
+            <option value="{{ c.id }}" {% if sel_color == c.id|stringformat:"d" %}selected{% endif %}>{{ c.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- نوع طرح -->
+    <div class="filter-group">
+        <label class="filter-label"><i class="bi bi-flower1"></i> نوع طرح</label>
+        <select name="design" class="form-select form-select-sm">
+            <option value="">همه طرح‌ها</option>
+            {% for d in designs %}
+            <option value="{{ d.id }}" {% if sel_design == d.id|stringformat:"d" %}selected{% endif %}>{{ d.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- شانه -->
+    <div class="filter-group">
+        <label class="filter-label"><i class="bi bi-hash"></i> شانه</label>
+        <select name="comb" class="form-select form-select-sm">
+            <option value="">همه شانه‌ها</option>
+            {% for val, label in comb_choices %}
+            <option value="{{ val }}" {% if sel_comb == val|stringformat:"d" %}selected{% endif %}>{{ label }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- نوع بافت -->
+    <div class="filter-group">
+        <label class="filter-label"><i class="bi bi-grid-3x3"></i> نوع بافت</label>
+        <select name="weave" class="form-select form-select-sm">
+            <option value="">همه</option>
+            {% for w in weaves %}
+            <option value="{{ w.id }}" {% if sel_weave == w.id|stringformat:"d" %}selected{% endif %}>{{ w.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- ویژگی -->
+    <div class="filter-group">
+        <label class="filter-label"><i class="bi bi-star"></i> ویژگی</label>
+        <select name="feature" class="form-select form-select-sm">
+            <option value="">همه</option>
+            {% for f in features %}
+            <option value="{{ f.id }}" {% if sel_feature == f.id|stringformat:"d" %}selected{% endif %}>{{ f.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- شرکت -->
+    <div class="filter-group">
+        <label class="filter-label"><i class="bi bi-building"></i> شرکت</label>
+        <select name="manufacturer" class="form-select form-select-sm">
+            <option value="">همه شرکت‌ها</option>
+            {% for m in manufacturers %}
+            <option value="{{ m.id }}" {% if sel_manufacturer == m.id|stringformat:"d" %}selected{% endif %}>{{ m.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- hidden sort -->
+    <input type="hidden" name="sort" value="{{ current_sort }}">
+
+    <div class="filter-actions">
+        <button type="submit" class="btn btn-hf-primary w-100">
+            <i class="bi bi-search"></i> اعمال فیلتر
+        </button>
+        <a href="{% if gallery_type == 'video' %}{% url 'gallery:video_gallery' %}{% else %}{% url 'gallery:image_gallery' %}{% endif %}" class="btn btn-outline-secondary w-100 mt-2">
+            <i class="bi bi-x-circle"></i> حذف فیلترها
+        </a>
+    </div>
+</form>

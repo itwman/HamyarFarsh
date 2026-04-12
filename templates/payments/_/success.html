@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% load humanize %}
+{% load price_tags %}
+{% load jalali_tags %}
+
+{% block meta_title %}پرداخت موفق{% endblock %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="hf-card text-center p-5">
+                <div class="mb-4">
+                    <i class="bi bi-check-circle-fill text-success" style="font-size:5rem;"></i>
+                </div>
+                
+                <h2 class="mb-3" style="color:var(--hf-dark);">پرداخت با موفقیت انجام شد!</h2>
+                
+                <p class="text-muted mb-4">
+                    تراکنش شما با موفقیت ثبت شد و سفارش شما در حال بررسی است.
+                </p>
+                
+                <div class="p-4 rounded mb-4" style="background:var(--hf-gray-light);">
+                    <div class="row g-3 text-start">
+                        <div class="col-6">
+                            <small class="text-muted d-block">کد پیگیری:</small>
+                            <strong>{{ transaction.tracking_code }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">شماره مرجع:</small>
+                            <strong>{{ transaction.reference_number }}</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">مبلغ پرداختی:</small>
+                            <strong class="text-success">{{ transaction.amount|price_comma }} تومان</strong>
+                        </div>
+                        <div class="col-6">
+                            <small class="text-muted d-block">تاریخ پرداخت:</small>
+                            <strong>{{ transaction.paid_at|jalali }}</strong>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="d-flex gap-2 justify-content-center">
+                    <a href="{% url 'orders:detail' order.id %}" class="btn btn-hf-primary">
+                        <i class="bi bi-box-seam"></i> مشاهده سفارش
+                    </a>
+                    <a href="{% url 'shop:catalog' %}" class="btn btn-outline-secondary">
+                        <i class="bi bi-arrow-right"></i> بازگشت به فروشگاه
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

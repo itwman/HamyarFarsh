@@ -1,0 +1,143 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+{% load jalali_tags %}
+
+{% block page_title %}شرکت‌های تولیدی{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5><i class="bi bi-building"></i> شرکت‌های تولیدی</h5>
+    <a href="{% url 'catalog:manufacturer_create' %}" class="btn btn-primary">
+        <i class="bi bi-plus-lg"></i> افزودن شرکت
+    </a>
+</div>
+
+{# فیلتر و جستجو #}
+<div class="card mb-4">
+    <div class="card-body">
+        <form method="get" class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <input type="text" name="q" value="{{ query }}" class="form-control"
+                       placeholder="جستجو نام، تلفن...">
+            </div>
+            <div class="col-md-3">
+                <select name="status" class="form-select">
+                    <option value="">همه وضعیت‌ها</option>
+                    <option value="active" {% if status == 'active' %}selected{% endif %}>فعال</option>
+                    <option value="inactive" {% if status == 'inactive' %}selected{% endif %}>غیرفعال</option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100"><i class="bi bi-search"></i> جستجو</button>
+            </div>
+            <div class="col-md-2">
+                <a href="{% url 'catalog:manufacturer_list' %}" class="btn btn-outline-secondary w-100">
+                    <i class="bi bi-x-lg"></i> پاک‌سازی
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+{# جدول #}
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover mb-0 align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th class="text-center" style="width: 50px;">#</th>
+                    <th>نام شرکت</th>
+                    <th class="text-center">تعداد آلبوم</th>
+                    <th class="text-center">تلفن</th>
+                    <th class="text-center">وضعیت</th>
+                    <th class="text-center">تاریخ ایجاد</th>
+                    <th class="text-center" style="width: 180px;">عملیات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for m in manufacturers %}
+                <tr>
+                    <td class="text-center text-muted">{{ forloop.counter }}</td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            {% if m.logo %}
+                            <img src="{{ m.logo.url }}" alt="" width="32" height="32" class="rounded" style="object-fit:contain;">
+                            {% else %}
+                            <div class="rounded d-flex align-items-center justify-content-center bg-light text-primary"
+                                 style="width:32px;height:32px;">
+                                <i class="bi bi-building"></i>
+                            </div>
+                            {% endif %}
+                            <strong>{{ m.name }}</strong>
+                        </div>
+                    </td>
+                    <td class="text-center">
+                        <span class="badge bg-secondary">{{ m.album_count }}</span>
+                    </td>
+                    <td class="text-center" dir="ltr">{{ m.phone|default:"-" }}</td>
+                    <td class="text-center">
+                        {% if m.is_active %}
+                        <span class="badge bg-success">فعال</span>
+                        {% else %}
+                        <span class="badge bg-secondary">غیرفعال</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-center small text-muted">{{ m.created_at|date:"Y-m-d" }}</td>
+                    <td class="text-center">
+                        <div class="btn-group btn-group-sm">
+                            <a href="{% url 'catalog:album_list' %}?manufacturer={{ m.pk }}" class="btn btn-outline-info" title="آلبوم‌ها">
+                                <i class="bi bi-collection"></i>
+                            </a>
+                            <a href="{% url 'catalog:manufacturer_edit' m.pk %}" class="btn btn-outline-primary" title="ویرایش">
+                                <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="{% url 'catalog:manufacturer_toggle' m.pk %}" class="btn btn-outline-warning" title="تغییر وضعیت">
+                                <i class="bi bi-toggle-{% if m.is_active %}on{% else %}off{% endif %}"></i>
+                            </a>
+                            <a href="{% url 'catalog:manufacturer_delete' m.pk %}" class="btn btn-outline-danger" title="حذف">
+                                <i class="bi bi-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted py-5">
+                        <i class="bi bi-inbox" style="font-size:2rem;"></i>
+                        <p class="mt-2">شرکتی ثبت نشده است.</p>
+                        <a href="{% url 'catalog:manufacturer_create' %}" class="btn btn-primary btn-sm">
+                            <i class="bi bi-plus-lg"></i> افزودن اولین شرکت
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    {# صفحه‌بندی #}
+    {% if manufacturers.has_other_pages %}
+    <div class="card-footer">
+        <nav>
+            <ul class="pagination pagination-sm justify-content-center mb-0">
+                {% if manufacturers.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ manufacturers.previous_page_number }}&q={{ query }}&status={{ status }}">&laquo;</a>
+                </li>
+                {% endif %}
+                {% for num in manufacturers.paginator.page_range %}
+                <li class="page-item {% if manufacturers.number == num %}active{% endif %}">
+                    <a class="page-link" href="?page={{ num }}&q={{ query }}&status={{ status }}">{{ num }}</a>
+                </li>
+                {% endfor %}
+                {% if manufacturers.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ manufacturers.next_page_number }}&q={{ query }}&status={{ status }}">&raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

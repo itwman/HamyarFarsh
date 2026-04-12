@@ -1,0 +1,257 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{# Select2 RTL #}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" rel="stylesheet">
+<style>
+.select2-container { width: 100% !important; }
+.select2-container--bootstrap-5 .select2-selection { min-height: 38px; }
+</style>
+{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <h5 class="mb-0">
+            <i class="bi bi-{% if action == 'add' %}plus-circle{% else %}pencil{% endif %}"></i>
+            {{ title }}
+        </h5>
+    </div>
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            {# فیلتر شرکت #}
+            <div class="mb-3">
+                <label class="form-label">{{ form.manufacturer_filter.label }}</label>
+                {{ form.manufacturer_filter }}
+            </div>
+
+            {# نام محصول #}
+            <div class="mb-3">
+                <label class="form-label">{{ form.name.label }} <span class="text-danger">*</span></label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <div class="text-danger small">{{ form.name.errors }}</div>
+                {% endif %}
+            </div>
+
+            {# آلبوم #}
+            <div class="mb-3">
+                <label class="form-label">{{ form.album.label }} <span class="text-danger">*</span></label>
+                {{ form.album }}
+                {% if form.album.errors %}
+                <div class="text-danger small">{{ form.album.errors }}</div>
+                {% endif %}
+                <small class="text-muted d-block" id="album-debug"></small>
+            </div>
+
+            {# دسته‌بندی‌ها #}
+            <div class="row g-3 mb-3">
+                <div class="col-md-4">
+                    <label class="form-label">{{ form.background_color.label }}</label>
+                    {{ form.background_color }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">{{ form.design_type.label }}</label>
+                    {{ form.design_type }}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">{{ form.weave_type.label }}</label>
+                    {{ form.weave_type }}
+                </div>
+            </div>
+
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.feature.label }}</label>
+                    {{ form.feature }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.color_tone.label }}</label>
+                    {{ form.color_tone }}
+                </div>
+            </div>
+
+            {# قیمت خرید #}
+            <div class="mb-3">
+                <label class="form-label">{{ form.purchase_price_12m.label }}</label>
+                {{ form.purchase_price_12m }}
+                <small class="form-text text-muted d-block">
+                    {{ form.purchase_price_12m.help_text }}
+                </small>
+            </div>
+
+            {# وضعیت #}
+            <div class="row g-3 mb-3">
+                <div class="col-md-6">
+                    <label class="form-label">{{ form.status.label }}</label>
+                    {{ form.status }}
+                </div>
+                <div class="col-md-6">
+                    <div class="form-check mt-4">
+                        {{ form.is_featured }}
+                        <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                            {{ form.is_featured.label }}
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            {# SEO #}
+            <hr class="my-4">
+            <h5 class="mb-3">تنظیمات SEO</h5>
+
+            <div class="mb-3">
+                <label class="form-label">{{ form.seo_title.label }}</label>
+                {{ form.seo_title }}
+                <small class="form-text text-muted d-block">
+                    {{ form.seo_title.help_text }}
+                </small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">{{ form.seo_description.label }}</label>
+                {{ form.seo_description }}
+                <small class="form-text text-muted d-block">
+                    {{ form.seo_description.help_text }}
+                </small>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">{{ form.description.label }}</label>
+                {{ form.description }}
+                <small class="form-text text-muted d-block">
+                    {{ form.description.help_text }}
+                </small>
+            </div>
+
+            {# دکمه‌ها #}
+            <div class="d-flex gap-2 mt-4">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-check-circle"></i> ذخیره
+                </button>
+                {% if action == 'edit' %}
+                <a href="{% url 'products:product_media' product.pk %}" class="btn btn-success">
+                    <i class="bi bi-collection"></i> مدیریت رسانه (عکس + ویدیو)
+                </a>
+                <a href="{% url 'products:product_images' product.pk %}" class="btn btn-outline-info">
+                    <i class="bi bi-images"></i> فقط تصاویر
+                </a>
+                {% endif %}
+                <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary">
+                    <i class="bi bi-x-circle"></i> انصراف
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{# jQuery + Select2 #}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+<script>
+// فعال‌سازی Select2
+document.addEventListener('DOMContentLoaded', function() {
+    // Select2 تکی (با جستجوی تایپی)
+    $('.select2-single').select2({
+        theme: 'bootstrap-5',
+        dir: 'rtl',
+        language: {
+            noResults: function() { return 'نتیجه‌ای یافت نشد'; },
+            searching: function() { return 'در حال جستجو...'; },
+        },
+        allowClear: true,
+        placeholder: 'انتخاب کنید...',
+    });
+
+    // Select2 چندتایی (نوع طرح - multi select)
+    $('.select2-multi').select2({
+        theme: 'bootstrap-5',
+        dir: 'rtl',
+        language: {
+            noResults: function() { return 'نتیجه‌ای یافت نشد'; },
+            searching: function() { return 'در حال جستجو...'; },
+        },
+        closeOnSelect: false,
+        placeholder: 'انتخاب طرح‌ها...',
+    });
+});
+</script>
+<script>
+// دیتای آلبوم‌ها - از view context می‌گیریم
+const albumData = {
+    {% for album in form.album.field.queryset %}
+    "{{ album.id }}": "{{ album.manufacturer.id }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
+// فیلتر آلبوم‌ها بر اساس شرکت
+function filterAlbums(manufacturerId) {
+    const albumSelect = document.getElementById('id_album');
+    if (!albumSelect) {
+        console.error('Album select not found');
+        return;
+    }
+    
+    const allOptions = Array.from(albumSelect.options);
+    let visibleCount = 0;
+    
+    allOptions.forEach((option, index) => {
+        if (index === 0) return; // گزینه خالی را رد کن
+        
+        const albumId = option.value;
+        const albumManufacturerId = albumData[albumId];
+        
+        console.log(`Option ${index}: albumId=${albumId}, manufacturer=${albumManufacturerId}, selected=${manufacturerId}`);
+        
+        // نمایش یا مخفی کردن بر اساس شرکت
+        if (!manufacturerId || albumManufacturerId === manufacturerId) {
+            option.style.display = '';
+            option.disabled = false;
+            visibleCount++;
+        } else {
+            option.style.display = 'none';
+            option.disabled = true;
+        }
+    });
+    
+    // Debug info
+    const debugEl = document.getElementById('album-debug');
+    if (debugEl) {
+        debugEl.textContent = `فیلتر شرکت: ${manufacturerId || 'همه'} | آلبوم‌های قابل نمایش: ${visibleCount}`;
+    }
+    
+    console.log(`Total visible albums: ${visibleCount}`);
+    
+    // اگر آلبوم انتخابی مخفی شد، reset کن
+    const selectedOption = albumSelect.selectedOptions[0];
+    if (selectedOption && selectedOption.style.display === 'none') {
+        albumSelect.selectedIndex = 0;
+    }
+}
+
+// اجرای اولیه در بارگذاری صفحه
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Album data:', albumData);
+    console.log('Total albums in data:', Object.keys(albumData).length);
+    
+    const mfgFilter = document.getElementById('id_manufacturer_filter');
+    if (mfgFilter && mfgFilter.value) {
+        filterAlbums(mfgFilter.value);
+    }
+});
+</script>
+{% endblock %}

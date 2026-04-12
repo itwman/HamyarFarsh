@@ -1,0 +1,75 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-columns-gap"></i> {{ title }}</h5>
+    <a href="{% url 'appearance:dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-4">
+                    <label class="form-label fw-bold">عنوان ویجت</label>
+                    {{ form.title }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label fw-bold">نوع</label>
+                    {{ form.widget_type }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">ستون (1-4)</label>
+                    {{ form.column }}
+                </div>
+                <div class="col-md-2">
+                    <label class="form-label">ترتیب</label>
+                    {{ form.order }}
+                </div>
+                <div class="col-md-1">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label">فعال</label>
+                    </div>
+                </div>
+                <div class="col-12" id="contentField">
+                    <label class="form-label">محتوا</label>
+                    {{ form.content }}
+                    <div class="mt-2 small text-muted" id="contentHelp">
+                        <div id="helpText"><strong>متن:</strong> متن ساده فارسی</div>
+                        <div id="helpHtml" style="display:none;"><strong>HTML:</strong> کد HTML (نماد اعتماد، ساماندهی، ویجت). مثال:<br><code>&lt;a href="..."&gt;&lt;img src="..." alt="نماد اعتماد"&gt;&lt;/a&gt;</code></div>
+                        <div id="helpLinks" style="display:none;"><strong>لینک‌ها:</strong> لینک‌های فوتری از بخش «فهرست» بارگذاری می‌شوند. نیازی به محتوا نیست.</div>
+                        <div id="helpSocial" style="display:none;"><strong>شبکه‌های اجتماعی:</strong> از تنظیمات سایت خوانده می‌شود. نیازی به محتوا نیست.</div>
+                        <div id="helpContact" style="display:none;"><strong>تماس:</strong> از تنظیمات سایت خوانده می‌شود. نیازی به محتوا نیست.</div>
+                    </div>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {% if is_edit %}بروزرسانی{% else %}ذخیره{% endif %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function updateHelp() {
+    var type = document.getElementById('id_widget_type').value;
+    var helps = ['helpText','helpHtml','helpLinks','helpSocial','helpContact'];
+    helps.forEach(function(h){ document.getElementById(h).style.display = 'none'; });
+    var contentField = document.getElementById('contentField');
+    if (type === 'text') { document.getElementById('helpText').style.display = ''; contentField.style.display = ''; }
+    else if (type === 'html') { document.getElementById('helpHtml').style.display = ''; contentField.style.display = ''; }
+    else if (type === 'links') { document.getElementById('helpLinks').style.display = ''; contentField.style.display = 'none'; }
+    else if (type === 'social') { document.getElementById('helpSocial').style.display = ''; contentField.style.display = 'none'; }
+    else if (type === 'contact') { document.getElementById('helpContact').style.display = ''; contentField.style.display = 'none'; }
+}
+document.getElementById('id_widget_type').addEventListener('change', updateHelp);
+updateHelp();
+</script>
+{% endblock %}

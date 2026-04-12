@@ -1,0 +1,75 @@
+{% load static %}
+{# Navbar - همیار فرش #}
+<nav class="navbar navbar-expand-lg hf-navbar">
+    <div class="container">
+        {# Brand #}
+        <a class="navbar-brand" href="{% url 'home' %}">
+            {% if site_settings.logo %}
+            <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}">
+            {% endif %}
+            <span>{{ site_settings.site_name|default:'همیار فرش' }}</span>
+        </a>
+
+        {# Mobile Toggle #}
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav">
+            <i class="bi bi-list fs-4" style="color: var(--hf-primary)"></i>
+        </button>
+
+        {# Nav Items #}
+        <div class="collapse navbar-collapse" id="mainNav">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link{% if request.resolver_match.url_name == 'home' %} active{% endif %}" href="{% url 'home' %}">
+                        <i class="bi bi-house-door"></i> خانه
+                    </a>
+                </li>
+                {# لینک‌های بیشتر در فازهای بعدی اضافه می‌شوند #}
+            </ul>
+
+            {# User Area #}
+            <ul class="navbar-nav">
+                {% if user.is_authenticated %}
+                    {# Admin/Staff Menu #}
+                    {% if user.is_admin_user or user.is_staff_user %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-gear"></i> مدیریت
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            {% if user.is_admin_user %}
+                            <li><a class="dropdown-item" href="{% url 'site_settings' %}"><i class="bi bi-sliders2 me-2"></i>تنظیمات سایت</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            {% endif %}
+                            <li><a class="dropdown-item" href="{% url 'admin:index' %}"><i class="bi bi-shield-lock me-2"></i>پنل ادمین</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+
+                    {# User Menu #}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i>
+                            {{ user.get_full_name|truncatechars:15 }}
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a class="dropdown-item" href="{% url 'profile' %}"><i class="bi bi-person me-2"></i>پروفایل</a></li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'logout' %}"><i class="bi bi-box-arrow-right me-2"></i>خروج</a></li>
+                        </ul>
+                    </li>
+                {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link" href="{% url 'login' %}">
+                            <i class="bi bi-box-arrow-in-left"></i> ورود
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="btn btn-hf btn-sm ms-2 mt-1 mt-lg-0" href="{% url 'register' %}">
+                            ثبت‌نام
+                        </a>
+                    </li>
+                {% endif %}
+            </ul>
+        </div>
+    </div>
+</nav>

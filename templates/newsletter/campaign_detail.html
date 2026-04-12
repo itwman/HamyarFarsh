@@ -1,0 +1,53 @@
+{% extends 'dashboard/base.html' %}
+{% load humanize %}
+{% block page_title %}کمپین: {{ campaign.title }}{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-megaphone"></i> {{ campaign.title }}</h5>
+    <div class="d-flex gap-2">
+        {% if campaign.status == 'draft' %}
+        <a href="{% url 'newsletter:campaign_edit' campaign.pk %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-pencil"></i> ویرایش</a>
+        <form method="post" action="{% url 'newsletter:campaign_send' campaign.pk %}" style="display:inline;" onsubmit="return confirm('آیا مطمئنید؟ ارسال {{ recipient_count }} پیامک.')">
+            {% csrf_token %}
+            <button class="btn btn-sm btn-success"><i class="bi bi-send"></i> ارسال کمپین ({{ recipient_count }} نفر)</button>
+        </form>
+        {% endif %}
+        <a href="{% url 'newsletter:campaign_list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-right"></i> بازگشت</a>
+    </div>
+</div>
+
+<!-- خلاصه -->
+<div class="row g-3 mb-4">
+    <div class="col-md-3"><div class="card p-3 text-center"><div class="fw-bold fs-5">{% if campaign.status == 'completed' %}<span class="text-success">تکمیل‌شده</span>{% elif campaign.status == 'sending' %}<span class="text-warning">در حال ارسال</span>{% else %}<span class="text-secondary">پیش‌نویس</span>{% endif %}</div><small class="text-muted">وضعیت</small></div></div>
+    <div class="col-md-3"><div class="card p-3 text-center"><div class="fw-bold fs-4">{{ recipient_count }}</div><small class="text-muted">گیرندگان</small></div></div>
+    <div class="col-md-3"><div class="card p-3 text-center"><div class="fw-bold fs-4 text-success">{{ campaign.sent_count }}</div><small class="text-muted">ارسال موفق</small></div></div>
+    <div class="col-md-3"><div class="card p-3 text-center"><div class="fw-bold fs-4 text-danger">{{ campaign.failed_count }}</div><small class="text-muted">ناموفق</small></div></div>
+</div>
+
+<!-- پیش‌نمایش -->
+<div class="card mb-4">
+    <div class="card-header py-2"><strong><i class="bi bi-eye"></i> پیش‌نمایش پیامک</strong> <small class="text-muted">({{ char_count }} کاراکتر)</small></div>
+    <div class="card-body" style="white-space:pre-wrap;background:#f8f9fa;font-family:monospace;font-size:.9rem;direction:rtl;">{{ preview_text }}</div>
+</div>
+
+<!-- لاگ ارسال -->
+{% if logs %}
+<div class="card">
+    <div class="card-header py-2"><strong><i class="bi bi-list-check"></i> لاگ ارسال</strong></div>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead class="table-light"><tr><th>شماره</th><th>وضعیت</th><th>تاریخ</th></tr></thead>
+            <tbody>
+                {% for log in logs %}
+                <tr>
+                    <td dir="ltr">{{ log.phone }}</td>
+                    <td>{% if log.status == 'sent' %}<span class="badge bg-success">ارسال</span>{% else %}<span class="badge bg-danger">خطا</span>{% endif %}</td>
+                    <td><small>{{ log.sent_at|date:"H:i:s" }}</small></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

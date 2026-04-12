@@ -1,0 +1,360 @@
+/* ================================================
+   Pinterest-Style Gallery - همیار فرش
+   ================================================ */
+
+/* ========== هدر ========== */
+.pin-hero {
+    background: linear-gradient(135deg, var(--hf-primary) 0%, var(--hf-primary-dark) 100%);
+    color: #fff;
+    padding: 1.5rem 0;
+    margin-bottom: 1rem;
+    text-align: center;
+}
+.pin-hero h1 { font-size: 1.3rem; font-weight: 700; margin-bottom: 0.2rem; }
+.pin-hero p { font-size: 0.82rem; opacity: 0.85; margin: 0; }
+@media (min-width: 992px) {
+    .pin-hero { padding: 2rem 0; }
+    .pin-hero h1 { font-size: 1.7rem; }
+    .pin-hero p { font-size: 0.95rem; }
+}
+
+.pin-container { padding-bottom: 3rem; }
+
+/* ================================================
+   Pinterest Grid - Masonry CSS Columns
+   ================================================ */
+.pin-grid {
+    column-count: 2;
+    column-gap: 10px;
+}
+@media (min-width: 576px) {
+    .pin-grid { column-gap: 14px; }
+}
+@media (min-width: 768px) {
+    .pin-grid { column-count: 3; column-gap: 16px; }
+}
+@media (min-width: 1200px) {
+    .pin-grid { column-count: 3; column-gap: 18px; }
+}
+
+/* ========== Pinterest Card ========== */
+.pin-card {
+    break-inside: avoid;
+    margin-bottom: 10px;
+    background: #fff;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+    transition: transform 0.2s, box-shadow 0.25s;
+}
+@media (min-width: 576px) {
+    .pin-card { margin-bottom: 14px; border-radius: 18px; }
+}
+.pin-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.pin-card-link { display: block; text-decoration: none; color: inherit; }
+
+.pin-card-img-wrap {
+    position: relative;
+    overflow: hidden;
+    border-radius: 16px 16px 0 0;
+}
+.pin-card-img {
+    width: 100%;
+    display: block;
+    transition: transform 0.4s ease;
+}
+.pin-card:hover .pin-card-img {
+    transform: scale(1.04);
+}
+
+/* Overlay hover */
+.pin-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0,0.35);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    transition: opacity 0.3s;
+    border-radius: 16px 16px 0 0;
+}
+.pin-card:hover .pin-card-overlay { opacity: 1; }
+
+.pin-overlay-btn {
+    background: rgba(255,255,255,0.95);
+    color: var(--hf-dark);
+    padding: 0.4rem 1rem;
+    border-radius: 24px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+.pin-overlay-btn i { margin-left: 0.3rem; }
+
+/* بج شباهت */
+.pin-similarity-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: var(--hf-primary);
+    color: #fff;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.25);
+}
+.pin-similarity-badge i { font-size: 0.6rem; margin-right: 1px; }
+
+/* بدنه کارت */
+.pin-card-body {
+    padding: 0.6rem 0.75rem 0.5rem;
+}
+.pin-card-title {
+    display: block;
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--hf-dark);
+    text-decoration: none;
+    line-height: 1.5;
+    margin-bottom: 0.3rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+.pin-card-title:hover { color: var(--hf-primary); }
+
+.pin-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    margin-bottom: 0.35rem;
+}
+.pin-tag {
+    display: inline-block;
+    padding: 1px 8px;
+    background: var(--hf-gray-light);
+    color: var(--hf-gray);
+    border-radius: 12px;
+    font-size: 0.65rem;
+    font-weight: 500;
+    border: 1px solid var(--hf-border);
+}
+
+.pin-card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.pin-price {
+    font-size: 0.82rem;
+    font-weight: 700;
+    color: var(--hf-primary);
+}
+.pin-price small { font-size: 0.6rem; font-weight: 400; color: var(--hf-gray); }
+
+.pin-buy-btn {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--hf-primary);
+    color: #fff;
+    border-radius: 50%;
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: background 0.2s, transform 0.2s;
+    flex-shrink: 0;
+}
+.pin-buy-btn:hover {
+    background: var(--hf-primary-dark);
+    color: #fff;
+    transform: scale(1.15);
+}
+
+/* ================================================
+   Image Detail - Pinterest Pin Style
+   ================================================ */
+.pin-detail-container {
+    max-width: 1000px;
+    margin: 1.5rem auto;
+    padding: 0 1rem;
+}
+
+.pin-detail-card {
+    background: #fff;
+    border-radius: 24px;
+    overflow: hidden;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    margin-bottom: 2.5rem;
+}
+
+.pin-detail-img-wrap {
+    background: var(--hf-gray-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+.pin-detail-img {
+    width: 100%;
+    display: block;
+    object-fit: contain;
+    max-height: 80vh;
+}
+@media (min-width: 992px) {
+    .pin-detail-img-wrap {
+        border-radius: 24px 0 0 24px;
+        min-height: 500px;
+    }
+}
+
+.pin-detail-info {
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+@media (min-width: 992px) {
+    .pin-detail-info { padding: 2rem; }
+}
+
+/* Actions */
+.pin-detail-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.pin-back-btn {
+    color: var(--hf-gray);
+    font-size: 0.85rem;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+.pin-back-btn:hover { color: var(--hf-primary); }
+.pin-back-btn i { margin-left: 0.3rem; }
+
+.pin-share-btn {
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    border: 1px solid var(--hf-border);
+    background: #fff;
+    color: var(--hf-secondary);
+    font-size: 1rem;
+    cursor: pointer;
+    text-decoration: none;
+    transition: all 0.2s;
+}
+.pin-share-btn:hover {
+    background: var(--hf-primary);
+    color: #fff;
+    border-color: var(--hf-primary);
+}
+
+/* Title */
+.pin-detail-title {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--hf-dark);
+    margin-bottom: 0.75rem;
+    line-height: 1.6;
+}
+@media (min-width: 992px) {
+    .pin-detail-title { font-size: 1.35rem; }
+}
+
+/* Tags */
+.pin-detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 1rem;
+}
+.pin-detail-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 12px;
+    background: var(--hf-gray-light);
+    color: var(--hf-secondary);
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    border: 1px solid var(--hf-border);
+    padding-right: 10px;
+}
+.pin-detail-tag i {
+    font-size: 0.7rem;
+    color: var(--hf-primary);
+}
+
+/* Specs */
+.pin-detail-specs {
+    border-top: 1px solid var(--hf-border);
+    border-bottom: 1px solid var(--hf-border);
+    padding: 0.75rem 0;
+    margin-bottom: 1rem;
+}
+.pin-spec-row {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.25rem 0;
+    font-size: 0.82rem;
+}
+.pin-spec-label { color: var(--hf-gray); }
+.pin-spec-value { font-weight: 600; color: var(--hf-dark); }
+
+/* Price */
+.pin-detail-price {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background: var(--hf-primary-bg);
+    border-radius: 12px;
+    border: 1px solid var(--hf-primary);
+    margin-bottom: 1rem;
+}
+.pin-price-label { font-size: 0.85rem; color: var(--hf-gray); }
+.pin-price-value {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--hf-primary);
+}
+
+/* Buy Button */
+.pin-buy-main {
+    padding: 0.75rem;
+    font-size: 1rem;
+    border-radius: 12px;
+    margin-top: auto;
+}
+
+/* ========== Similar Section ========== */
+.pin-similar-section {
+    margin-bottom: 3rem;
+}
+.pin-similar-title {
+    font-size: 1.15rem;
+    font-weight: 700;
+    color: var(--hf-dark);
+    margin-bottom: 0.2rem;
+}
+.pin-similar-title i { color: var(--hf-primary); margin-left: 0.3rem; }
+.pin-similar-subtitle {
+    font-size: 0.82rem;
+    color: var(--hf-gray);
+    margin-bottom: 1.2rem;
+}

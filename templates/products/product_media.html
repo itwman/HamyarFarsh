@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+{% load gallery_tags %}
+
+{% block meta_title %}مدیریت رسانه - {{ product.name }}{% endblock %}
+
+{% block content %}
+<div class="container-fluid mt-4">
+    <nav aria-label="breadcrumb">
+        <ol class="breadcrumb">
+            <li class="breadcrumb-item"><a href="{% url 'products:product_list' %}">محصولات</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'products:product_edit' product.pk %}">{{ product.name }}</a></li>
+            <li class="breadcrumb-item active">مدیریت رسانه</li>
+        </ol>
+    </nav>
+
+    <h4 class="mb-3" style="color:var(--hf-primary);">
+        <i class="bi bi-collection"></i> مدیریت رسانه — {{ product.name }}
+    </h4>
+
+    {# ========== تب‌ها ========== #}
+    <ul class="nav nav-tabs mb-3" id="mediaTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="images-tab" data-bs-toggle="tab" data-bs-target="#imagesPane" type="button">
+                <i class="bi bi-images"></i> تصاویر ({{ images.count }})
+            </button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="videos-tab" data-bs-toggle="tab" data-bs-target="#videosPane" type="button">
+                <i class="bi bi-camera-video"></i> ویدیوها ({{ videos.count }})
+            </button>
+        </li>
+    </ul>
+
+    <div class="tab-content" id="mediaTabContent">
+
+        {# ========== تب تصاویر ========== #}
+        <div class="tab-pane fade show active" id="imagesPane" role="tabpanel">
+            <div class="row g-4">
+                {# فرم آپلود تصاویر #}
+                <div class="col-md-4">
+                    <div class="hf-card p-4">
+                        <h5 class="mb-3" style="color:var(--hf-primary);">
+                            <i class="bi bi-cloud-upload"></i> آپلود تصاویر
+                        </h5>
+
+                        {# آپلود چندتایی #}
+                        <div class="mb-4">
+                            <h6>آپلود گروهی</h6>
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="upload_images">
+                                <div class="mb-2">
+                                    {{ multi_form.images }}
+                                </div>
+                                <button type="submit" class="btn btn-hf-primary w-100">
+                                    <i class="bi bi-upload"></i> آپلود تصاویر
+                                </button>
+                            </form>
+                        </div>
+
+                        <hr>
+
+                        {# آپلود تکی #}
+                        <div>
+                            <h6>آپلود تکی (با تنظیمات)</h6>
+                            <form method="post" enctype="multipart/form-data">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="upload_single">
+                                <div class="mb-2">
+                                    <label class="form-label">تصویر</label>
+                                    {{ single_form.original }}
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">متن alt</label>
+                                    {{ single_form.alt_text }}
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label">ترتیب</label>
+                                    {{ single_form.order }}
+                                </div>
+                                <div class="mb-3 form-check">
+                                    {{ single_form.is_primary }}
+                                    <label class="form-check-label" for="{{ single_form.is_primary.id_for_label }}">
+                                        تصویر شاخص
+                                    </label>
+                                </div>
+                                <button type="submit" class="btn btn-hf-primary w-100">
+                                    <i class="bi bi-upload"></i> آپلود
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+
+                {# گالری تصاویر #}
+                <div class="col-md-8">
+                    <div class="hf-card p-4">
+                        {% if images %}
+                        <div class="row g-3">
+                            {% for img in images %}
+                            <div class="col-6 col-md-4 col-lg-3">
+                                <div class="card h-100 {% if img.is_primary %}border-danger border-2{% endif %}">
+                                    <img src="{% if img.thumbnail %}{{ img.thumbnail.url }}{% else %}{{ img.original.url }}{% endif %}"
+                                         class="card-img-top" alt="{{ img.get_effective_alt }}"
+                                         style="aspect-ratio:1/1;object-fit:contain;background:#f5f5f5;padding:8px;cursor:pointer;"
+                                         onclick="showImageModal('{{ img.original.url }}', '{{ img.get_effective_alt }}')">
+                                    <div class="card-body p-2">
+                                        {% if img.is_primary %}
+                                        <span class="badge bg-danger w-100 mb-2">
+                                            <i class="bi bi-star-fill"></i> شاخص
+                                        </span>
+                                        {% else %}
+                                        <form method="post" action="{% url 'products:image_set_primary' img.pk %}" class="mb-2">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-warning w-100">
+                                                <i class="bi bi-star"></i> شاخص کن
+                                            </button>
+                                        </form>
+                                        {% endif %}
+                                        <small class="d-block text-muted mb-1">ترتیب: {{ img.order }}</small>
+                                        <form method="post" action="{% url 'products:image_delete' img.pk %}"
+                                              onsubmit="return confirm('حذف تصویر؟')">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="bi bi-trash"></i> حذف
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-image" style="font-size:3rem;"></i>
+                            <p class="mt-2">هنوز تصویری آپلود نشده.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {# ========== تب ویدیوها ========== #}
+        <div class="tab-pane fade" id="videosPane" role="tabpanel">
+            <div class="row g-4">
+                {# فرم آپلود ویدیو #}
+                <div class="col-md-4">
+                    <div class="hf-card p-4">
+                        <h5 class="mb-3" style="color:var(--hf-primary);">
+                            <i class="bi bi-camera-video"></i> آپلود ویدیو
+                        </h5>
+                        <form method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="upload_video">
+                            <div class="mb-2">
+                                <label class="form-label">فایل ویدیو</label>
+                                {{ video_form.original_file }}
+                                <small class="text-muted">MP4, AVI, MKV, MOV — حداکثر 200MB</small>
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">عنوان</label>
+                                {{ video_form.title }}
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">توضیحات</label>
+                                {{ video_form.description }}
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">ترتیب نمایش</label>
+                                {{ video_form.order }}
+                            </div>
+                            <div class="mb-2 form-check">
+                                {{ video_form.is_featured }}
+                                <label class="form-check-label" for="{{ video_form.is_featured.id_for_label }}">
+                                    ویدیو شاخص
+                                </label>
+                            </div>
+                            <div class="mb-3 form-check">
+                                {{ video_form.show_in_gallery }}
+                                <label class="form-check-label" for="{{ video_form.show_in_gallery.id_for_label }}">
+                                    نمایش در گالری عمومی
+                                </label>
+                            </div>
+                            <button type="submit" class="btn btn-hf-primary w-100">
+                                <i class="bi bi-upload"></i> آپلود ویدیو
+                            </button>
+                        </form>
+
+                        <div class="alert alert-info mt-3 small">
+                            <i class="bi bi-info-circle"></i>
+                            پس از آپلود، ویدیو به‌صورت خودکار پردازش و بهینه‌سازی می‌شود
+                            (تبدیل به 720p و 480p + ساخت تصویر پیش‌نمایش).
+                        </div>
+                    </div>
+                </div>
+
+                {# لیست ویدیوها #}
+                <div class="col-md-8">
+                    <div class="hf-card p-4">
+                        {% if videos %}
+                        <div class="row g-3">
+                            {% for vid in videos %}
+                            <div class="col-12 col-md-6">
+                                <div class="card h-100">
+                                    {# تامبنیل یا پلیسهولدر #}
+                                    <div style="aspect-ratio:16/9;background:#1a1a1a;position:relative;overflow:hidden;border-radius:var(--hf-radius) var(--hf-radius) 0 0;">
+                                        {% if vid.thumbnail %}
+                                        <img src="{{ vid.thumbnail.url }}" class="w-100 h-100" style="object-fit:cover;">
+                                        {% elif vid.is_ready %}
+                                        <video style="width:100%;height:100%;object-fit:cover;" preload="metadata">
+                                            <source src="{{ vid.get_mobile_quality_url }}" type="video/mp4">
+                                        </video>
+                                        {% else %}
+                                        <div class="d-flex align-items-center justify-content-center h-100 text-white-50">
+                                            <i class="bi bi-film" style="font-size:2.5rem;"></i>
+                                        </div>
+                                        {% endif %}
+
+                                        {# مدت زمان #}
+                                        {% if vid.duration %}
+                                        <span style="position:absolute;bottom:6px;left:6px;background:rgba(0,0,0,0.8);color:#fff;font-size:0.7rem;padding:1px 6px;border-radius:3px;direction:ltr;">
+                                            {{ vid.duration|format_duration }}
+                                        </span>
+                                        {% endif %}
+
+                                        {# وضعیت پردازش #}
+                                        <span style="position:absolute;top:6px;right:6px;padding:2px 8px;border-radius:3px;font-size:0.7rem;color:#fff;
+                                            {% if vid.processing_status == 'completed' %}background:#2E7D32;
+                                            {% elif vid.processing_status == 'processing' %}background:#F57F17;
+                                            {% elif vid.processing_status == 'failed' %}background:#C62828;
+                                            {% else %}background:#757575;{% endif %}">
+                                            {{ vid.get_processing_status_display }}
+                                        </span>
+                                    </div>
+
+                                    <div class="card-body p-3">
+                                        <h6 class="mb-1">{{ vid.get_effective_title|truncatechars:40 }}</h6>
+                                        <small class="text-muted d-block mb-2">
+                                            آپلود: {{ vid.jalali_uploaded }}
+                                            {% if vid.original_size %} — {{ vid.original_size|format_size }}{% endif %}
+                                            {% if vid.view_count %} — {{ vid.view_count }} بازدید{% endif %}
+                                        </small>
+
+                                        {% if vid.processing_status == 'failed' and vid.processing_error %}
+                                        <div class="alert alert-danger py-1 px-2 small mb-2">
+                                            <i class="bi bi-exclamation-triangle"></i> {{ vid.processing_error|truncatechars:80 }}
+                                        </div>
+                                        {% endif %}
+
+                                        {# اطلاعات فنی #}
+                                        {% if vid.is_ready %}
+                                        <div class="d-flex gap-2 flex-wrap mb-2">
+                                            {% if vid.size_720p %}
+                                            <span class="badge bg-success">720p ({{ vid.size_720p|format_size }})</span>
+                                            {% endif %}
+                                            {% if vid.size_480p %}
+                                            <span class="badge bg-info">480p ({{ vid.size_480p|format_size }})</span>
+                                            {% endif %}
+                                            {% if vid.is_featured %}
+                                            <span class="badge bg-warning"><i class="bi bi-star-fill"></i> شاخص</span>
+                                            {% endif %}
+                                            {% if vid.show_in_gallery %}
+                                            <span class="badge bg-primary"><i class="bi bi-globe"></i> گالری</span>
+                                            {% endif %}
+                                        </div>
+                                        {% endif %}
+
+                                        <form method="post" action="{% url 'products:video_delete' vid.pk %}"
+                                              onsubmit="return confirm('آیا از حذف ویدیو مطمئنید؟')">
+                                            {% csrf_token %}
+                                            <button type="submit" class="btn btn-sm btn-outline-danger w-100">
+                                                <i class="bi bi-trash"></i> حذف ویدیو
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <div class="text-center text-muted py-5">
+                            <i class="bi bi-camera-video-off" style="font-size:3rem;"></i>
+                            <p class="mt-2">هنوز ویدیویی آپلود نشده.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    {# دکمه‌های پایینی #}
+    <div class="mt-4 d-flex gap-2">
+        <a href="{% url 'products:product_edit' product.pk %}" class="btn btn-outline-primary">
+            <i class="bi bi-pencil"></i> ویرایش محصول
+        </a>
+        <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-right"></i> بازگشت به لیست
+        </a>
+    </div>
+</div>
+
+{# مودال نمایش تصویر بزرگ #}
+<div class="modal fade" id="imageModal" tabindex="-1">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body p-0">
+                <img id="modalImage" src="" alt="" class="w-100">
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showImageModal(url, alt) {
+    document.getElementById('modalImage').src = url;
+    document.getElementById('modalImage').alt = alt;
+    new bootstrap.Modal(document.getElementById('imageModal')).show();
+}
+</script>
+{% endblock %}

@@ -1,0 +1,313 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load humanize %}
+{% load price_tags %}
+
+{% block meta_title %}{{ site_settings.site_name }} | فروشگاه آنلاین فرش ماشینی{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ===== اسلایدر ===== */
+.hf-hero { position: relative; overflow: hidden; }
+.hf-hero .carousel-item { height: 500px; }
+.hf-hero .carousel-item img { width: 100%; height: 100%; object-fit: cover; }
+.hf-hero .carousel-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; padding: 20px; }
+.hf-hero .carousel-overlay h2 { font-size: 2.2rem; font-weight: 800; text-shadow: 0 2px 8px rgba(0,0,0,.4); }
+.hf-hero .carousel-overlay p { font-size: 1.1rem; text-shadow: 0 1px 4px rgba(0,0,0,.3); }
+@media (max-width: 768px) {
+    .hf-hero .carousel-item { height: 300px; }
+    .hf-hero .carousel-overlay h2 { font-size: 1.3rem; }
+    .hf-hero .carousel-overlay p { font-size: .85rem; }
+}
+
+/* ===== بنر ===== */
+.hf-banner { border-radius: 12px; overflow: hidden; transition: transform .2s; }
+.hf-banner:hover { transform: scale(1.01); }
+.hf-banner img { width: 100%; height: auto; display: block; }
+
+/* ===== بخش محصولات ===== */
+.hf-section { padding: 40px 0; }
+.hf-section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+.hf-section-title { font-size: 1.4rem; font-weight: 700; color: var(--hf-primary); }
+.hf-section-more { font-size: .85rem; text-decoration: none; color: var(--hf-primary); }
+
+/* ===== کارت محصول ===== */
+.hf-product-card {
+    background: #fff; border-radius: 12px; overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0,0,0,.06); transition: all .2s;
+    height: 100%;
+}
+.hf-product-card:hover { box-shadow: 0 6px 20px rgba(0,0,0,.12); transform: translateY(-3px); }
+.hf-product-card img { width: 100%; height: 200px; object-fit: contain; background: #f8f8f8; padding: 8px; }
+.hf-product-card .card-body { padding: 12px; }
+.hf-product-card .card-title { font-size: .85rem; font-weight: 600; margin-bottom: 6px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.hf-product-card .card-price { font-weight: 700; color: var(--hf-primary); font-size: .95rem; }
+.hf-product-card .card-badge { position: absolute; top: 8px; right: 8px; }
+
+/* ===== اسکرول افقی ===== */
+.hf-scroll-row {
+    display: flex; gap: 16px; overflow-x: auto; scroll-snap-type: x mandatory;
+    -ms-overflow-style: none; scrollbar-width: none; padding-bottom: 8px;
+}
+.hf-scroll-row::-webkit-scrollbar { display: none; }
+.hf-scroll-row .hf-scroll-item { flex: 0 0 220px; scroll-snap-align: start; }
+@media (max-width: 576px) { .hf-scroll-row .hf-scroll-item { flex: 0 0 170px; } }
+
+/* ===== برند ===== */
+.hf-brand-logo { width: 100px; height: 80px; object-fit: contain; filter: grayscale(50%); transition: filter .2s; }
+.hf-brand-logo:hover { filter: grayscale(0%); }
+
+/* ===== مقالات ===== */
+.hf-blog-card img { height: 160px; object-fit: cover; border-radius: 8px 8px 0 0; }
+
+/* ===== ویژگی‌ها ===== */
+.hf-features { padding: 30px 0; }
+.hf-feature-box { text-align: center; padding: 20px 10px; }
+.hf-feature-box i { font-size: 2rem; color: var(--hf-primary); }
+</style>
+{% endblock %}
+
+{% block main_class %}{% endblock %}
+
+{% block content %}
+<!-- ===== اسلایدر ===== -->
+{% if sliders %}
+<section class="hf-hero">
+    <div id="homeCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="5000">
+        <div class="carousel-indicators">
+            {% for s in sliders %}
+            <button type="button" data-bs-target="#homeCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %}></button>
+            {% endfor %}
+        </div>
+        <div class="carousel-inner">
+            {% for s in sliders %}
+            <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                <picture>
+                    {% if s.image_mobile %}
+                    <source media="(max-width: 768px)" srcset="{{ s.image_mobile.url }}">
+                    {% endif %}
+                    <img src="{{ s.image_desktop.url }}" alt="{{ s.title }}" loading="{% if forloop.first %}eager{% else %}lazy{% endif %}">
+                </picture>
+                <div class="carousel-overlay" style="background:rgba(0,0,0,{{ s.overlay_opacity|default:30 }}%); color:{{ s.text_color|default:'#fff' }};">
+                    <h2>{{ s.title }}</h2>
+                    {% if s.subtitle %}<p>{{ s.subtitle }}</p>{% endif %}
+                    {% if s.button_text and s.button_link %}
+                    <a href="{{ s.button_link }}" class="btn btn-lg mt-2" style="background:var(--hf-primary);color:#fff;border-radius:8px;">{{ s.button_text }}</a>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% if sliders|length > 1 %}
+        <button class="carousel-control-prev" type="button" data-bs-target="#homeCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#homeCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+        </button>
+        {% endif %}
+    </div>
+</section>
+{% endif %}
+
+<div class="container">
+
+<!-- ===== ویژگی‌ها ===== -->
+<section class="hf-features">
+    <div class="row g-3">
+        <div class="col-6 col-md-3">
+            <div class="hf-feature-box">
+                <i class="bi bi-truck"></i>
+                <h6 class="mt-2 fw-bold">ارسال رایگان</h6>
+                <small class="text-muted">خرید نقدی بالای ۲۵ میلیون</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="hf-feature-box">
+                <i class="bi bi-credit-card"></i>
+                <h6 class="mt-2 fw-bold">خرید اقساطی</h6>
+                <small class="text-muted">تا ۱۸ ماه</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="hf-feature-box">
+                <i class="bi bi-shield-check"></i>
+                <h6 class="mt-2 fw-bold">ضمانت اصالت</h6>
+                <small class="text-muted">محصولات اصل</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="hf-feature-box">
+                <i class="bi bi-chat-dots"></i>
+                <h6 class="mt-2 fw-bold">مشاوره رایگان</h6>
+                <small class="text-muted">تلگرام، واتساپ</small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ===== بنرهای بالایی ===== -->
+{% if banners_top %}
+<section class="mb-4">
+    <div class="row g-3">
+        {% for b in banners_top %}
+        <div class="{% if b.width == 'half' %}col-md-6{% else %}col-12{% endif %}">
+            {% if b.link %}<a href="{{ b.link }}">{% endif %}
+            <div class="hf-banner">
+                <img src="{{ b.image.url }}" alt="{{ b.alt_text|default:b.title }}" loading="lazy">
+            </div>
+            {% if b.link %}</a>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+<!-- ===== بخش‌های سفارشی ===== -->
+{% for section in sections %}
+<section class="hf-section" {% if section.bg_color %}style="background:{{ section.bg_color }};margin:0 -12px;padding:40px 12px;border-radius:12px;"{% endif %}>
+
+    <div class="hf-section-header">
+        <h2 class="hf-section-title">
+            {% if section.icon %}<i class="bi {{ section.icon }}"></i> {% endif %}
+            {{ section.title }}
+        </h2>
+        {% if section.show_more_link %}
+        <a href="{{ section.show_more_link }}" class="hf-section-more">مشاهده بیشتر <i class="bi bi-chevron-left"></i></a>
+        {% endif %}
+    </div>
+
+    {% if section.subtitle %}
+    <p class="text-muted mb-3">{{ section.subtitle }}</p>
+    {% endif %}
+
+    <!-- محصولات (خودکار یا دستی) -->
+    {% if section.section_type == 'product_auto' or section.section_type == 'product_manual' %}
+    <div class="hf-scroll-row">
+        {% for product in section.get_products %}
+        <div class="hf-scroll-item">
+            <a href="/farsh/{{ product.slug }}/" class="text-decoration-none">
+                <div class="hf-product-card">
+                    {% with img=product.primary_image %}
+                    {% if img and img.thumbnail %}
+                    <img src="{{ img.thumbnail.url }}" alt="{{ product.display_title }}" loading="lazy">
+                    {% else %}
+                    <div style="height:200px;background:#f0f0f0;display:flex;align-items:center;justify-content:center;">
+                        <i class="bi bi-image text-muted" style="font-size:3rem;"></i>
+                    </div>
+                    {% endif %}
+                    {% endwith %}
+                    <div class="card-body">
+                        <div class="card-title text-dark">{{ product.display_title|truncatechars:28 }}</div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="card-price">
+                                {% if product.get_sell_price_12m %}
+                                {{ product.get_sell_price_12m|intcomma }} <small>تومان</small>
+                                {% endif %}
+                            </span>
+                            <small class="text-muted">{{ product.album.comb }} شانه</small>
+                        </div>
+                        {% if product.avg_rating %}
+                        <div class="mt-1">
+                            <small class="text-warning">
+                                {% for i in "12345" %}
+                                    {% if forloop.counter <= product.avg_rating %}<i class="bi bi-star-fill"></i>{% else %}<i class="bi bi-star"></i>{% endif %}
+                                {% endfor %}
+                            </small>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% empty %}
+        <p class="text-muted">محصولی برای نمایش وجود ندارد.</p>
+        {% endfor %}
+    </div>
+
+    <!-- مقالات -->
+    {% elif section.section_type == 'blog_posts' %}
+    <div class="row g-3">
+        {% for post in section.get_blog_posts %}
+        <div class="col-md-3 col-6">
+            <a href="/blog/{{ post.slug }}/" class="text-decoration-none">
+                <div class="hf-blog-card">
+                    {% if post.featured_image %}
+                    <img src="{{ post.featured_image.url }}" alt="{{ post.title }}" loading="lazy" class="w-100">
+                    {% endif %}
+                    <div class="p-2">
+                        <h6 class="text-dark mb-1" style="font-size:.85rem;">{{ post.title|truncatechars:40 }}</h6>
+                        <small class="text-muted">{{ post.jalali_publish }}</small>
+                    </div>
+                </div>
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- لوگوی برندها -->
+    {% elif section.section_type == 'brands' %}
+    <div class="d-flex flex-wrap gap-4 justify-content-center align-items-center">
+        {% for brand in section.get_brands %}
+        <a href="/brand/{{ brand.slug }}/" title="{{ brand.name }}">
+            {% if brand.logo %}
+            <img src="{{ brand.logo.url }}" alt="{{ brand.name }}" class="hf-brand-logo" loading="lazy">
+            {% else %}
+            <span class="badge bg-light text-dark p-3">{{ brand.name }}</span>
+            {% endif %}
+        </a>
+        {% endfor %}
+    </div>
+
+    <!-- HTML سفارشی -->
+    {% elif section.section_type == 'html_custom' %}
+    <div class="custom-html-section">
+        {{ section.html_content|safe }}
+    </div>
+    {% endif %}
+
+    <!-- بنرهای وسط صفحه (بعد از بخش دوم) -->
+    {% if forloop.counter == 2 and banners_middle %}
+    <div class="row g-3 mt-3">
+        {% for b in banners_middle %}
+        <div class="{% if b.width == 'half' %}col-md-6{% else %}col-12{% endif %}">
+            {% if b.link %}<a href="{{ b.link }}">{% endif %}
+            <div class="hf-banner"><img src="{{ b.image.url }}" alt="{{ b.alt_text|default:b.title }}" loading="lazy"></div>
+            {% if b.link %}</a>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</section>
+{% endfor %}
+
+<!-- ===== بنرهای پایینی ===== -->
+{% if banners_bottom %}
+<section class="mb-4">
+    <div class="row g-3">
+        {% for b in banners_bottom %}
+        <div class="{% if b.width == 'half' %}col-md-6{% else %}col-12{% endif %}">
+            {% if b.link %}<a href="{{ b.link }}">{% endif %}
+            <div class="hf-banner"><img src="{{ b.image.url }}" alt="{{ b.alt_text|default:b.title }}" loading="lazy"></div>
+            {% if b.link %}</a>{% endif %}
+        </div>
+        {% endfor %}
+    </div>
+</section>
+{% endif %}
+
+</div>
+
+<!-- ===== پنل مدیریت سریع ===== -->
+{% if user.is_authenticated and user.is_staff %}
+<div class="container mb-4">
+    <div class="p-3 rounded-3 text-center" style="background: var(--hf-primary-bg);">
+        <div class="d-flex flex-wrap gap-2 justify-content-center">
+            <a href="{% url 'home_manager:dashboard' %}" class="btn btn-hf-primary btn-sm"><i class="bi bi-house-gear"></i> مدیریت صفحه اصلی</a>
+            <a href="{% url 'products:product_list' %}" class="btn btn-hf-outline btn-sm"><i class="bi bi-box-seam"></i> محصولات</a>
+            <a href="{% url 'dashboard:home' %}" class="btn btn-hf-outline btn-sm"><i class="bi bi-speedometer2"></i> داشبورد</a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

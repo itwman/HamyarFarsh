@@ -1,0 +1,86 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0"><i class="bi bi-{% if is_edit %}pencil{% else %}plus-circle{% endif %}"></i> {{ title }}</h5>
+    <a href="{% url 'home_manager:dashboard' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-arrow-right"></i> بازگشت</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">عنوان</label>
+                    {{ form.title }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">زیرعنوان</label>
+                    {{ form.subtitle }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">متن دکمه</label>
+                    {{ form.button_text }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">لینک دکمه</label>
+                    {{ form.button_link }}
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label fw-bold">تصویر دسکتاپ (1920×600)</label>
+                    {{ form.image_desktop }}
+                    {% if is_edit and slider.image_desktop %}
+                    <img src="{{ slider.image_desktop.url }}" class="d-block mt-2" style="max-width:300px;border-radius:6px;" alt="">
+                    {% endif %}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">تصویر موبایل (768×400)</label>
+                    {{ form.image_mobile }}
+                    <small class="text-muted d-block">خالی = همان دسکتاپ</small>
+                    {% if is_edit and slider.image_mobile %}
+                    <img src="{{ slider.image_mobile.url }}" class="d-block mt-2" style="max-width:200px;border-radius:6px;" alt="">
+                    {% endif %}
+                </div>
+
+                <div class="col-md-3">
+                    <label class="form-label">رنگ متن</label>
+                    {{ form.text_color }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">تاریکی پس‌زمینه (%)</label>
+                    {{ form.overlay_opacity }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">ترتیب</label>
+                    {{ form.order }}
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label d-block">&nbsp;</label>
+                    <div class="form-check">
+                        {{ form.is_active }}
+                        <label class="form-check-label">فعال</label>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">تاریخ شروع نمایش</label>
+                    {{ form.start_date }}
+                    <small class="text-muted">خالی = بلافاصله</small>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">تاریخ پایان نمایش</label>
+                    {{ form.end_date }}
+                    <small class="text-muted">خالی = بدون محدودیت</small>
+                </div>
+            </div>
+            <div class="mt-4">
+                <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg"></i> {% if is_edit %}بروزرسانی{% else %}ذخیره{% endif %}</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
