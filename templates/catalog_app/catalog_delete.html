@@ -1,48 +1,19 @@
-{% extends 'base.html' %}
-
-{% block meta_title %}حذف کاتالوگ{% endblock %}
-
+{% extends 'dashboard/base.html' %}
+{% block title %}حذف کاتالوگ{% endblock %}
+{% block page_title %}حذف کاتالوگ{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-6">
-            <div class="hf-card p-4">
-                <h3 class="mb-4 text-danger">
-                    <i class="bi bi-exclamation-triangle"></i> حذف کاتالوگ
-                </h3>
-
-                <div class="alert alert-danger">
-                    <strong>هشدار!</strong><br>
-                    آیا مطمئن هستید که می‌خواهید این کاتالوگ را حذف کنید؟
-                </div>
-
-                <div class="p-3 rounded mb-4" style="background:var(--hf-gray-light);">
-                    <h5>{{ catalog.title }}</h5>
-                    <p class="mb-0 text-muted">
-                        کد: <code>{{ catalog.unique_code }}</code><br>
-                        تعداد محصولات: {{ catalog.products.count }}<br>
-                        بازدید: {{ catalog.view_count }}
-                    </p>
-                </div>
-
-                <p class="text-muted small">
-                    <i class="bi bi-info-circle"></i>
-                    پس از حذف، لینک کاتالوگ دیگر قابل دسترسی نخواهد بود.
-                </p>
-
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash"></i> بله، حذف شود
-                        </button>
-                        <a href="{% url 'catalog_app:list' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle"></i> انصراف
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+<div class="card p-4" style="max-width:500px;margin:0 auto;">
+<div class="text-center mb-3">
+<i class="bi bi-exclamation-triangle text-danger" style="font-size:3rem;"></i>
+<h5 class="mt-2">حذف کاتالوگ «{{ catalog.title }}»؟</h5>
+<p class="text-muted">{{ catalog.products.count }} محصول | {{ catalog.view_count }} بازدید</p>
+</div>
+<form method="post">
+{% csrf_token %}
+<div class="d-flex gap-2 justify-content-center">
+<button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> حذف</button>
+<a href="{% url 'catalog_app:list' %}" class="btn btn-outline-secondary">انصراف</a>
+</div>
+</form>
 </div>
 {% endblock %}

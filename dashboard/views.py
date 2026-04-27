@@ -503,3 +503,353 @@ def _update_product_rating(product):
     product.avg_rating = stats['avg'] or 0
     product.rating_count = stats['cnt'] or 0
     product.save(update_fields=['avg_rating', 'rating_count'])
+
+
+# ===================================================================
+#  مدیریت فضای رسانه
+# ===================================================================
+
+@login_required
+def media_storage(request):
+    """مدیریت فضای رسانه — بررسی حجم + حذف اوریجینال‌ها"""
+    if not request.user.is_staff_user:
+        messages.error(request, 'دسترسی غیرمجاز')
+        return redirect('dashboard:home')
+
+    import os
+    from products.models import ProductImage, ProductVideo
+    from django.conf import settings as dj_settings
+
+    media_root = dj_settings.MEDIA_ROOT
+
+    def folder_size(path):
+        total = 0
+        if os.path.isdir(path):
+            for dirpath, dirnames, filenames in os.walk(path):
+                for f in filenames:
+                    fp = os.path.join(dirpath, f)
+                    try:
+                        total += os.path.getsize(fp)
+                    except OSError:
+                        pass
+        return total
+
+    def fmt(size_bytes):
+        if size_bytes < 1024:
+            return f'{size_bytes} B'
+        elif size_bytes < 1024 * 1024:
+            return f'{size_bytes / 1024:.1f} KB'
+        elif size_bytes < 1024 * 1024 * 1024:
+            return f'{size_bytes / 1024 / 1024:.1f} MB'
+        else:
+            return f'{size_bytes / 1024 / 1024 / 1024:.2f} GB'
+
+    originals_path = os.path.join(media_root, 'products', 'originals')
+    thumbs_path = os.path.join(media_root, 'products', 'thumbnails')
+    featured_path = os.path.join(media_root, 'products', 'featured')
+    videos_path = os.path.join(media_root, 'products', 'videos')
+
+    originals_size = folder_size(originals_path)
+    thumbs_size = folder_size(thumbs_path)
+    featured_size = folder_size(featured_path)
+    videos_size = folder_size(videos_path)
+    total_media = folder_size(media_root)
+
+    # تعداد فایل‌ها
+    def file_count(path):
+        count = 0
+        if os.path.isdir(path):
+            for _, _, files in os.walk(path):
+                count += len(files)
+        return count
+
+    # تصاویری که اوریجینال دارن و تامبنیل هم دارن (قابل حذف)
+    deletable_originals = []
+    for img in ProductImage.objects.filter(thumbnail__isnull=False).exclude(thumbnail=''):
+        if img.original:
+            try:
+                orig_path = img.original.path
+                if os.path.isfile(orig_path):
+                    size = os.path.getsize(orig_path)
+                    deletable_originals.append({
+                        'id': img.id,
+                        'product_name': img.product.name,
+                        'product_id': img.product.id,
+                        'filename': os.path.basename(orig_path),
+                        'size': size,
+                        'size_display': fmt(size),
+                        'is_primary': img.is_primary,
+                        'has_featured': bool(img.featured_image),
+                    })
+            except Exception:
+                pass
+
+    deletable_total = sum(d['size'] for d in deletable_originals)
+
+    # === ویدیوهای اوریجینال قابل حذف ===
+    deletable_videos = []
+    for vid in ProductVideo.objects.filter(processing_status='completed'):
+        if vid.original_file and (vid.video_720p or vid.video_480p):
+            try:
+                orig_path = vid.original_file.path
+                if os.path.isfile(orig_path):
+                    size = os.path.getsize(orig_path)
+                    deletable_videos.append({
+                        'id': vid.id,
+                        'product_name': vid.product.name,
+                        'product_id': vid.product.id,
+                        'filename': os.path.basename(orig_path),
+                        'size': size,
+                        'size_display': fmt(size),
+                        'has_720p': bool(vid.video_720p),
+                        'has_480p': bool(vid.video_480p),
+                        'duration': vid.get_duration_display() if vid.duration else '--',
+                    })
+            except Exception:
+                pass
+    deletable_videos_total = sum(d['size'] for d in deletable_videos)
+
+    # فایل‌های یتیم (orphan) — روی دیسک هستن ولی DB بهشون اشاره نمیکنه
+    from products.image_processing import cleanup_orphan_files
+    orphan_files = cleanup_orphan_files()
+    orphan_total = sum(o['size'] for o in orphan_files)
+
+    # === فایل‌های چت ===
+    chat_path = os.path.join(media_root, 'chat', 'attachments')
+    chat_size = folder_size(chat_path)
+    chat_files_count = file_count(chat_path)
+    # لیست فایل‌های چت برای حذف
+    chat_files = []
+    from live_chat.models import ChatMessage
+    for msg in ChatMessage.objects.exclude(attachment='').exclude(attachment__isnull=True):
+        try:
+            fpath = msg.attachment.path
+            if os.path.isfile(fpath):
+                fsize = os.path.getsize(fpath)
+                chat_files.append({
+                    'id': msg.id,
+                    'session_name': msg.session.visitor_name,
+                    'session_id': msg.session.pk,
+                    'filename': os.path.basename(fpath),
+                    'size': fsize,
+                    'size_display': fmt(fsize),
+                    'msg_type': msg.msg_type,
+                    'is_admin': msg.is_admin,
+                    'time': msg.jalali_time,
+                })
+        except Exception:
+            pass
+    chat_files_total = sum(f['size'] for f in chat_files)
+
+    # عملیات حذف
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'delete_selected':
+            ids = request.POST.getlist('image_ids')
+            deleted = 0
+            freed = 0
+            for img_id in ids:
+                try:
+                    img = ProductImage.objects.get(pk=img_id)
+                    if img.thumbnail and img.original:
+                        orig_path = img.original.path
+                        if os.path.isfile(orig_path):
+                            size = os.path.getsize(orig_path)
+                            os.remove(orig_path)
+                            img.original = ''
+                            img.save(update_fields=['original'])
+                            deleted += 1
+                            freed += size
+                except Exception:
+                    pass
+            messages.success(request, f'{deleted} فایل اوریجینال حذف شد. {fmt(freed)} آزاد شد.')
+            return redirect('dashboard:media_storage')
+
+        elif action == 'delete_all_originals':
+            deleted = 0
+            freed = 0
+            for img in ProductImage.objects.filter(thumbnail__isnull=False).exclude(thumbnail=''):
+                if img.original:
+                    try:
+                        orig_path = img.original.path
+                        if os.path.isfile(orig_path):
+                            size = os.path.getsize(orig_path)
+                            os.remove(orig_path)
+                            img.original = ''
+                            img.save(update_fields=['original'])
+                            deleted += 1
+                            freed += size
+                    except Exception:
+                        pass
+            messages.success(request, f'{deleted} فایل اوریجینال حذف شد. {fmt(freed)} آزاد شد.')
+            return redirect('dashboard:media_storage')
+
+        elif action == 'cleanup_orphans':
+            from products.image_processing import delete_orphan_files
+            deleted, freed = delete_orphan_files()
+            messages.success(request, f'{deleted} فایل یتیم حذف شد. {fmt(freed)} آزاد شد.')
+            return redirect('dashboard:media_storage')
+
+        elif action == 'delete_video_originals':
+            ids = request.POST.getlist('video_ids')
+            if not ids:
+                # حذف همه
+                ids = [str(d['id']) for d in deletable_videos]
+            deleted = 0
+            freed = 0
+            for vid_id in ids:
+                try:
+                    vid = ProductVideo.objects.get(pk=vid_id)
+                    if vid.original_file and (vid.video_720p or vid.video_480p):
+                        orig_path = vid.original_file.path
+                        if os.path.isfile(orig_path):
+                            size = os.path.getsize(orig_path)
+                            os.remove(orig_path)
+                            vid.original_file = ''
+                            vid.save(update_fields=['original_file'])
+                            deleted += 1
+                            freed += size
+                except Exception:
+                    pass
+            messages.success(request, f'{deleted} ویدیوی اوریجینال حذف شد. {fmt(freed)} آزاد شد.')
+            return redirect('dashboard:media_storage')
+
+        elif action == 'delete_selected_videos':
+            ids = request.POST.getlist('video_ids')
+            deleted = 0
+            freed = 0
+            for vid_id in ids:
+                try:
+                    vid = ProductVideo.objects.get(pk=vid_id)
+                    if vid.original_file and (vid.video_720p or vid.video_480p):
+                        orig_path = vid.original_file.path
+                        if os.path.isfile(orig_path):
+                            size = os.path.getsize(orig_path)
+                            os.remove(orig_path)
+                            vid.original_file = ''
+                            vid.save(update_fields=['original_file'])
+                            deleted += 1
+                            freed += size
+                except Exception:
+                    pass
+            messages.success(request, f'{deleted} ویدیوی اوریجینال حذف شد. {fmt(freed)} آزاد شد.')
+            return redirect('dashboard:media_storage')
+
+        elif action == 'delete_all_video_originals':
+            deleted = 0
+            freed = 0
+            for vid in ProductVideo.objects.filter(processing_status='completed'):
+                if vid.original_file and (vid.video_720p or vid.video_480p):
+                    try:
+                        orig_path = vid.original_file.path
+                        if os.path.isfile(orig_path):
+                            size = os.path.getsize(orig_path)
+                            os.remove(orig_path)
+                            vid.original_file = ''
+                            vid.save(update_fields=['original_file'])
+                            deleted += 1
+                            freed += size
+                    except Exception:
+                        pass
+            messages.success(request, f'{deleted} ویدیوی اوریجینال حذف شد. {fmt(freed)} آزاد شد.')
+            return redirect('dashboard:media_storage')
+
+        elif action == 'delete_chat_selected':
+            ids = request.POST.getlist('chat_ids')
+            deleted = 0
+            freed = 0
+            for msg_id in ids:
+                try:
+                    msg = ChatMessage.objects.get(pk=msg_id)
+                    if msg.attachment:
+                        fpath = msg.attachment.path
+                        if os.path.isfile(fpath):
+                            freed += os.path.getsize(fpath)
+                            os.remove(fpath)
+                        msg.attachment = ''
+                        msg.save(update_fields=['attachment'])
+                        deleted += 1
+                except Exception:
+                    pass
+            messages.success(request, f'{deleted} فایل چت حذف شد. {fmt(freed)} آزاد شد.')
+            return redirect('dashboard:media_storage')
+
+        elif action == 'delete_all_chat_files':
+            deleted = 0
+            freed = 0
+            for msg in ChatMessage.objects.exclude(attachment='').exclude(attachment__isnull=True):
+                try:
+                    fpath = msg.attachment.path
+                    if os.path.isfile(fpath):
+                        freed += os.path.getsize(fpath)
+                        os.remove(fpath)
+                    msg.attachment = ''
+                    msg.save(update_fields=['attachment'])
+                    deleted += 1
+                except Exception:
+                    pass
+            messages.success(request, f'{deleted} فایل چت حذف شد. {fmt(freed)} آزاد شد.')
+            return redirect('dashboard:media_storage')
+
+    context = {
+        'originals_size': fmt(originals_size),
+        'thumbs_size': fmt(thumbs_size),
+        'featured_size': fmt(featured_size),
+        'videos_size': fmt(videos_size),
+        'total_media': fmt(total_media),
+        'originals_count': file_count(originals_path),
+        'thumbs_count': file_count(thumbs_path),
+        'featured_count': file_count(featured_path),
+        'videos_count': file_count(videos_path),
+        'deletable_originals': deletable_originals,
+        'deletable_total': fmt(deletable_total),
+        'deletable_count': len(deletable_originals),
+        'originals_size_raw': originals_size,
+        'thumbs_size_raw': thumbs_size,
+        'featured_size_raw': featured_size,
+        'videos_size_raw': videos_size,
+        'orphan_files': orphan_files,
+        'orphan_count': len(orphan_files),
+        'orphan_total': fmt(orphan_total),
+        'deletable_videos': deletable_videos,
+        'deletable_videos_count': len(deletable_videos),
+        'deletable_videos_total': fmt(deletable_videos_total),
+        'chat_size': fmt(chat_size),
+        'chat_files_count': chat_files_count,
+        'chat_files': chat_files,
+        'chat_files_db_count': len(chat_files),
+        'chat_files_total': fmt(chat_files_total),
+    }
+
+    return render(request, 'dashboard/media_storage.html', context)
+
+
+@login_required
+def live_alerts_api(request):
+    """ایپیای نوتیفیکیشن زنده برای داشبورد مدیریت"""
+    if not request.user.is_staff_user:
+        return JsonResponse({'error': 'unauthorized'}, status=403)
+
+    from live_chat.models import ChatSession
+    from live_chat.models import Ticket
+
+    open_chats = ChatSession.objects.filter(status='open').count()
+    pending_orders = Order.objects.filter(status='pending').count()
+    open_tickets = Ticket.objects.filter(status__in=['open', 'in_progress']).count()
+    pending_reviews = 0
+    try:
+        from products.models import ProductRating
+        pending_reviews = ProductRating.objects.filter(status='pending').count()
+    except Exception:
+        pass
+
+    total = open_chats + pending_orders + open_tickets + pending_reviews
+
+    return JsonResponse({
+        'total': total,
+        'chats': open_chats,
+        'orders': pending_orders,
+        'tickets': open_tickets,
+        'reviews': pending_reviews,
+    })

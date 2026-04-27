@@ -364,11 +364,67 @@ a:hover {
 }
 
 /* ================================================
+   New Header Layout (Search Bar + Icons)
+   ================================================ */
+.hf-icon-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    color: var(--hf-secondary);
+    text-decoration: none;
+    transition: background .2s, color .2s;
+    position: relative;
+}
+.hf-icon-btn:hover {
+    background: var(--hf-primary-bg);
+    color: var(--hf-primary);
+}
+.hf-icon-btn i { font-size: 1.15rem; }
+
+.hf-badge-sm {
+    position: absolute;
+    top: 0;
+    left: 0;
+    font-size: .55rem;
+    padding: 1px 4px;
+    border-radius: 10px;
+    color: #fff;
+    line-height: 1.2;
+}
+
+/* Desktop menu bar */
+.hf-main-nav { gap: 0; }
+.hf-main-nav .nav-link {
+    color: var(--hf-secondary);
+    font-weight: 500;
+    font-size: .9rem;
+    padding: 10px 16px;
+    position: relative;
+    transition: color .2s;
+}
+.hf-main-nav .nav-link:hover,
+.hf-main-nav .nav-link.active {
+    color: var(--hf-primary);
+}
+.hf-main-nav .nav-link.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    left: 0;
+    height: 3px;
+    background: var(--hf-primary);
+    border-radius: 3px 3px 0 0;
+}
+
+/* ================================================
    Responsive
    ================================================ */
 @media (max-width: 768px) {
     .hf-topbar { font-size: 11px; }
-    .hf-navbar .navbar-brand { font-size: 1.1rem; }
     .hf-auth-card { margin: 20px 16px; padding: 28px 20px; }
     .hf-card .card-body { padding: 12px; }
     body { font-size: 13px; }

@@ -7,6 +7,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse
 from django.views.decorators.http import require_POST
+from django.views.decorators.csrf import ensure_csrf_cookie
 from django.utils import timezone
 from .models import ChatSession, ChatMessage, Ticket, TicketReply
 from .forms import ChatStartForm, TicketForm, TicketReplyForm, AdminReplyForm
@@ -50,11 +51,12 @@ def chat_start(request):
 
 @require_POST
 def chat_send(request):
-    """ارسال پیام در چت — AJAX"""
+    """ارسال پیام در چت — AJAX (متن + فایل)"""
     session_key = request.POST.get('session_key') or request.session.get('chat_session_key')
     msg = request.POST.get('message', '').strip()
+    attachment = request.FILES.get('attachment')
 
-    if not session_key or not msg:
+    if not session_key or (not msg and not attachment):
         return JsonResponse({'success': False})
 
     try:
@@ -62,7 +64,21 @@ def chat_send(request):
     except ChatSession.DoesNotExist:
         return JsonResponse({'success': False, 'message': 'سشن چت یافت نشد.'})
 
-    ChatMessage.objects.create(session=session, message=msg, is_admin=False)
+    # تشخیص نوع پیام
+    msg_type = 'text'
+    if attachment:
+        ext = attachment.name.lower().split('.')[-1] if '.' in attachment.name else ''
+        if ext in ('jpg', 'jpeg', 'png', 'gif', 'webp'):
+            msg_type = 'image'
+        elif ext in ('ogg', 'webm', 'mp3', 'wav', 'm4a'):
+            msg_type = 'voice'
+        else:
+            msg_type = 'file'
+
+    ChatMessage.objects.create(
+        session=session, message=msg, is_admin=False,
+        msg_type=msg_type, attachment=attachment
+    )
     session.status = 'open'
     session.save(update_fields=['status', 'updated_at'])
 
@@ -89,6 +105,9 @@ def chat_messages(request):
         'is_admin': m.is_admin,
         'time': m.jalali_time,
         'is_read': m.is_read,
+        'msg_type': m.msg_type,
+        'attachment_url': m.attachment_url,
+        'attachment_name': m.attachment_name,
     } for m in msgs]
 
     return JsonResponse({'messages': data, 'status': session.status})
@@ -129,14 +148,27 @@ def admin_chat_detail(request, pk):
 
     if request.method == 'POST':
         msg = request.POST.get('message', '').strip()
-        if msg:
+        attachment = request.FILES.get('attachment')
+        if msg or attachment:
+            msg_type = 'text'
+            if attachment:
+                ext = attachment.name.lower().split('.')[-1] if '.' in attachment.name else ''
+                if ext in ('jpg', 'jpeg', 'png', 'gif', 'webp'):
+                    msg_type = 'image'
+                elif ext in ('ogg', 'webm', 'mp3', 'wav', 'm4a'):
+                    msg_type = 'voice'
+                else:
+                    msg_type = 'file'
             ChatMessage.objects.create(
                 session=session, message=msg,
-                is_admin=True, admin_user=request.user
+                is_admin=True, admin_user=request.user,
+                msg_type=msg_type, attachment=attachment
             )
             session.status = 'answered'
             session.save(update_fields=['status', 'updated_at'])
-            messages.success(request, 'پاسخ ارسال شد.')
+            # AJAX ریکوئست بود
+            if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+                return JsonResponse({'success': True})
             return redirect('live_chat:admin_chat_detail', pk=pk)
 
     context = {'session': session, 'messages_list': msgs}
@@ -150,6 +182,23 @@ def admin_chat_close(request, pk):
     session.save(update_fields=['status'])
     messages.success(request, 'چت بسته شد.')
     return redirect('live_chat:admin_chat_list')
+
+
+@staff_member_required
+def admin_chat_messages_api(request, pk):
+    """دریافت پیام‌های چت برای polling مدیر"""
+    session = get_object_or_404(ChatSession, pk=pk)
+    msgs = session.messages.order_by('created_at')
+    msgs.filter(is_admin=False, is_read=False).update(is_read=True)
+    data = [{
+        'message': m.message,
+        'is_admin': m.is_admin,
+        'time': m.jalali_time,
+        'msg_type': m.msg_type,
+        'attachment_url': m.attachment_url,
+        'attachment_name': m.attachment_name,
+    } for m in msgs]
+    return JsonResponse({'messages': data})
 
 
 # ===================================================================

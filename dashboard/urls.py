@@ -18,4 +18,10 @@ urlpatterns = [
     path('reviews/', views.reviews_manage, name='reviews_manage'),
     path('reviews/<int:pk>/action/', views.review_action, name='review_action'),
     path('reviews/bulk/', views.reviews_bulk_action, name='reviews_bulk_action'),
+
+    # مدیریت فضای رسانه
+    path('media-storage/', views.media_storage, name='media_storage'),
+
+    # API نوتیفیکیشن زنده (polling)
+    path('api/live-alerts/', views.live_alerts_api, name='live_alerts'),
 ]

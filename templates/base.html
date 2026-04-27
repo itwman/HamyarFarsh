@@ -27,7 +27,7 @@
     <link rel="icon" href="{{ site_settings.favicon.url }}">
     {% endif %}
 
-    {# PWA (فاز 22) #}
+    {# PWA #}
     <link rel="manifest" href="{% static 'manifest.json' %}">
     <meta name="theme-color" content="{{ site_settings.primary_color|default:'#C62828' }}">
     <meta name="mobile-web-app-capable" content="yes">
@@ -38,7 +38,7 @@
     <link rel="apple-touch-icon" sizes="152x152" href="{% static 'images/pwa/icon-152.png' %}">
     <link rel="apple-touch-icon" sizes="144x144" href="{% static 'images/pwa/icon-144.png' %}">
 
-    {# رنگ‌بندی پویا (فاز 16) #}
+    {# رنگ‌بندی پویا #}
     <style>
     :root {
         --hf-primary: {{ site_settings.primary_color|default:"#C62828" }};
@@ -57,7 +57,6 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     {% block extra_css %}{% endblock %}
 
-    {# کد سفارشی head (فاز 16) #}
     {% if site_settings.custom_head_code %}{{ site_settings.custom_head_code|safe }}{% endif %}
 
     {# JSON-LD Schema.org #}
@@ -80,10 +79,9 @@
     {% endblock %}
 </head>
 <body>
-    {# کد سفارشی بعد از body (فاز 16) #}
     {% if site_settings.custom_body_start %}{{ site_settings.custom_body_start|safe }}{% endif %}
 
-    {# نوار اعلان (فاز 19) #}
+    {# نوار اعلان #}
     {% for ann in active_announcements %}
     <div class="hf-announcement" id="ann-{{ ann.id }}"
          style="background:{{ ann.bg_color }};color:{{ ann.text_color }};padding:8px 0;text-align:center;font-size:.85rem;position:relative;">
@@ -129,110 +127,65 @@
         </div>
     </div>
 
-    {# Navbar — پویا (فاز 16) #}
-    <nav class="navbar navbar-expand-lg hf-navbar sticky-top" style="background:var(--hf-header-bg);">
+    {# ===== هدر اصلی: لوگو + سرچ + آیکون‌ها ===== #}
+    <div class="hf-header sticky-top" style="background:var(--hf-header-bg);box-shadow:var(--hf-shadow);z-index:1030;">
         <div class="container">
-            <a class="navbar-brand" href="{% url 'home' %}">
-                {% if site_settings.logo %}
-                <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}">
-                {% endif %}
-                {{ site_settings.site_name }}
-            </a>
-            <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMain">
-                <span class="navbar-toggler-icon"></span>
-            </button>
-            <div class="collapse navbar-collapse" id="navMain">
-                <ul class="navbar-nav me-auto">
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">
-                            <i class="bi bi-house-door"></i> خانه
-                        </a>
-                    </li>
+            <div class="d-flex align-items-center gap-2 py-2">
+                {# دکمه منو موبایل — سمت راست #}
+                <button class="btn border-0 d-lg-none p-1 flex-shrink-0" type="button" data-bs-toggle="offcanvas" data-bs-target="#mobileMenu" style="font-size:1.4rem;color:var(--hf-secondary);">
+                    <i class="bi bi-list"></i>
+                </button>
 
-                    {# فهرست پویا از appearance #}
-                    {% for item in header_menu_items %}
-                    {% if item.active_children %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            {% if item.icon %}<i class="bi {{ item.icon }}"></i> {% endif %}{{ item.title }}
-                        </a>
-                        <ul class="dropdown-menu">
-                            {% for child in item.active_children %}
-                            <li><a class="dropdown-item" href="{{ child.link }}" {% if child.target_blank %}target="_blank"{% endif %}>
-                                {% if child.icon %}<i class="bi {{ child.icon }}"></i> {% endif %}{{ child.title }}
-                            </a></li>
-                            {% endfor %}
-                        </ul>
-                    </li>
-                    {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link {{ item.css_class }}" href="{{ item.link }}" {% if item.target_blank %}target="_blank"{% endif %}>
-                            {% if item.icon %}<i class="bi {{ item.icon }}"></i> {% endif %}{{ item.title }}
-                        </a>
-                    </li>
+                {# لوگو #}
+                <a class="d-flex align-items-center gap-2 text-decoration-none flex-shrink-0" href="{% url 'home' %}">
+                    {% if site_settings.logo %}
+                    <img src="{{ site_settings.logo.url }}" alt="{{ site_settings.site_name }}" style="height:36px;width:auto;">
                     {% endif %}
-                    {% endfor %}
+                    <span class="fw-bold d-none d-md-inline" style="font-size:1.2rem;color:var(--hf-primary);">{{ site_settings.site_name }}</span>
+                </a>
 
-                    {# اگر فهرست پویا خالی بود، لینک‌های پیش‌فرض #}
-                    {% if not header_menu_items %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="bi bi-images"></i> گالری
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'gallery:video_gallery' %}"><i class="bi bi-play-circle"></i> گالری ویدیو</a></li>
-                            <li><a class="dropdown-item" href="{% url 'gallery:image_gallery' %}"><i class="bi bi-image"></i> گالری تصاویر</a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
+                {# فرم جستجو — همه سایزها #}
+                <div class="hf-live-search-wrap flex-grow-1 position-relative mx-2 mx-lg-4" style="max-width:520px;">
+                    <form action="/search/" method="get" autocomplete="off" id="navSearchForm">
+                        <div class="input-group">
+                            <input type="text" name="q" id="navSearchInput" class="form-control form-control-sm"
+                                   placeholder="جستجوی فرش... (نام، شرکت، رنگ)"
+                                   aria-label="جستجو" autocomplete="off"
+                                   style="border-radius:0 20px 20px 0;border-left:none;">
+                            <button class="btn btn-sm px-3" type="submit"
+                                    style="background:var(--hf-primary);color:#fff;border:none;border-radius:20px 0 0 20px;">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                    <div id="liveSearchResults" class="position-absolute w-100 bg-white rounded-bottom shadow-lg"
+                         style="display:none;z-index:9999;top:100%;right:0;max-height:360px;overflow-y:auto;border:1px solid #eee;border-top:none;">
+                    </div>
+                </div>
 
-                    {# لینک مدیریت (فقط برای ادمین) #}
-                    {% if user.is_authenticated and user.is_staff %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                            <i class="bi bi-grid"></i> مدیریت
-                        </a>
-                        <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="{% url 'dashboard:home' %}"><i class="bi bi-speedometer2"></i> داشبورد</a></li>
-                            <li><a class="dropdown-item" href="{% url 'products:product_list' %}"><i class="bi bi-box-seam"></i> محصولات</a></li>
-                            <li><a class="dropdown-item" href="{% url 'pages:page_list' %}"><i class="bi bi-file-earmark-richtext"></i> محتوا</a></li>
-                            <li><a class="dropdown-item" href="{% url 'home_manager:dashboard' %}"><i class="bi bi-house-gear"></i> صفحه اصلی</a></li>
-                            <li><a class="dropdown-item" href="{% url 'appearance:dashboard' %}"><i class="bi bi-palette2"></i> ظاهر سایت</a></li>
-                        </ul>
-                    </li>
-                    {% endif %}
-                </ul>
-                <ul class="navbar-nav">
-                    {# علاقه‌مندی + مقایسه (فاز 18) #}
-                    <li class="nav-item d-none" id="pwaInstallItem">
-                        <a class="nav-link" href="#" onclick="installPWA();return false;" id="pwaInstallBtn" style="display:none;color:var(--hf-primary);" title="نصب اپلیکیشن">
-                            <i class="bi bi-download"></i> <small class="d-none d-md-inline">نصب</small>
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'wishlist:compare_page' %}" title="مقایسه">
-                            <i class="bi bi-arrow-left-right"></i>
-                            {% if compare_count %}
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-info" style="font-size:.6rem;">{{ compare_count }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link position-relative" href="{% url 'wishlist:page' %}" title="علاقه‌مندی‌ها">
-                            <i class="bi bi-heart"></i>
-                            {% if wishlist_count %}
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size:.6rem;" id="wishlistBadge">{{ wishlist_count }}</span>
-                            {% endif %}
-                        </a>
-                    </li>
-                    {# زنگ نوتیفیکیشن (فاز 19) #}
+                {# آیکون‌های سمت چپ #}
+                <div class="d-flex align-items-center gap-1 flex-shrink-0">
+                    <a class="hf-icon-btn d-none" href="#" onclick="installPWA();return false;" id="pwaInstallBtn" title="نصب">
+                        <i class="bi bi-download"></i>
+                    </a>
+                    <a class="hf-icon-btn position-relative d-none d-md-flex" href="{% url 'wishlist:compare_page' %}" title="مقایسه">
+                        <i class="bi bi-arrow-left-right"></i>
+                        {% if compare_count %}<span class="hf-badge-sm bg-info">{{ compare_count }}</span>{% endif %}
+                    </a>
+                    <a class="hf-icon-btn position-relative" href="{% url 'wishlist:page' %}" title="علاقه‌مندی">
+                        <i class="bi bi-heart"></i>
+                        {% if wishlist_count %}<span class="hf-badge-sm bg-danger" id="wishlistBadge">{{ wishlist_count }}</span>{% endif %}
+                    </a>
+                    {# سبد خرید #}
+                    <a class="hf-icon-btn position-relative" href="{% url 'orders:cart_detail' %}" title="سبد خرید">
+                        <i class="bi bi-cart3"></i>
+                        {% if request.session.cart %}<span class="hf-badge-sm bg-danger" id="cartBadge">{{ request.session.cart|length }}</span>{% endif %}
+                    </a>
                     {% if user.is_authenticated %}
-                    <li class="nav-item dropdown">
-                        <a class="nav-link position-relative" href="#" data-bs-toggle="dropdown" title="اطلاع‌رسانی">
+                    <div class="dropdown">
+                        <a class="hf-icon-btn position-relative" href="#" data-bs-toggle="dropdown" title="اطلاع‌رسانی">
                             <i class="bi bi-bell"></i>
-                            {% if unread_notif_count %}
-                            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark" style="font-size:.6rem;" id="notifBadge">{{ unread_notif_count }}</span>
-                            {% endif %}
+                            {% if unread_notif_count %}<span class="hf-badge-sm bg-warning text-dark" id="notifBadge">{{ unread_notif_count }}</span>{% endif %}
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" style="min-width:320px;max-height:400px;overflow-y:auto;" id="notifDropdown">
                             <li class="dropdown-header d-flex justify-content-between align-items-center">
@@ -244,36 +197,164 @@
                             <li><hr class="dropdown-divider my-1"></li>
                             <li><a class="dropdown-item text-center small" href="{% url 'notifications:page' %}">مشاهده همه</a></li>
                         </ul>
-                    </li>
+                    </div>
                     {% endif %}
                     {% if user.is_authenticated %}
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle"></i>
-                                {{ user.get_full_name|default:user.phone }}
-                            </a>
-                            <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="{% url 'accounts:profile' %}"><i class="bi bi-person"></i> پروفایل</a></li>
-                                <li><hr class="dropdown-divider"></li>
-                                <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right"></i> خروج</a></li>
-                            </ul>
-                        </li>
+                    <div class="dropdown">
+                        <a class="hf-icon-btn" href="#" data-bs-toggle="dropdown">
+                            <i class="bi bi-person-circle"></i>
+                        </a>
+                        <ul class="dropdown-menu dropdown-menu-end" style="min-width:220px;">
+                            <li class="dropdown-header">
+                                <strong>{{ user.get_full_name|default:user.phone }}</strong>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'customer_panel:dashboard' %}"><i class="bi bi-speedometer2 me-2"></i>داشبورد</a></li>
+                            <li><a class="dropdown-item" href="{% url 'customer_panel:orders_history' %}"><i class="bi bi-bag-check me-2"></i>سفارش‌های من</a></li>
+                            <li><a class="dropdown-item" href="{% url 'wishlist:page' %}"><i class="bi bi-heart me-2"></i>علاقه‌مندی‌ها</a></li>
+                            <li><a class="dropdown-item" href="{% url 'customer_panel:addresses_list' %}"><i class="bi bi-geo-alt me-2"></i>آدرس‌ها</a></li>
+                            <li><a class="dropdown-item" href="{% url 'live_chat:ticket_list' %}"><i class="bi bi-ticket me-2"></i>تیکت پشتیبانی</a></li>
+                            <li><a class="dropdown-item" href="{% url 'customer_panel:profile_edit' %}"><i class="bi bi-person me-2"></i>پروفایل</a></li>
+                            {% if user.is_staff %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="{% url 'dashboard:home' %}"><i class="bi bi-gear me-2"></i>پنل مدیریت</a></li>
+                            {% endif %}
+                            <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i>خروج</a></li>
+                        </ul>
+                    </div>
                     {% else %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="{% url 'accounts:login' %}">
-                                <i class="bi bi-box-arrow-in-left"></i> ورود
-                            </a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="btn btn-hf-primary btn-sm my-2 my-lg-0 ms-2" href="{% url 'accounts:register' %}">
-                                ثبت‌نام
-                            </a>
-                        </li>
+                    <a class="hf-icon-btn d-none d-md-flex" href="{% url 'accounts:login' %}" title="ورود">
+                        <i class="bi bi-box-arrow-in-left"></i>
+                    </a>
+                    <a class="btn btn-hf-primary btn-sm d-none d-md-inline-block" href="{% url 'accounts:register' %}">ثبت‌نام</a>
+                    <a class="hf-icon-btn d-md-none" href="{% url 'accounts:login' %}" title="ورود">
+                        <i class="bi bi-person"></i>
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {# منوی دسکتاپ — ردیف دوم #}
+        <div class="hf-menu-bar d-none d-lg-block" style="border-top:1px solid var(--hf-border);">
+            <div class="container">
+                <ul class="nav hf-main-nav">
+                    <li class="nav-item">
+                        <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">
+                            <i class="bi bi-house-door"></i> خانه
+                        </a>
+                    </li>
+                    {% for item in header_menu_items %}
+                    {% if item.active_children %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+                            {% if item.icon %}<i class="bi {{ item.icon }}"></i> {% endif %}{{ item.title }}
+                        </a>
+                        <ul class="dropdown-menu">
+                            {% for child in item.active_children %}
+                            <li><a class="dropdown-item" href="{{ child.link }}" {% if child.target_blank %}target="_blank"{% endif %}>{% if child.icon %}<i class="bi {{ child.icon }}"></i> {% endif %}{{ child.title }}</a></li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                    {% else %}
+                    <li class="nav-item">
+                        <a class="nav-link {{ item.css_class }}" href="{{ item.link }}" {% if item.target_blank %}target="_blank"{% endif %}>{% if item.icon %}<i class="bi {{ item.icon }}"></i> {% endif %}{{ item.title }}</a>
+                    </li>
+                    {% endif %}
+                    {% endfor %}
+                    {% if not header_menu_items %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-images"></i> گالری</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'gallery:video_gallery' %}"><i class="bi bi-play-circle"></i> گالری ویدیو</a></li>
+                            <li><a class="dropdown-item" href="{% url 'gallery:image_gallery' %}"><i class="bi bi-image"></i> گالری تصاویر</a></li>
+                        </ul>
+                    </li>
+                    {% endif %}
+                    {% if user.is_authenticated and user.is_staff %}
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown"><i class="bi bi-grid"></i> مدیریت</a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="{% url 'dashboard:home' %}"><i class="bi bi-speedometer2"></i> داشبورد</a></li>
+                            <li><a class="dropdown-item" href="{% url 'products:product_list' %}"><i class="bi bi-box-seam"></i> محصولات</a></li>
+                            <li><a class="dropdown-item" href="{% url 'pages:page_list' %}"><i class="bi bi-file-earmark-richtext"></i> محتوا</a></li>
+                            <li><a class="dropdown-item" href="{% url 'home_manager:dashboard' %}"><i class="bi bi-house-gear"></i> صفحه اصلی</a></li>
+                            <li><a class="dropdown-item" href="{% url 'appearance:dashboard' %}"><i class="bi bi-palette2"></i> ظاهر سایت</a></li>
+                        </ul>
+                    </li>
                     {% endif %}
                 </ul>
             </div>
         </div>
-    </nav>
+    </div>
+
+    {# ===== منوی موبایل — Offcanvas سمت راست ===== #}
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="mobileMenu">
+        <div class="offcanvas-header" style="background:var(--hf-primary);color:#fff;">
+            <h5 class="offcanvas-title">
+                {% if site_settings.logo %}
+                <img src="{{ site_settings.logo.url }}" alt="" style="height:28px;margin-inline-end:8px;filter:brightness(10);">
+                {% endif %}
+                {{ site_settings.site_name }}
+            </h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="offcanvas"></button>
+        </div>
+        <div class="offcanvas-body p-0">
+            <ul class="list-unstyled mb-0">
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none {% if request.path == '/' %}fw-bold{% endif %}" href="{% url 'home' %}" style="color:var(--hf-dark);"><i class="bi bi-house-door me-2"></i> خانه</a></li>
+                {% for item in header_menu_items %}
+                {% if item.active_children %}
+                <li>
+                    <a class="d-block px-4 py-3 border-bottom text-decoration-none" href="#mobSub{{ forloop.counter }}" data-bs-toggle="collapse" style="color:var(--hf-dark);">
+                        {% if item.icon %}<i class="bi {{ item.icon }} me-2"></i>{% endif %}{{ item.title }}
+                        <i class="bi bi-chevron-down float-start" style="font-size:.7rem;"></i>
+                    </a>
+                    <div class="collapse" id="mobSub{{ forloop.counter }}">
+                        {% for child in item.active_children %}
+                        <a class="d-block px-5 py-2 border-bottom text-decoration-none" href="{{ child.link }}" style="color:var(--hf-gray);font-size:.9rem;">
+                            {% if child.icon %}<i class="bi {{ child.icon }} me-2"></i>{% endif %}{{ child.title }}
+                        </a>
+                        {% endfor %}
+                    </div>
+                </li>
+                {% else %}
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{{ item.link }}" style="color:var(--hf-dark);">{% if item.icon %}<i class="bi {{ item.icon }} me-2"></i>{% endif %}{{ item.title }}</a></li>
+                {% endif %}
+                {% endfor %}
+                {% if not header_menu_items %}
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{% url 'gallery:video_gallery' %}" style="color:var(--hf-dark);"><i class="bi bi-play-circle me-2"></i> گالری ویدیو</a></li>
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{% url 'gallery:image_gallery' %}" style="color:var(--hf-dark);"><i class="bi bi-image me-2"></i> گالری تصاویر</a></li>
+                {% endif %}
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{% url 'wishlist:compare_page' %}" style="color:var(--hf-dark);"><i class="bi bi-arrow-left-right me-2"></i> مقایسه{% if compare_count %} ({{ compare_count }}){% endif %}</a></li>
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{% url 'orders:cart_detail' %}" style="color:var(--hf-primary);font-weight:700;"><i class="bi bi-cart3 me-2"></i> سبد خرید{% if request.session.cart %} ({{ request.session.cart|length }}){% endif %}</a></li>
+                {% if not user.is_authenticated %}
+                <li class="px-4 py-3 d-flex gap-2">
+                    <a class="btn btn-hf-primary btn-sm flex-grow-1" href="{% url 'accounts:register' %}">ثبت‌نام</a>
+                    <a class="btn btn-hf-outline btn-sm flex-grow-1" href="{% url 'accounts:login' %}">ورود</a>
+                </li>
+                {% else %}
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{% url 'customer_panel:dashboard' %}" style="color:var(--hf-dark);"><i class="bi bi-speedometer2 me-2"></i> داشبورد من</a></li>
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{% url 'customer_panel:orders_history' %}" style="color:var(--hf-dark);"><i class="bi bi-bag-check me-2"></i> سفارش‌های من</a></li>
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{% url 'wishlist:page' %}" style="color:var(--hf-dark);"><i class="bi bi-heart me-2"></i> علاقه‌مندی‌ها{% if wishlist_count %} ({{ wishlist_count }}){% endif %}</a></li>
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{% url 'customer_panel:addresses_list' %}" style="color:var(--hf-dark);"><i class="bi bi-geo-alt me-2"></i> آدرس‌ها</a></li>
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{% url 'live_chat:ticket_list' %}" style="color:var(--hf-dark);"><i class="bi bi-ticket me-2"></i> تیکت پشتیبانی</a></li>
+                {% if user.is_staff %}
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none" href="{% url 'dashboard:home' %}" style="color:var(--hf-dark);"><i class="bi bi-gear me-2"></i> پنل مدیریت</a></li>
+                {% endif %}
+                <li><a class="d-block px-4 py-3 border-bottom text-decoration-none text-danger" href="{% url 'accounts:logout' %}"><i class="bi bi-box-arrow-right me-2"></i> خروج</a></li>
+                {% endif %}
+            </ul>
+            <div class="px-4 py-3" style="background:#f9f9f9;">
+                {% if site_settings.mobile %}
+                <a href="tel:{{ site_settings.mobile }}" class="d-block py-1 text-decoration-none" style="color:var(--hf-dark);"><i class="bi bi-telephone me-2"></i>{{ site_settings.mobile }}</a>
+                {% endif %}
+                {% if site_settings.whatsapp %}
+                <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" class="d-block py-1 text-decoration-none" style="color:var(--hf-dark);"><i class="bi bi-whatsapp me-2"></i>واتساپ</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 
     {# Messages #}
     {% if messages %}
@@ -292,64 +373,41 @@
         {% block content %}{% endblock %}
     </main>
 
-    {# Footer — پویا (فاز 16) #}
+    {# Footer #}
     <footer class="hf-footer" style="background:var(--hf-footer-bg);">
         <div class="container">
             {% if footer_widget_columns %}
-            {# فوتر پویا از ویجت‌ها #}
             <div class="row">
                 {% for col_num, widgets in footer_widget_columns.items %}
                 <div class="col-md-{% widthratio 12 footer_widget_columns|length 1 %} mb-4">
                     {% for widget in widgets %}
                     <div class="mb-3">
                         <h5>{{ widget.title }}</h5>
-
                         {% if widget.widget_type == 'text' %}
                         <p class="small">{{ widget.content }}</p>
-
                         {% elif widget.widget_type == 'html' %}
                         {{ widget.content|safe }}
-
                         {% elif widget.widget_type == 'links' %}
                         {% for link_item in widget.get_footer_links %}
                         <a href="{{ link_item.link }}" class="d-block py-1" {% if link_item.target_blank %}target="_blank"{% endif %}>
                             {% if link_item.icon %}<i class="bi {{ link_item.icon }}"></i> {% endif %}{{ link_item.title }}
                         </a>
                         {% endfor %}
-                        {# صفحات CMS فوتری #}
                         {% for fp in footer_pages %}
                         <a href="/{% if fp.page_type == 'page' %}page{% else %}blog{% endif %}/{{ fp.slug }}/" class="d-block py-1">{{ fp.title }}</a>
                         {% endfor %}
-
                         {% elif widget.widget_type == 'social' %}
                         <div class="d-flex gap-2 flex-wrap">
-                            {% if site_settings.whatsapp %}
-                            <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-whatsapp"></i></a>
-                            {% endif %}
-                            {% if site_settings.telegram_id %}
-                            <a href="https://t.me/{{ site_settings.telegram_id }}" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-telegram"></i></a>
-                            {% endif %}
-                            {% if site_settings.instagram_id %}
-                            <a href="https://instagram.com/{{ site_settings.instagram_id }}" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-instagram"></i></a>
-                            {% endif %}
-                            {% if site_settings.eitaa_id %}
-                            <a href="https://eitaa.com/{{ site_settings.eitaa_id }}" target="_blank" class="btn btn-sm btn-outline-light">ایتا</a>
-                            {% endif %}
-                            {% if site_settings.bale_id %}
-                            <a href="https://ble.ir/{{ site_settings.bale_id }}" target="_blank" class="btn btn-sm btn-outline-light">بله</a>
-                            {% endif %}
+                            {% if site_settings.whatsapp %}<a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-whatsapp"></i></a>{% endif %}
+                            {% if site_settings.telegram_id %}<a href="https://t.me/{{ site_settings.telegram_id }}" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-telegram"></i></a>{% endif %}
+                            {% if site_settings.instagram_id %}<a href="https://instagram.com/{{ site_settings.instagram_id }}" target="_blank" class="btn btn-sm btn-outline-light"><i class="bi bi-instagram"></i></a>{% endif %}
+                            {% if site_settings.eitaa_id %}<a href="https://eitaa.com/{{ site_settings.eitaa_id }}" target="_blank" class="btn btn-sm btn-outline-light">ایتا</a>{% endif %}
+                            {% if site_settings.bale_id %}<a href="https://ble.ir/{{ site_settings.bale_id }}" target="_blank" class="btn btn-sm btn-outline-light">بله</a>{% endif %}
                         </div>
-
                         {% elif widget.widget_type == 'contact' %}
-                        {% if site_settings.mobile %}
-                        <a href="tel:{{ site_settings.mobile }}" class="d-block py-1"><i class="bi bi-telephone"></i> {{ site_settings.mobile }}</a>
-                        {% endif %}
-                        {% if site_settings.phone %}
-                        <a href="tel:{{ site_settings.phone }}" class="d-block py-1"><i class="bi bi-telephone-fill"></i> {{ site_settings.phone }}</a>
-                        {% endif %}
-                        {% if site_settings.address %}
-                        <p class="small mt-2"><i class="bi bi-geo-alt"></i> {{ site_settings.address }}</p>
-                        {% endif %}
+                        {% if site_settings.mobile %}<a href="tel:{{ site_settings.mobile }}" class="d-block py-1"><i class="bi bi-telephone"></i> {{ site_settings.mobile }}</a>{% endif %}
+                        {% if site_settings.phone %}<a href="tel:{{ site_settings.phone }}" class="d-block py-1"><i class="bi bi-telephone-fill"></i> {{ site_settings.phone }}</a>{% endif %}
+                        {% if site_settings.address %}<p class="small mt-2"><i class="bi bi-geo-alt"></i> {{ site_settings.address }}</p>{% endif %}
                         {% endif %}
                     </div>
                     {% endfor %}
@@ -357,14 +415,11 @@
                 {% endfor %}
             </div>
             {% else %}
-            {# فوتر پیش‌فرض (اگر ویجت نداشت) #}
             <div class="row">
                 <div class="col-md-4 mb-4">
                     <h5>{{ site_settings.site_name }}</h5>
                     <p class="small">فروشگاه آنلاین فرش ماشینی با امکان خرید نقدی و اقساطی. ارسال به سراسر ایران.</p>
-                    {% if site_settings.address %}
-                    <p class="small"><i class="bi bi-geo-alt"></i> {{ site_settings.address }}</p>
-                    {% endif %}
+                    {% if site_settings.address %}<p class="small"><i class="bi bi-geo-alt"></i> {{ site_settings.address }}</p>{% endif %}
                 </div>
                 <div class="col-md-4 mb-4">
                     <h5>دسترسی سریع</h5>
@@ -375,30 +430,18 @@
                 </div>
                 <div class="col-md-4 mb-4">
                     <h5>ارتباط با ما</h5>
-                    {% if site_settings.mobile %}
-                    <a href="tel:{{ site_settings.mobile }}" class="d-block py-1"><i class="bi bi-telephone"></i> {{ site_settings.mobile }}</a>
-                    {% endif %}
-                    {% if site_settings.whatsapp %}
-                    <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" class="d-block py-1"><i class="bi bi-whatsapp"></i> واتساپ</a>
-                    {% endif %}
-                    {% if site_settings.telegram_id %}
-                    <a href="https://t.me/{{ site_settings.telegram_id }}" target="_blank" class="d-block py-1"><i class="bi bi-telegram"></i> تلگرام</a>
-                    {% endif %}
-                    {% if site_settings.instagram_id %}
-                    <a href="https://instagram.com/{{ site_settings.instagram_id }}" target="_blank" class="d-block py-1"><i class="bi bi-instagram"></i> اینستاگرام</a>
-                    {% endif %}
+                    {% if site_settings.mobile %}<a href="tel:{{ site_settings.mobile }}" class="d-block py-1"><i class="bi bi-telephone"></i> {{ site_settings.mobile }}</a>{% endif %}
+                    {% if site_settings.whatsapp %}<a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" class="d-block py-1"><i class="bi bi-whatsapp"></i> واتساپ</a>{% endif %}
+                    {% if site_settings.telegram_id %}<a href="https://t.me/{{ site_settings.telegram_id }}" target="_blank" class="d-block py-1"><i class="bi bi-telegram"></i> تلگرام</a>{% endif %}
+                    {% if site_settings.instagram_id %}<a href="https://instagram.com/{{ site_settings.instagram_id }}" target="_blank" class="d-block py-1"><i class="bi bi-instagram"></i> اینستاگرام</a>{% endif %}
                 </div>
             </div>
             {% endif %}
 
-            {# کد سفارشی فوتر — نماد اعتماد، ساماندهی (فاز 16) #}
             {% if site_settings.custom_footer_code %}
-            <div class="text-center py-3 border-top border-secondary">
-                {{ site_settings.custom_footer_code|safe }}
-            </div>
+            <div class="text-center py-3 border-top border-secondary">{{ site_settings.custom_footer_code|safe }}</div>
             {% endif %}
 
-            {# فرم عضویت خبرنامه پیامکی (فاز 20) #}
             {% if site_settings.newsletter_enabled %}
             <div class="border-top border-secondary pt-4 pb-3">
                 <div class="row justify-content-center">
@@ -406,14 +449,9 @@
                         <h6 class="mb-2"><i class="bi bi-envelope-paper"></i> {{ site_settings.newsletter_title|default:"خبرنامه" }}</h6>
                         <p class="small mb-3" style="opacity:.8;">{{ site_settings.newsletter_text|default:"جهت اطلاع از فروش‌های ویژه و تخفیف‌ها شماره موبایل خود را وارد کنید" }}</p>
                         <form id="newsletterForm" class="d-flex gap-2 justify-content-center flex-wrap">
-                            <input type="text" id="nlPhone" class="form-control" dir="ltr" inputmode="numeric"
-                                   placeholder="09xxxxxxxxx" pattern="09[0-9]{9}" maxlength="11"
-                                   style="max-width:180px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;">
-                            <input type="text" id="nlName" class="form-control" placeholder="نام (اختیاری)"
-                                   style="max-width:150px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;">
-                            <button type="submit" class="btn btn-light btn-sm fw-bold">
-                                <i class="bi bi-send"></i> عضویت
-                            </button>
+                            <input type="text" id="nlPhone" class="form-control" dir="ltr" inputmode="numeric" placeholder="09xxxxxxxxx" pattern="09[0-9]{9}" maxlength="11" style="max-width:180px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;">
+                            <input type="text" id="nlName" class="form-control" placeholder="نام (اختیاری)" style="max-width:150px;background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.2);color:#fff;">
+                            <button type="submit" class="btn btn-light btn-sm fw-bold"><i class="bi bi-send"></i> عضویت</button>
                         </form>
                         <div id="nlResult" class="small mt-2" style="display:none;"></div>
                     </div>
@@ -430,312 +468,184 @@
         </div>
     </footer>
 
-    {# JS - همه لوکال #}
+    {# JS #}
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     {% block extra_js %}{% endblock %}
 
-    {# کد سفارشی قبل از /body (فاز 16) #}
     {% if site_settings.custom_body_end %}{{ site_settings.custom_body_end|safe }}{% endif %}
 
-    {# چت آنلاین (فاز 21) #}
+    {# چت آنلاین #}
     {% if site_settings.live_chat_external_code %}
-        {# سرویس خارجی (Raychat/Goftino/Crisp) #}
         {{ site_settings.live_chat_external_code|safe }}
     {% elif site_settings.live_chat_enabled %}
-        {# چت داخلی #}
         <div id="chatWidget" style="position:fixed;bottom:20px;left:20px;z-index:9998;">
-            {# دکمه شناور #}
-            <button id="chatToggle" onclick="toggleChatBox()"
-                    style="width:56px;height:56px;border-radius:50%;border:none;
-                    background:var(--hf-primary);color:#fff;font-size:1.5rem;
-                    box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer;transition:transform .2s;">
+            {% csrf_token %}
+            <button id="chatToggle" onclick="toggleChatBox()" style="width:56px;height:56px;border-radius:50%;border:none;background:var(--hf-primary);color:#fff;font-size:1.5rem;box-shadow:0 4px 16px rgba(0,0,0,.25);cursor:pointer;transition:transform .2s;">
                 <i class="bi bi-chat-dots" id="chatIcon"></i>
             </button>
-
-            {# باکس چت #}
-            <div id="chatBox" style="display:none;position:absolute;bottom:70px;left:0;
-                    width:340px;background:#fff;border-radius:16px;overflow:hidden;
-                    box-shadow:0 8px 32px rgba(0,0,0,.15);">
-                {# هدر #}
-                <div style="background:var(--hf-primary);color:#fff;padding:14px 16px;
-                        display:flex;justify-content:space-between;align-items:center;">
-                    <div><strong><i class="bi bi-headset"></i> پشتیبانی آنلاین</strong><br>
-                        <small style="opacity:.8;">پاسخگوی شما هستیم</small>
-                    </div>
+            <div id="chatBox" style="display:none;position:absolute;bottom:70px;left:0;width:340px;background:#fff;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.15);">
+                <div style="background:var(--hf-primary);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;">
+                    <div><strong><i class="bi bi-headset"></i> پشتیبانی آنلاین</strong><br><small style="opacity:.8;">پاسخگوی شما هستیم</small></div>
                     <button onclick="toggleChatBox()" style="background:none;border:none;color:#fff;font-size:1.2rem;"><i class="bi bi-x-lg"></i></button>
                 </div>
-
-                {# محتوا #}
                 <div id="chatContent" style="padding:16px;">
-                    {# فرم شروع #}
                     <div id="chatStartForm">
-                        <div class="mb-2">
-                            <input type="text" id="chatName" class="form-control form-control-sm" placeholder="نام شما" required>
-                        </div>
-                        <div class="mb-2">
-                            <input type="text" id="chatPhone" class="form-control form-control-sm" placeholder="موبایل (اختیاری)" dir="ltr">
-                        </div>
-                        <div class="mb-2">
-                            <textarea id="chatFirstMsg" class="form-control form-control-sm" rows="2" placeholder="پیام شما..."></textarea>
-                        </div>
+                        <div class="mb-2"><input type="text" id="chatName" class="form-control form-control-sm" placeholder="نام شما" required></div>
+                        <div class="mb-2"><input type="text" id="chatPhone" class="form-control form-control-sm" placeholder="موبایل (اختیاری)" dir="ltr"></div>
+                        <div class="mb-2"><textarea id="chatFirstMsg" class="form-control form-control-sm" rows="2" placeholder="پیام شما..."></textarea></div>
                         <button onclick="startChat()" class="btn btn-sm w-100" style="background:var(--hf-primary);color:#fff;"><i class="bi bi-send"></i> ارسال</button>
                     </div>
-
-                    {# پیام‌ها #}
                     <div id="chatMessages" style="display:none;">
                         <div id="chatMsgList" style="max-height:250px;overflow-y:auto;margin-bottom:10px;"></div>
                         <div class="input-group">
                             <input type="text" id="chatInput" class="form-control form-control-sm" placeholder="پیام..." onkeypress="if(event.key==='Enter')sendChatMsg()">
+                            <input type="file" id="chatFileInput" style="display:none;" accept="image/*,audio/*,.pdf,.doc,.docx" onchange="sendChatFile(this)">
+                            <button onclick="document.getElementById('chatFileInput').click()" class="btn btn-sm btn-outline-secondary" title="فایل"><i class="bi bi-paperclip"></i></button>
+                            <button id="chatVoiceBtn" onclick="toggleChatVoice()" class="btn btn-sm btn-outline-secondary" title="ویس"><i class="bi bi-mic"></i></button>
                             <button onclick="sendChatMsg()" class="btn btn-sm" style="background:var(--hf-primary);color:#fff;"><i class="bi bi-send"></i></button>
                         </div>
                     </div>
-
                     <div id="chatResult" style="display:none;" class="small mt-2 text-center"></div>
                 </div>
             </div>
         </div>
-
         <script>
-        var chatSessionKey = null;
-        var chatPollTimer = null;
-
-        function toggleChatBox() {
-            var box = document.getElementById('chatBox');
-            var icon = document.getElementById('chatIcon');
-            if (box.style.display === 'none') {
-                box.style.display = 'block';
-                icon.className = 'bi bi-x-lg';
-            } else {
-                box.style.display = 'none';
-                icon.className = 'bi bi-chat-dots';
-            }
-        }
-
-        function startChat() {
-            var name = document.getElementById('chatName').value.trim();
-            var phone = document.getElementById('chatPhone').value.trim();
-            var msg = document.getElementById('chatFirstMsg').value.trim();
-            if (!name || !msg) { alert('نام و پیام الزامی است.'); return; }
-
-            fetch('/chat/start/', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCsrf()},
-                body: 'name=' + encodeURIComponent(name) + '&phone=' + encodeURIComponent(phone) + '&message=' + encodeURIComponent(msg) + '&page_url=' + encodeURIComponent(location.href)
-            }).then(function(r){ return r.json(); }).then(function(data) {
-                if (data.success) {
-                    chatSessionKey = data.session_key;
-                    document.getElementById('chatStartForm').style.display = 'none';
-                    document.getElementById('chatMessages').style.display = 'block';
-                    loadChatMessages();
-                    chatPollTimer = setInterval(loadChatMessages, 5000);
-                } else {
-                    var res = document.getElementById('chatResult');
-                    res.style.display = 'block'; res.style.color = 'red';
-                    res.textContent = data.message || 'خطا';
-                }
-            });
-        }
-
-        function sendChatMsg() {
-            var input = document.getElementById('chatInput');
-            var msg = input.value.trim();
-            if (!msg || !chatSessionKey) return;
-            input.value = '';
-
-            fetch('/chat/send/', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCsrf()},
-                body: 'session_key=' + chatSessionKey + '&message=' + encodeURIComponent(msg)
-            }).then(function() { loadChatMessages(); });
-        }
-
-        function loadChatMessages() {
-            if (!chatSessionKey) return;
-            fetch('/chat/messages/?session_key=' + chatSessionKey)
-                .then(function(r){ return r.json(); })
-                .then(function(data) {
-                    var list = document.getElementById('chatMsgList');
-                    var html = '';
-                    data.messages.forEach(function(m) {
-                        var align = m.is_admin ? 'text-start' : 'text-end';
-                        var bg = m.is_admin ? '#f0f0f0' : 'var(--hf-primary)';
-                        var color = m.is_admin ? '#333' : '#fff';
-                        html += '<div class="mb-2 ' + align + '">' +
-                            '<span style="display:inline-block;padding:6px 10px;border-radius:10px;font-size:.85rem;max-width:80%;background:' + bg + ';color:' + color + ';">' +
-                            m.message + '</span><br><small style="font-size:.65rem;color:#999;">' + m.time + '</small></div>';
-                    });
-                    list.innerHTML = html;
-                    list.scrollTop = list.scrollHeight;
-                });
-        }
+        var chatSessionKey=null,chatPollTimer=null,chatRecorder=null,chatRecording=false;
+        function toggleChatBox(){var b=document.getElementById('chatBox'),i=document.getElementById('chatIcon');if(b.style.display==='none'){b.style.display='block';i.className='bi bi-x-lg';}else{b.style.display='none';i.className='bi bi-chat-dots';}}
+        function startChat(){var n=document.getElementById('chatName').value.trim(),p=document.getElementById('chatPhone').value.trim(),m=document.getElementById('chatFirstMsg').value.trim();if(!n||!m){alert('نام و پیام الزامی است.');return;}fetch('/chat/start/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCsrf()},body:'name='+encodeURIComponent(n)+'&phone='+encodeURIComponent(p)+'&message='+encodeURIComponent(m)+'&page_url='+encodeURIComponent(location.href)}).then(function(r){return r.json();}).then(function(d){if(d.success){chatSessionKey=d.session_key;document.getElementById('chatStartForm').style.display='none';document.getElementById('chatMessages').style.display='block';loadChatMessages();chatPollTimer=setInterval(loadChatMessages,5000);}else{var r=document.getElementById('chatResult');r.style.display='block';r.style.color='red';r.textContent=d.message||'خطا';}});}
+        function sendChatMsg(){var i=document.getElementById('chatInput'),m=i.value.trim();if(!m||!chatSessionKey)return;i.value='';var fd=new FormData();fd.append('session_key',chatSessionKey);fd.append('message',m);fetch('/chat/send/',{method:'POST',headers:{'X-CSRFToken':getCsrf()},body:fd}).then(function(){loadChatMessages();});}
+        function sendChatFile(inp){if(!inp.files||!inp.files[0]||!chatSessionKey)return;var fd=new FormData();fd.append('session_key',chatSessionKey);fd.append('message','');fd.append('attachment',inp.files[0]);fetch('/chat/send/',{method:'POST',headers:{'X-CSRFToken':getCsrf()},body:fd}).then(function(){loadChatMessages();});inp.value='';}
+        function toggleChatVoice(){var btn=document.getElementById('chatVoiceBtn');if(!chatRecording){navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){var chunks=[];chatRecorder=new MediaRecorder(stream,{mimeType:'audio/webm'});chatRecorder.ondataavailable=function(e){chunks.push(e.data);};chatRecorder.onstop=function(){stream.getTracks().forEach(function(t){t.stop();});var blob=new Blob(chunks,{type:'audio/webm'});var fd=new FormData();fd.append('session_key',chatSessionKey);fd.append('message','');fd.append('attachment',new File([blob],'voice.webm',{type:'audio/webm'}));fetch('/chat/send/',{method:'POST',headers:{'X-CSRFToken':getCsrf()},body:fd}).then(function(){loadChatMessages();});};chatRecorder.start();chatRecording=true;btn.innerHTML='<i class="bi bi-stop-circle" style="color:red;"></i>';}).catch(function(){alert('دسترسی به میکروفون داده نشد.');});}else{chatRecorder.stop();chatRecording=false;btn.innerHTML='<i class="bi bi-mic"></i>';}}
+        function loadChatMessages(){if(!chatSessionKey)return;fetch('/chat/messages/?session_key='+chatSessionKey).then(function(r){return r.json();}).then(function(d){var l=document.getElementById('chatMsgList'),h='';d.messages.forEach(function(m){var a=m.is_admin?'text-start':'text-end',bg=m.is_admin?'#f0f0f0':'var(--hf-primary)',c=m.is_admin?'#333':'#fff';var content='';if(m.msg_type==='image'&&m.attachment_url)content+='<img src="'+m.attachment_url+'" style="max-width:180px;border-radius:8px;display:block;margin-bottom:4px;cursor:pointer;" onclick="window.open(this.src)">';else if(m.msg_type==='voice'&&m.attachment_url)content+='<audio controls style="max-width:200px;display:block;margin-bottom:4px;"><source src="'+m.attachment_url+'"></audio>';else if(m.msg_type==='file'&&m.attachment_url)content+='<a href="'+m.attachment_url+'" target="_blank" style="display:block;margin-bottom:4px;color:'+(m.is_admin?'#333':'#fff')+';font-size:.8rem;"><i class="bi bi-file-earmark"></i> '+(m.attachment_name||'فایل')+'</a>';if(m.message)content+=m.message;h+='<div class="mb-2 '+a+'"><span style="display:inline-block;padding:6px 10px;border-radius:10px;font-size:.85rem;max-width:80%;background:'+bg+';color:'+c+';">'+content+'</span><br><small style="font-size:.65rem;color:#999;">'+m.time+'</small></div>';});l.innerHTML=h;l.scrollTop=l.scrollHeight;});}
         </script>
     {% endif %}
 
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            // بستن خودکار پیام‌ها
-            setTimeout(function() {
-                document.querySelectorAll('.hf-messages .alert').forEach(function(el) {
-                    var bsAlert = bootstrap.Alert.getOrCreateInstance(el);
-                    bsAlert.close();
-                });
-            }, 5000);
-
-            // بارگذاری نوتیفیکیشن‌ها (فاز 19)
-            var notifDropdown = document.getElementById('notifDropdown');
-            if (notifDropdown) {
-                notifDropdown.addEventListener('show.bs.dropdown', loadNotifications);
-            }
+            setTimeout(function(){document.querySelectorAll('.hf-messages .alert').forEach(function(el){var b=bootstrap.Alert.getOrCreateInstance(el);b.close();});},5000);
+            var nd=document.getElementById('notifDropdown');if(nd){nd.addEventListener('show.bs.dropdown',loadNotifications);}
         });
+        function dismissAnn(id){document.getElementById('ann-'+id).style.display='none';fetch('/notifications/dismiss/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCsrf()},body:'id='+id});}
+        function loadNotifications(){var l=document.getElementById('notifList');if(!l)return;fetch('/notifications/api/list/').then(function(r){return r.json();}).then(function(d){if(d.notifications.length===0){l.innerHTML='<div class="py-3 text-center"><small class="text-muted">اطلاع‌رسانی‌ای ندارید</small></div>';return;}var h='';d.notifications.forEach(function(n){h+='<a href="'+(n.link||'#')+'" class="d-block px-3 py-2 text-decoration-none border-bottom '+(n.is_read?'':'bg-light fw-bold')+'" onclick="markRead('+n.id+')"><div class="d-flex gap-2 align-items-start"><i class="bi '+n.icon+' text-'+n.color+' mt-1"></i><div><div style="font-size:.8rem;">'+n.title+'</div><small class="text-muted" style="font-size:.7rem;">'+n.message+'</small><br><small class="text-muted" style="font-size:.65rem;">'+n.date+'</small></div></div></a>';});l.innerHTML=h;});}
+        function markRead(id){fetch('/notifications/api/mark-read/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCsrf()},body:'id='+id});}
+        function markAllRead(){fetch('/notifications/api/mark-all-read/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCsrf()}}).then(function(){var b=document.getElementById('notifBadge');if(b)b.style.display='none';loadNotifications();});}
+        function getCsrf(){var t=document.querySelector('input[name=csrfmiddlewaretoken]');if(t)return t.value;var c=document.cookie.match(/csrftoken=([^;]+)/);return c?c[1]:'';}
+        // Ensure CSRF cookie exists (from hidden input)
+        (function(){var t=document.querySelector('input[name=csrfmiddlewaretoken]');if(t&&!document.cookie.match(/csrftoken=/)){document.cookie='csrftoken='+t.value+';path=/;SameSite=Lax';}})();
+        var nlForm=document.getElementById('newsletterForm');if(nlForm){nlForm.addEventListener('submit',function(e){e.preventDefault();var p=document.getElementById('nlPhone').value.trim(),n=document.getElementById('nlName').value.trim(),r=document.getElementById('nlResult');if(!/^09\d{9}$/.test(p)){r.style.display='block';r.style.color='#ff6b6b';r.textContent='شماره موبایل نامعتبر است.';return;}fetch('/newsletter/subscribe/',{method:'POST',headers:{'Content-Type':'application/x-www-form-urlencoded','X-CSRFToken':getCsrf()},body:'phone='+p+'&name='+encodeURIComponent(n)}).then(function(r){return r.json();}).then(function(d){r.style.display='block';if(d.success){r.style.color='#69db7c';r.textContent=d.message;document.getElementById('nlPhone').value='';document.getElementById('nlName').value='';}else{r.style.color='#ff6b6b';r.textContent=d.message;}}).catch(function(){r.style.display='block';r.style.color='#ff6b6b';r.textContent='خطا در ارتباط با سرور';});});}
+        if('serviceWorker' in navigator){navigator.serviceWorker.register('/sw.js').then(function(r){console.log('SW registered:',r.scope);}).catch(function(e){console.log('SW failed:',e);});}
+        var deferredPrompt=null;window.addEventListener('beforeinstallprompt',function(e){e.preventDefault();deferredPrompt=e;var b=document.getElementById('pwaInstallBtn');if(b){b.style.display='inline-flex';b.classList.remove('d-none');} showPwaBanner();});
+        function installPWA(){if(!deferredPrompt)return;deferredPrompt.prompt();deferredPrompt.userChoice.then(function(c){deferredPrompt=null;var b=document.getElementById('pwaInstallBtn');if(b)b.style.display='none';hidePwaBanner();});}
+    </script>
 
-        // === نوار اعلان — dismiss ===
-        function dismissAnn(id) {
-            document.getElementById('ann-' + id).style.display = 'none';
-            fetch('/notifications/dismiss/', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded',
-                           'X-CSRFToken': getCsrf()},
-                body: 'id=' + id
-            });
-        }
-
-        // === نوتیفیکیشن dropdown ===
-        function loadNotifications() {
-            var list = document.getElementById('notifList');
-            if (!list) return;
-            fetch('/notifications/api/list/')
+    {# ===== سرچ زنده (AJAX) ===== #}
+    <script>
+    (function() {
+        var searchInput = document.getElementById('navSearchInput');
+        var resultsBox = document.getElementById('liveSearchResults');
+        var searchTimer = null;
+        if (!searchInput || !resultsBox) return;
+        searchInput.addEventListener('input', function() {
+            clearTimeout(searchTimer);
+            var q = this.value.trim();
+            if (q.length < 3) { resultsBox.style.display = 'none'; resultsBox.innerHTML = ''; return; }
+            searchTimer = setTimeout(function() { fetchLiveSearch(q); }, 300);
+        });
+        searchInput.addEventListener('focus', function() {
+            if (resultsBox.innerHTML && this.value.trim().length >= 3) resultsBox.style.display = 'block';
+        });
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.hf-live-search-wrap')) resultsBox.style.display = 'none';
+        });
+        searchInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') resultsBox.style.display = 'none';
+        });
+        function fetchLiveSearch(query) {
+            fetch('/search/live/?q=' + encodeURIComponent(query))
                 .then(function(r) { return r.json(); })
                 .then(function(data) {
-                    if (data.notifications.length === 0) {
-                        list.innerHTML = '<div class="py-3 text-center"><small class="text-muted">اطلاع‌رسانی‌ای ندارید</small></div>';
-                        return;
+                    if (!data.results || data.results.length === 0) {
+                        resultsBox.innerHTML = '<div class="p-3 text-center text-muted small"><i class="bi bi-search"></i> نتیجه‌ای یافت نشد</div>';
+                        resultsBox.style.display = 'block'; return;
                     }
                     var html = '';
-                    data.notifications.forEach(function(n) {
-                        html += '<a href="' + (n.link || '#') + '" class="d-block px-3 py-2 text-decoration-none border-bottom '
-                            + (n.is_read ? '' : 'bg-light fw-bold') + '" onclick="markRead(' + n.id + ')">';
-                        html += '<div class="d-flex gap-2 align-items-start">';
-                        html += '<i class="bi ' + n.icon + ' text-' + n.color + ' mt-1"></i>';
-                        html += '<div><div style="font-size:.8rem;">' + n.title + '</div>';
-                        html += '<small class="text-muted" style="font-size:.7rem;">' + n.message + '</small><br>';
-                        html += '<small class="text-muted" style="font-size:.65rem;">' + n.date + '</small>';
-                        html += '</div></div></a>';
+                    data.results.forEach(function(item) {
+                        html += '<a href="' + item.url + '" class="d-flex align-items-center gap-2 px-3 py-2 text-decoration-none border-bottom hf-live-search-item" style="color:#333;">';
+                        if (item.thumbnail) {
+                            html += '<img src="' + item.thumbnail + '" alt="" style="width:48px;height:48px;object-fit:contain;border-radius:6px;background:#f9f9f9;flex-shrink:0;">';
+                        } else {
+                            html += '<div style="width:48px;height:48px;background:#f0f0f0;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><i class="bi bi-image text-muted"></i></div>';
+                        }
+                        html += '<div style="min-width:0;">';
+                        html += '<div class="fw-bold text-truncate" style="font-size:.8rem;">' + item.title + '</div>';
+                        html += '<small class="text-muted">' + item.manufacturer;
+                        if (item.color) html += ' | ' + item.color;
+                        html += '</small>';
+                        if (item.price) html += '<div style="font-size:.8rem;color:var(--hf-primary);font-weight:600;">' + item.price + ' تومان</div>';
+                        html += '</div></a>';
                     });
-                    list.innerHTML = html;
-                });
-        }
-
-        function markRead(id) {
-            fetch('/notifications/api/mark-read/', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded',
-                           'X-CSRFToken': getCsrf()},
-                body: 'id=' + id
-            });
-        }
-
-        function markAllRead() {
-            fetch('/notifications/api/mark-all-read/', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded',
-                           'X-CSRFToken': getCsrf()}
-            }).then(function() {
-                var badge = document.getElementById('notifBadge');
-                if (badge) badge.style.display = 'none';
-                loadNotifications();
-            });
-        }
-
-        function getCsrf() {
-            var c = document.cookie.match(/csrftoken=([^;]+)/);
-            return c ? c[1] : '';
-        }
-
-        // dismiss اعلان (فاز 19)
-        function dismissAnn(id) {
-            document.getElementById('ann-' + id).style.display = 'none';
-            fetch('/notifications/dismiss/', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCsrf()},
-                body: 'id=' + id
-            });
-        }
-
-        // عضویت خبرنامه (فاز 20)
-        var nlForm = document.getElementById('newsletterForm');
-        if (nlForm) {
-            nlForm.addEventListener('submit', function(e) {
-                e.preventDefault();
-                var phone = document.getElementById('nlPhone').value.trim();
-                var name = document.getElementById('nlName').value.trim();
-                var result = document.getElementById('nlResult');
-
-                if (!/^09\d{9}$/.test(phone)) {
-                    result.style.display = 'block';
-                    result.style.color = '#ff6b6b';
-                    result.textContent = 'شماره موبایل نامعتبر است. فرمت: 09xxxxxxxxx';
-                    return;
-                }
-
-                fetch('/newsletter/subscribe/', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded', 'X-CSRFToken': getCsrf()},
-                    body: 'phone=' + phone + '&name=' + encodeURIComponent(name)
+                    html += '<a href="/search/?q=' + encodeURIComponent(query) + '" class="d-block text-center py-2 small fw-bold text-decoration-none" style="color:var(--hf-primary);"><i class="bi bi-arrow-left"></i> مشاهده همه نتایج</a>';
+                    resultsBox.innerHTML = html;
+                    resultsBox.style.display = 'block';
                 })
-                .then(function(r) { return r.json(); })
-                .then(function(data) {
-                    result.style.display = 'block';
-                    if (data.success) {
-                        result.style.color = '#69db7c';
-                        result.textContent = data.message;
-                        document.getElementById('nlPhone').value = '';
-                        document.getElementById('nlName').value = '';
-                    } else {
-                        result.style.color = '#ff6b6b';
-                        result.textContent = data.message;
-                    }
-                })
-                .catch(function() {
-                    result.style.display = 'block';
-                    result.style.color = '#ff6b6b';
-                    result.textContent = 'خطا در ارتباط با سرور';
-                });
-            });
+                .catch(function() { resultsBox.style.display = 'none'; });
         }
-
-        // ===== PWA — Service Worker + A2HS (فاز 22) =====
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('/sw.js').then(function(reg) {
-                console.log('SW registered:', reg.scope);
-            }).catch(function(err) {
-                console.log('SW registration failed:', err);
-            });
-        }
-
-        // A2HS (Add to Home Screen)
-        var deferredPrompt = null;
-        window.addEventListener('beforeinstallprompt', function(e) {
-            e.preventDefault();
-            deferredPrompt = e;
-            // نمایش دکمه نصب
-            var btn = document.getElementById('pwaInstallBtn');
-            if (btn) btn.style.display = 'inline-block';
-            var item = document.getElementById('pwaInstallItem');
-            if (item) item.classList.remove('d-none');
-        });
-
-        function installPWA() {
-            if (!deferredPrompt) return;
-            deferredPrompt.prompt();
-            deferredPrompt.userChoice.then(function(choice) {
-                if (choice.outcome === 'accepted') {
-                    console.log('PWA installed');
-                }
-                deferredPrompt = null;
-                var btn = document.getElementById('pwaInstallBtn');
-                if (btn) btn.style.display = 'none';
-            });
-        }
+    })();
     </script>
+
+    <style>
+    .hf-live-search-item:hover { background: #f8f9fa !important; }
+    @media (max-width: 991.98px) { .hf-live-search-wrap { max-width: 100% !important; } }
+    </style>
+
+    {# ===== بنر نصب PWA (موبایل) ===== #}
+    <div id="pwaBanner" style="display:none;position:fixed;bottom:0;left:0;right:0;z-index:9997;
+        background:#fff;box-shadow:0 -4px 20px rgba(0,0,0,.15);border-radius:16px 16px 0 0;
+        padding:16px 20px;animation:hfSlideUp .4s ease;">
+        <div style="display:flex;align-items:center;gap:12px;">
+            <div style="width:48px;height:48px;border-radius:12px;background:var(--hf-primary);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <i class="bi bi-shop" style="color:#fff;font-size:1.4rem;"></i>
+            </div>
+            <div style="flex:1;min-width:0;">
+                <div style="font-weight:700;font-size:.9rem;color:var(--hf-dark);">همیار فرش رو نصب کنید!</div>
+                <div style="font-size:.75rem;color:var(--hf-gray);">دسترسی سریع بدون نیاز به مرورگر</div>
+            </div>
+            <button onclick="installPWA()" style="background:var(--hf-primary);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-weight:600;font-size:.85rem;white-space:nowrap;cursor:pointer;">
+                <i class="bi bi-download"></i> نصب
+            </button>
+            <button onclick="hidePwaBanner()" style="background:none;border:none;color:var(--hf-gray);font-size:1.2rem;padding:4px;cursor:pointer;">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+    function showPwaBanner(){
+        // فقط روی موبایل + اگه قبلا dismiss نشده + اگه قبلا نصب نشده
+        if(window.innerWidth > 768) return;
+        if(window.matchMedia('(display-mode: standalone)').matches) return;
+        if(navigator.standalone) return;
+        try { if(localStorage.getItem('pwa_dismissed')) return; } catch(e){}
+        // ۳ ثانیه بعد از لود صفحه نشون بده
+        setTimeout(function(){
+            var b=document.getElementById('pwaBanner');
+            if(b && deferredPrompt) b.style.display='block';
+        }, 3000);
+    }
+    function hidePwaBanner(){
+        var b=document.getElementById('pwaBanner');
+        if(b) b.style.display='none';
+        try { localStorage.setItem('pwa_dismissed','1'); } catch(e){}
+    }
+    // اگه اپلیکیشن نصب شد، بنر رو مخفی کن
+    window.addEventListener('appinstalled',function(){ hidePwaBanner(); });
+    </script>
+
+    <style>
+    @keyframes hfSlideUp {
+        from { transform: translateY(100%); opacity: 0; }
+        to { transform: translateY(0); opacity: 1; }
+    }
+    </style>
 </body>
 </html>

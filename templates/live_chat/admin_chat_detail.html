@@ -1,50 +1,223 @@
 {% extends 'dashboard/base.html' %}
+{% block title %}چت با {{ session.visitor_name }}{% endblock %}
 {% block page_title %}چت با {{ session.visitor_name }}{% endblock %}
 {% block extra_css %}
 <style>
-.chat-box { max-height: 500px; overflow-y: auto; padding: 16px; background: #f8f9fa; border-radius: 8px; }
-.chat-msg { margin-bottom: 12px; display: flex; }
-.chat-msg.visitor { justify-content: flex-start; }
-.chat-msg.admin { justify-content: flex-end; }
-.chat-bubble { max-width: 70%; padding: 10px 14px; border-radius: 12px; font-size: .9rem; }
-.chat-msg.visitor .chat-bubble { background: #fff; border: 1px solid #dee2e6; border-bottom-right-radius: 4px; }
-.chat-msg.admin .chat-bubble { background: var(--hf-primary); color: #fff; border-bottom-left-radius: 4px; }
-.chat-time { font-size: .7rem; opacity: .6; margin-top: 2px; }
+.chat-container{display:flex;flex-direction:column;height:calc(100vh - 220px);min-height:400px;}
+.chat-header{padding:10px 16px;background:#fff;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;}
+.chat-messages{flex:1;overflow-y:auto;padding:16px;background:#f0f2f5;display:flex;flex-direction:column;gap:8px;}
+.chat-input-area{padding:12px 16px;background:#fff;border-top:1px solid #eee;}
+.msg{display:flex;max-width:75%;}
+.msg.visitor{align-self:flex-end;}
+.msg.admin{align-self:flex-start;}
+.msg-bubble{padding:8px 14px;border-radius:12px;font-size:.9rem;line-height:1.5;word-break:break-word;white-space:pre-wrap;}
+.msg.visitor .msg-bubble{background:#fff;border:1px solid #ddd;border-radius:12px 12px 0 12px;}
+.msg.admin .msg-bubble{background:var(--hf-primary,#C62828);color:#fff;border-radius:12px 12px 12px 0;}
+.msg-time{font-size:.65rem;opacity:.5;margin-top:2px;}
+.msg-img{max-width:240px;border-radius:8px;cursor:pointer;display:block;margin-bottom:4px;}
+.msg-voice{display:block;margin-bottom:4px;}
+.msg-file{display:inline-flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(0,0,0,.08);border-radius:8px;text-decoration:none;color:inherit;font-size:.8rem;margin-bottom:4px;}
+.msg.admin .msg-file{background:rgba(255,255,255,.2);color:#fff;}
+.file-preview{position:fixed;bottom:70px;right:20px;background:#fff;border:1px solid #ddd;border-radius:8px;padding:8px 12px;box-shadow:0 2px 10px rgba(0,0,0,.15);display:none;align-items:center;gap:8px;z-index:10;}
+.record-btn{border:none;background:none;font-size:1.3rem;cursor:pointer;color:#666;padding:4px;}
+.record-btn.recording{color:#C62828;animation:pulse 1s infinite;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
 </style>
 {% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h5 class="mb-0"><i class="bi bi-chat-dots"></i> {{ session.visitor_name }} {% if session.visitor_phone %}<small class="text-muted" dir="ltr">{{ session.visitor_phone }}</small>{% endif %}</h5>
-    <div class="d-flex gap-2">
-        <span class="badge bg-{% if session.status == 'open' %}danger{% elif session.status == 'answered' %}success{% else %}secondary{% endif %}">{{ session.get_status_display }}</span>
-        <a href="{% url 'live_chat:admin_chat_list' %}" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-right"></i></a>
+<div class="chat-container card">
+    <div class="chat-header">
+        <div>
+            <strong>{{ session.visitor_name }}</strong>
+            {% if session.visitor_phone %}<small class="text-muted me-2" dir="ltr">{{ session.visitor_phone }}</small>{% endif %}
+            <span class="badge bg-{% if session.status == 'open' %}danger{% elif session.status == 'answered' %}success{% else %}secondary{% endif %}" id="chatStatus">{{ session.get_status_display }}</span>
+        </div>
+        <div class="d-flex gap-2">
+            {% if session.status != 'closed' %}
+            <a href="{% url 'live_chat:admin_chat_close' session.pk %}" class="btn btn-sm btn-outline-secondary" onclick="return confirm('بستن چت؟')"><i class="bi bi-x-circle"></i></a>
+            {% endif %}
+            <a href="{% url 'live_chat:admin_chat_list' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-arrow-right"></i></a>
+        </div>
     </div>
-</div>
 
-<div class="card mb-3">
-    <div class="chat-box" id="chatBox">
+    <div class="chat-messages" id="chatBox">
         {% for m in messages_list %}
-        <div class="chat-msg {% if m.is_admin %}admin{% else %}visitor{% endif %}">
-            <div class="chat-bubble">
-                {{ m.message|linebreaksbr }}
-                <div class="chat-time">{{ m.jalali_time }}</div>
+        <div class="msg {% if m.is_admin %}admin{% else %}visitor{% endif %}">
+            <div class="msg-bubble">
+                {% if m.msg_type == 'image' and m.attachment %}
+                <img src="{{ m.attachment.url }}" class="msg-img" onclick="window.open(this.src)">
+                {% elif m.msg_type == 'voice' and m.attachment %}
+                <audio controls class="msg-voice" style="max-width:220px;"><source src="{{ m.attachment.url }}"></audio>
+                {% elif m.msg_type == 'file' and m.attachment %}
+                <a href="{{ m.attachment.url }}" target="_blank" class="msg-file"><i class="bi bi-file-earmark"></i> {{ m.attachment_name }}</a>
+                {% endif %}
+                {% if m.message %}{{ m.message|linebreaksbr }}{% endif %}
+                <div class="msg-time">{{ m.jalali_time }}</div>
             </div>
         </div>
         {% endfor %}
     </div>
-</div>
 
-{% if session.status != 'closed' %}
-<div class="card"><div class="card-body">
-    <form method="post">{% csrf_token %}
+    {% if session.status != 'closed' %}
+    <div id="filePreview" class="file-preview">
+        <i class="bi bi-paperclip"></i>
+        <span id="filePreviewName"></span>
+        <button type="button" class="btn-close btn-close-sm" onclick="clearFile()"></button>
+    </div>
+    <div class="chat-input-area">
         <div class="input-group">
-            <textarea name="message" class="form-control" rows="2" placeholder="پاسخ شما..."></textarea>
-            <button type="submit" class="btn btn-primary"><i class="bi bi-send"></i></button>
+            <textarea id="msgInput" class="form-control" rows="1" placeholder="پاسخ... (Enter=ارسال)" style="resize:none;"></textarea>
+            <input type="file" id="fileInput" style="display:none;" onchange="onFileSelect(this)">
+            <button class="btn btn-outline-secondary" onclick="document.getElementById('fileInput').click()" title="فایل/عکس"><i class="bi bi-paperclip"></i></button>
+            <button class="btn btn-outline-secondary record-btn" id="voiceBtn" onclick="toggleVoice()" title="ضبط ویس"><i class="bi bi-mic"></i></button>
+            <button class="btn btn-primary" id="sendBtn" onclick="sendMsg()"><i class="bi bi-send"></i></button>
         </div>
-    </form>
-</div></div>
-{% endif %}
+    </div>
+    {% else %}
+    <div class="chat-input-area text-center text-muted py-2"><i class="bi bi-lock"></i> بسته شده</div>
+    {% endif %}
+</div>
 {% endblock %}
+
 {% block extra_js %}
-<script>var box = document.getElementById('chatBox'); if(box) box.scrollTop = box.scrollHeight;</script>
+<script>
+(function(){
+    var chatBox = document.getElementById('chatBox');
+    var input = document.getElementById('msgInput');
+    var fileInput = document.getElementById('fileInput');
+    var csrfToken = '{{ csrf_token }}';
+    var lastCount = {{ messages_list.count }};
+    var selectedFile = null;
+    var mediaRecorder = null;
+    var audioChunks = [];
+    var isRecording = false;
+
+    function scrollBottom(){ if(chatBox) chatBox.scrollTop = chatBox.scrollHeight; }
+    scrollBottom();
+
+    // ===== ارسال پیام =====
+    window.sendMsg = function(){
+        var msg = input ? input.value.trim() : '';
+        if(!msg && !selectedFile) return;
+        if(input) { input.value = ''; input.style.height = 'auto'; }
+
+        var formData = new FormData();
+        formData.append('message', msg);
+        if(selectedFile){
+            formData.append('attachment', selectedFile);
+        }
+
+        // نمایش فوری
+        if(msg && !selectedFile) appendMsg({message:msg, is_admin:true, msg_type:'text', time:nowTime()});
+        else if(selectedFile) appendMsg({message: msg || selectedFile.name, is_admin:true, msg_type:'file', time:nowTime()});
+
+        clearFile();
+
+        fetch('{% url "live_chat:admin_chat_detail" session.pk %}', {
+            method:'POST',
+            headers:{'X-CSRFToken':csrfToken, 'X-Requested-With':'XMLHttpRequest'},
+            body: formData
+        });
+    };
+
+    // ===== فایل =====
+    window.onFileSelect = function(inp){
+        if(inp.files && inp.files[0]){
+            selectedFile = inp.files[0];
+            document.getElementById('filePreviewName').textContent = selectedFile.name;
+            document.getElementById('filePreview').style.display = 'flex';
+        }
+    };
+    window.clearFile = function(){
+        selectedFile = null;
+        if(fileInput) fileInput.value = '';
+        document.getElementById('filePreview').style.display = 'none';
+    };
+
+    // ===== ضبط ویس =====
+    window.toggleVoice = function(){
+        var btn = document.getElementById('voiceBtn');
+        if(!isRecording){
+            navigator.mediaDevices.getUserMedia({audio:true}).then(function(stream){
+                audioChunks = [];
+                mediaRecorder = new MediaRecorder(stream, {mimeType:'audio/webm'});
+                mediaRecorder.ondataavailable = function(e){ audioChunks.push(e.data); };
+                mediaRecorder.onstop = function(){
+                    stream.getTracks().forEach(function(t){t.stop();});
+                    var blob = new Blob(audioChunks, {type:'audio/webm'});
+                    selectedFile = new File([blob], 'voice-'+Date.now()+'.webm', {type:'audio/webm'});
+                    // ارسال خودکار
+                    var formData = new FormData();
+                    formData.append('message', '');
+                    formData.append('attachment', selectedFile);
+                    appendMsg({message:'🎤 ویس', is_admin:true, msg_type:'voice', time:nowTime()});
+                    fetch('{% url "live_chat:admin_chat_detail" session.pk %}', {
+                        method:'POST',
+                        headers:{'X-CSRFToken':csrfToken, 'X-Requested-With':'XMLHttpRequest'},
+                        body: formData
+                    });
+                    selectedFile = null;
+                };
+                mediaRecorder.start();
+                isRecording = true;
+                btn.classList.add('recording');
+                btn.innerHTML = '<i class="bi bi-stop-circle"></i>';
+            }).catch(function(){ alert('دسترسی به میکروفون داده نشد.'); });
+        } else {
+            mediaRecorder.stop();
+            isRecording = false;
+            btn.classList.remove('recording');
+            btn.innerHTML = '<i class="bi bi-mic"></i>';
+        }
+    };
+
+    // ===== نمایش پیام =====
+    function appendMsg(m){
+        var div = document.createElement('div');
+        div.className = 'msg ' + (m.is_admin ? 'admin' : 'visitor');
+        var html = '';
+        if(m.msg_type === 'image' && m.attachment_url)
+            html += '<img src="'+m.attachment_url+'" class="msg-img" onclick="window.open(this.src)">';
+        else if(m.msg_type === 'voice' && m.attachment_url)
+            html += '<audio controls class="msg-voice" style="max-width:220px;"><source src="'+m.attachment_url+'"></audio>';
+        else if(m.msg_type === 'file' && m.attachment_url)
+            html += '<a href="'+m.attachment_url+'" target="_blank" class="msg-file"><i class="bi bi-file-earmark"></i> '+(m.attachment_name||'فایل')+'</a>';
+        if(m.message) html += escapeHtml(m.message).replace(/\n/g,'<br>');
+        html += '<div class="msg-time">'+(m.time||'')+'</div>';
+        div.innerHTML = '<div class="msg-bubble">'+html+'</div>';
+        chatBox.appendChild(div);
+        scrollBottom();
+    }
+
+    function escapeHtml(t){ var d=document.createElement('div'); d.textContent=t; return d.innerHTML; }
+    function nowTime(){ var d=new Date(); return d.getHours().toString().padStart(2,'0')+':'+d.getMinutes().toString().padStart(2,'0'); }
+
+    // ===== Polling هر 3 ثانیه =====
+    function poll(){
+        fetch('{% url "live_chat:admin_chat_messages" session.pk %}')
+        .then(function(r){ return r.json(); })
+        .then(function(data){
+            if(data.messages && data.messages.length !== lastCount){
+                chatBox.innerHTML = '';
+                data.messages.forEach(function(m){ appendMsg(m); });
+                lastCount = data.messages.length;
+            }
+        }).catch(function(){});
+    }
+    setInterval(poll, 3000);
+
+    // ===== Enter = ارسال، Ctrl+Enter = خط جدید =====
+    if(input){
+        input.addEventListener('keydown', function(e){
+            if(e.key==='Enter' && !e.ctrlKey && !e.shiftKey){ e.preventDefault(); sendMsg(); }
+            else if(e.key==='Enter' && e.ctrlKey){
+                var s=this.selectionStart;
+                this.value=this.value.substring(0,s)+'\n'+this.value.substring(this.selectionEnd);
+                this.selectionStart=this.selectionEnd=s+1;
+            }
+        });
+        input.addEventListener('input', function(){ this.style.height='auto'; this.style.height=Math.min(this.scrollHeight,120)+'px'; });
+    }
+})();
+</script>
 {% endblock %}

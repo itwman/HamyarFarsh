@@ -1,0 +1,280 @@
+{% extends 'dashboard/base.html' %}
+
+{% block title %}مدیریت فضای رسانه{% endblock %}
+{% block page_title %}مدیریت فضای رسانه{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <i class="bi bi-hdd text-primary" style="font-size:2rem;"></i>
+            <h5 class="mt-2 mb-0">{{ total_media }}</h5>
+            <small class="text-muted">کل فضای رسانه</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <i class="bi bi-image text-danger" style="font-size:2rem;"></i>
+            <h5 class="mt-2 mb-0">{{ originals_size }}</h5>
+            <small class="text-muted">اوریجینال‌ها ({{ originals_count }} فایل)</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <i class="bi bi-images text-success" style="font-size:2rem;"></i>
+            <h5 class="mt-2 mb-0">{{ thumbs_size }}</h5>
+            <small class="text-muted">تامبنیل‌ها ({{ thumbs_count }} فایل)</small>
+        </div>
+    </div>
+    <div class="col-6 col-md-3">
+        <div class="card text-center p-3">
+            <i class="bi bi-star text-warning" style="font-size:2rem;"></i>
+            <h5 class="mt-2 mb-0">{{ featured_size }}</h5>
+            <small class="text-muted">شاخص‌ها ({{ featured_count }} فایل)</small>
+        </div>
+    </div>
+</div>
+
+{% if videos_count %}
+<div class="card p-3 mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-camera-video text-info" style="font-size:1.5rem;"></i>
+        <div><strong>ویدیوها:</strong> {{ videos_size }} ({{ videos_count }} فایل)</div>
+    </div>
+</div>
+{% endif %}
+
+{% if chat_files_count %}
+<div class="card p-3 mb-4">
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-chat-dots text-primary" style="font-size:1.5rem;"></i>
+        <div><strong>فایل‌های چت:</strong> {{ chat_size }} ({{ chat_files_count }} فایل)</div>
+    </div>
+</div>
+{% endif %}
+
+{# ===== فایل‌های چت ===== #}
+{% if chat_files_db_count > 0 %}
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:#0d6efd;color:#fff;">
+        <div>
+            <i class="bi bi-chat-dots"></i>
+            <strong>فایل‌های چت (عکس/ویس/فایل)</strong>
+        </div>
+        <span class="badge bg-light text-dark">{{ chat_files_db_count }} فایل — {{ chat_files_total }}</span>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info small mb-3">
+            <i class="bi bi-info-circle"></i>
+            فایل‌هایی که در چت آنلاین رد و بدل شدن (عکس، ویس، PDF و...). حذف فایل فقط فایل رو پاک می‌کنه، متن پیام باقی می‌مونه.
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <button type="submit" name="action" value="delete_all_chat_files" class="btn btn-danger btn-sm"
+                        onclick="return confirm('آیا مطمئنید همه {{ chat_files_db_count }} فایل چت حذف بشن؟');">
+                    <i class="bi bi-trash3"></i> حذف همه فایل‌های چت ({{ chat_files_total }} آزاد می‌شه)
+                </button>
+            </div>
+            <div class="table-responsive" style="max-height:300px;overflow-y:auto;">
+                <table class="table table-sm table-hover align-middle small">
+                    <thead class="table-light sticky-top">
+                        <tr>
+                            <th><input type="checkbox" onclick="document.querySelectorAll('.chat-cb').forEach(c=>c.checked=this.checked)"></th>
+                            <th>چت</th>
+                            <th>نوع</th>
+                            <th>فایل</th>
+                            <th>حجم</th>
+                            <th>فرستنده</th>
+                            <th>ساعت</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in chat_files %}
+                        <tr>
+                            <td><input type="checkbox" name="chat_ids" value="{{ item.id }}" class="chat-cb"></td>
+                            <td><a href="{% url 'live_chat:admin_chat_detail' item.session_id %}">{{ item.session_name }}</a></td>
+                            <td>
+                                {% if item.msg_type == 'image' %}<i class="bi bi-image text-success"></i>
+                                {% elif item.msg_type == 'voice' %}<i class="bi bi-mic text-primary"></i>
+                                {% else %}<i class="bi bi-file-earmark text-secondary"></i>{% endif %}
+                            </td>
+                            <td class="text-muted" style="font-size:.7rem;">{{ item.filename }}</td>
+                            <td>{{ item.size_display }}</td>
+                            <td>{% if item.is_admin %}<span class="badge bg-primary">مدیر</span>{% else %}<span class="badge bg-secondary">کاربر</span>{% endif %}</td>
+                            <td>{{ item.time }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <button type="submit" name="action" value="delete_chat_selected" class="btn btn-outline-danger btn-sm mt-2"
+                    onclick="return confirm('فایل‌های انتخاب‌شده حذف بشن؟');">
+                <i class="bi bi-trash"></i> حذف انتخاب‌شده‌ها
+            </button>
+        </form>
+    </div>
+</div>
+{% elif chat_files_count > 0 %}
+<div class="card mt-4 p-3">
+    <div class="d-flex align-items-center gap-2">
+        <i class="bi bi-chat-dots text-primary" style="font-size:1.5rem;"></i>
+        <div>
+            <strong>فایل‌های چت:</strong> {{ chat_size }} ({{ chat_files_count }} فایل روی دیسک)
+        </div>
+    </div>
+</div>
+{% endif %}
+
+{% if deletable_count > 0 %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:var(--hf-primary);color:#fff;">
+        <div>
+            <i class="bi bi-trash3"></i>
+            <strong>فایل‌های اوریجینال قابل حذف</strong>
+        </div>
+        <div>
+            <span class="badge bg-light text-dark">{{ deletable_count }} فایل — {{ deletable_total }}</span>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info small mb-3">
+            <i class="bi bi-info-circle"></i>
+            این تصاویر اوریجینال هستن که تامبنیل و تصویر شاخص‌شون ساخته شده. سایت فقط از تامبنیل و شاخص استفاده می‌کنه.
+            حذف اوریجینال‌ها فضای قابل توجهی آزاد می‌کنه بدون اینکه سایت مشکلی پیدا کنه.
+            <br><strong>توجه:</strong> بعد از حذف، امکان بازسازی تصویر شاخص از اوریجینال وجود نخواهد داشت.
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <button type="submit" name="action" value="delete_all_originals" class="btn btn-danger btn-sm"
+                        onclick="return confirm('آیا مطمئنید همه {{ deletable_count }} فایل اوریجینال حذف بشن؟ این عمل قابل بازگشت نیست.');">
+                    <i class="bi bi-trash3"></i> حذف همه اوریجینال‌ها ({{ deletable_total }} آزاد می‌شه)
+                </button>
+            </div>
+
+            <div class="table-responsive" style="max-height:400px;overflow-y:auto;">
+                <table class="table table-sm table-hover align-middle small">
+                    <thead class="table-light sticky-top">
+                        <tr>
+                            <th><input type="checkbox" onclick="document.querySelectorAll('.orig-cb').forEach(c=>c.checked=this.checked)"></th>
+                            <th>محصول</th>
+                            <th>فایل</th>
+                            <th>حجم</th>
+                            <th>شاخص؟</th>
+                            <th>Featured?</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in deletable_originals %}
+                        <tr>
+                            <td><input type="checkbox" name="image_ids" value="{{ item.id }}" class="orig-cb"></td>
+                            <td><a href="{% url 'products:product_media' item.product_id %}">{{ item.product_name }}</a></td>
+                            <td class="text-muted" style="font-size:.75rem;">{{ item.filename }}</td>
+                            <td>{{ item.size_display }}</td>
+                            <td>{% if item.is_primary %}<i class="bi bi-check-circle text-success"></i>{% else %}-{% endif %}</td>
+                            <td>{% if item.has_featured %}<i class="bi bi-check-circle text-success"></i>{% else %}-{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <button type="submit" name="action" value="delete_selected" class="btn btn-outline-danger btn-sm mt-2"
+                    onclick="return confirm('فایل‌های انتخاب‌شده حذف بشن؟');">
+                <i class="bi bi-trash"></i> حذف انتخاب‌شده‌ها
+            </button>
+        </form>
+    </div>
+</div>
+{% else %}
+<div class="card p-4 text-center">
+    <i class="bi bi-check-circle text-success" style="font-size:3rem;"></i>
+    <h5 class="mt-2">فضای رسانه بهینه است</h5>
+    <p class="text-muted">هیچ فایل اوریجینال اضافی وجود نداره.</p>
+</div>
+{% endif %}
+
+{# ===== ویدیوهای اوریجینال قابل حذف ===== #}
+{% if deletable_videos_count > 0 %}
+<div class="card mb-4">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:#6f42c1;color:#fff;">
+        <div>
+            <i class="bi bi-camera-video"></i>
+            <strong>ویدیوهای اوریجینال قابل حذف</strong>
+        </div>
+        <span class="badge bg-light text-dark">{{ deletable_videos_count }} فایل — {{ deletable_videos_total }}</span>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-info small mb-3">
+            <i class="bi bi-info-circle"></i>
+            این ویدیوها پردازش شدن و نسخه 720p/480p دارن. سایت از نسخه‌های بهینه استفاده می‌کنه.
+            فایل اوریجینال فقط حجم اشغال می‌کنه.
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <div class="mb-3">
+                <button type="submit" name="action" value="delete_video_originals" class="btn btn-danger btn-sm"
+                        onclick="return confirm('آیا مطمئنید {{ deletable_videos_count }} ویدیوی اوریجینال حذف بشن؟');">
+                    <i class="bi bi-trash3"></i> حذف همه ویدیوهای اوریجینال ({{ deletable_videos_total }} آزاد می‌شه)
+                </button>
+            </div>
+            <div class="table-responsive" style="max-height:300px;overflow-y:auto;">
+                <table class="table table-sm table-hover align-middle small">
+                    <thead class="table-light sticky-top">
+                        <tr>
+                            <th>محصول</th>
+                            <th>فایل</th>
+                            <th>حجم</th>
+                            <th>مدت</th>
+                            <th>720p</th>
+                            <th>480p</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for item in deletable_videos %}
+                        <tr>
+                            <td><a href="{% url 'products:product_media' item.product_id %}">{{ item.product_name }}</a></td>
+                            <td class="text-muted" style="font-size:.75rem;">{{ item.filename }}</td>
+                            <td><strong>{{ item.size_display }}</strong></td>
+                            <td>{{ item.duration }}</td>
+                            <td>{% if item.has_720p %}<i class="bi bi-check-circle text-success"></i>{% else %}-{% endif %}</td>
+                            <td>{% if item.has_480p %}<i class="bi bi-check-circle text-success"></i>{% else %}-{% endif %}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </form>
+    </div>
+</div>
+{% endif %}
+
+{# ===== فایل‌های یتیم ===== #}
+{% if orphan_count > 0 %}
+<div class="card mt-4">
+    <div class="card-header d-flex justify-content-between align-items-center" style="background:#856404;color:#fff;">
+        <div>
+            <i class="bi bi-exclamation-triangle"></i>
+            <strong>فایل‌های یتیم (Orphan)</strong>
+        </div>
+        <span class="badge bg-light text-dark">{{ orphan_count }} فایل — {{ orphan_total }}</span>
+    </div>
+    <div class="card-body">
+        <div class="alert alert-warning small mb-3">
+            <i class="bi bi-info-circle"></i>
+            این فایل‌ها روی دیسک هستن ولی هیچ رکوردی در دیتابیس بهشون اشاره نمی‌کنه.
+            احتمالاً از پردازش‌های قبلی باقی موندن. حذف‌شون امنه.
+        </div>
+        <form method="post">
+            {% csrf_token %}
+            <button type="submit" name="action" value="cleanup_orphans" class="btn btn-warning btn-sm"
+                    onclick="return confirm('آیا مطمئنید {{ orphan_count }} فایل یتیم حذف بشن؟');">
+                <i class="bi bi-trash"></i> پاکسازی فایل‌های یتیم ({{ orphan_total }} آزاد می‌شه)
+            </button>
+        </form>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

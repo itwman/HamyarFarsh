@@ -1,100 +1,88 @@
-{% extends 'base.html' %}
+{% extends 'dashboard/base.html' %}
 {% load price_tags %}
 
-{% block meta_title %}بروزرسانی انبوه قیمت‌ها{% endblock %}
+{% block title %}بروزرسانی انبوه قیمت‌ها{% endblock %}
+{% block page_title %}بروزرسانی انبوه قیمت‌ها{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="hf-card p-4">
-                <h3 class="mb-4" style="color:var(--hf-primary);">
-                    <i class="bi bi-cash-stack"></i> بروزرسانی انبوه قیمت‌ها
-                </h3>
+<div class="alert alert-info small py-2 mb-3">
+    <i class="bi bi-info-circle"></i>
+    با تغییر قیمت پایه آلبوم، تمام محصولاتی که قیمت خرید سفارشی ندارند، تحت تأثیر قرار می‌گیرند.
+</div>
 
-                <div class="alert alert-info">
-                    <i class="bi bi-info-circle"></i>
-                    با تغییر قیمت پایه آلبوم، تمام محصولاتی که قیمت خرید سفارشی ندارند، تحت تأثیر قرار می‌گیرند.
-                </div>
-
-                <form method="post" class="mb-4">
-                    {% csrf_token %}
-                    <div class="row g-3 align-items-end">
-                        <div class="col-md-6">
-                            <label class="form-label">انتخاب آلبوم</label>
-                            <select name="album" class="form-select" id="albumSelect" required>
-                                <option value="">انتخاب کنید...</option>
-                                {% for album in albums %}
-                                <option value="{{ album.id }}" 
-                                        data-price="{{ album.base_price_12m }}"
-                                        data-comb="{{ album.comb }}"
-                                        data-manufacturer="{{ album.manufacturer.name }}">
-                                    {{ album.manufacturer.name }} - {{ album.name }} ({{ album.get_comb_display }})
-                                </option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                        <div class="col-md-3">
-                            <label class="form-label">قیمت جدید (تومان)</label>
-                            <input type="number" name="new_price" class="form-control" 
-                                   dir="ltr" required min="0" step="100000">
-                        </div>
-                        <div class="col-md-3">
-                            <button type="submit" class="btn btn-hf-primary w-100">
-                                <i class="bi bi-arrow-repeat"></i> بروزرسانی
-                            </button>
-                        </div>
-                    </div>
-                </form>
-
-                <div id="currentPrice" style="display:none;" class="alert alert-warning">
-                    قیمت فعلی: <strong id="priceValue"></strong> تومان
-                </div>
-
-                <hr>
-
-                <h5 class="mb-3">لیست آلبوم‌ها</h5>
-                <div class="table-responsive">
-                    <table class="table table-hover align-middle">
-                        <thead style="background:var(--hf-primary);color:#fff;">
-                            <tr>
-                                <th>شرکت</th>
-                                <th>آلبوم</th>
-                                <th>شانه</th>
-                                <th>قیمت پایه 12م</th>
-                                <th>تعداد محصولات</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {% for album in albums %}
-                            <tr>
-                                <td>{{ album.manufacturer.name }}</td>
-                                <td>{{ album.name }}</td>
-                                <td><span class="badge bg-info">{{ album.get_comb_display }}</span></td>
-                                <td><strong>{{ album.base_price_12m|price_comma }}</strong></td>
-                                <td>{{ album.products.count }}</td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+<div class="card p-3 mb-4">
+    <form method="post">
+        {% csrf_token %}
+        <div class="row g-3 align-items-end">
+            <div class="col-md-5">
+                <label class="form-label fw-bold small">انتخاب آلبوم</label>
+                <select name="album" class="form-select form-select-sm" id="albumSelect" required>
+                    <option value="">انتخاب کنید...</option>
+                    {% for album in albums %}
+                    <option value="{{ album.id }}"
+                            data-price="{{ album.base_price_12m }}"
+                            data-comb="{{ album.comb }}"
+                            data-manufacturer="{{ album.manufacturer.name }}">
+                        {{ album.manufacturer.name }} — {{ album.name }} ({{ album.get_comb_display }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label fw-bold small">قیمت جدید (تومان)</label>
+                <input type="number" name="new_price" class="form-control form-control-sm" dir="ltr" required min="0" step="100000">
+            </div>
+            <div class="col-md-2">
+                <div id="currentPrice" style="display:none;" class="small text-warning fw-bold">
+                    فعلی: <span id="priceValue"></span>
                 </div>
             </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-danger btn-sm w-100">
+                    <i class="bi bi-arrow-repeat"></i> بروزرسانی
+                </button>
+            </div>
         </div>
+    </form>
+</div>
+
+<div class="card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle mb-0 small">
+            <thead class="table-dark">
+                <tr>
+                    <th>شرکت</th>
+                    <th>آلبوم</th>
+                    <th>شانه</th>
+                    <th>قیمت پایه 12م</th>
+                    <th>محصولات</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for album in albums %}
+                <tr>
+                    <td>{{ album.manufacturer.name }}</td>
+                    <td><strong>{{ album.name }}</strong></td>
+                    <td><span class="badge bg-info">{{ album.get_comb_display }}</span></td>
+                    <td><strong>{{ album.base_price_12m|price_comma }}</strong></td>
+                    <td>{{ album.products.count }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-document.getElementById('albumSelect').addEventListener('change', function() {
-    const selectedOption = this.options[this.selectedIndex];
-    const price = selectedOption.dataset.price;
-    
-    if (price) {
-        document.getElementById('priceValue').textContent = parseInt(price).toLocaleString('fa-IR');
-        document.getElementById('currentPrice').style.display = 'block';
+document.getElementById('albumSelect').addEventListener('change', function(){
+    var o=this.options[this.selectedIndex], p=o.dataset.price;
+    if(p){
+        document.getElementById('priceValue').textContent=parseInt(p).toLocaleString('fa-IR')+' تومان';
+        document.getElementById('currentPrice').style.display='block';
     } else {
-        document.getElementById('currentPrice').style.display = 'none';
+        document.getElementById('currentPrice').style.display='none';
     }
 });
 </script>

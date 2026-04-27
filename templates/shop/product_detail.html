@@ -218,6 +218,7 @@
 {% if size_prices %}
 <div class="hf-card p-4 mt-4">
     <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-table"></i> جدول قیمت سایزها</h5>
+    {% if product.sku %}<small class="text-muted d-block mb-2">کد محصول: <strong dir="ltr">{{ product.sku }}</strong></small>{% endif %}
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0">
             <thead style="background:var(--hf-primary);color:#fff;">
@@ -232,7 +233,8 @@
                 </tr>
             </thead>
             <tbody>
-                {% for item in size_prices %}
+                {# سایزهای اصلی (۱۲/۹/۶ متری) #}
+                {% for item in main_sizes %}
                 {% if item.is_available %}
                 <tr class="{% if item.size.is_nine_meter %}table-warning{% endif %}">
                     <td class="fw-bold">{{ item.size.name }}</td>
@@ -247,15 +249,15 @@
                     </td>
                     <td class="d-none d-md-table-cell"><i class="bi bi-check-circle-fill text-success"></i></td>
                     <td class="text-center">
-                        <input type="number" class="form-control form-control-sm text-center" 
-                               id="qty_{{ item.size.id }}" 
-                               value="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}" 
-                               min="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}" 
-                               step="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}" 
+                        <input type="number" class="form-control form-control-sm text-center"
+                               id="qty_{{ item.size.id }}"
+                               value="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                               min="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                               step="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
                                style="width:80px;display:inline-block;" dir="ltr">
                     </td>
                     <td class="text-center">
-                        <button class="btn btn-hf-primary btn-sm" 
+                        <button class="btn btn-hf-primary btn-sm"
                                 onclick="addToCart({{ product.id }}, {{ item.size.id }}, document.getElementById('qty_{{ item.size.id }}').value)">
                             <i class="bi bi-cart-plus"></i> افزودن
                         </button>
@@ -263,7 +265,53 @@
                 </tr>
                 {% endif %}
                 {% endfor %}
+
+                {# سایر سایزها — مخفی #}
+                {% if other_sizes %}
+                <tr id="moreSizesBtn">
+                    <td colspan="7" class="text-center py-2">
+                        <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('moreSizesBtn').style.display='none';document.getElementById('moreSizes').style.display='';">
+                            <i class="bi bi-chevron-down"></i> مشاهده قیمت {{ other_sizes|length }} سایز دیگر
+                        </button>
+                    </td>
+                </tr>
+                {% endif %}
             </tbody>
+            {% if other_sizes %}
+            <tbody id="moreSizes" style="display:none;">
+                {% for item in other_sizes %}
+                {% if item.is_available %}
+                <tr>
+                    <td class="fw-bold">{{ item.size.name }}</td>
+                    <td class="small">{{ item.size.dimensions_display }}</td>
+                    <td class="fw-bold" style="color:var(--hf-primary);">{{ item.price|price_comma }}</td>
+                    <td>
+                        {% if item.order_rule == 'even' %}
+                        <span class="badge bg-info">فقط زوج</span>
+                        {% else %}
+                        <span class="badge bg-success">آزاد</span>
+                        {% endif %}
+                    </td>
+                    <td class="d-none d-md-table-cell"><i class="bi bi-check-circle-fill text-success"></i></td>
+                    <td class="text-center">
+                        <input type="number" class="form-control form-control-sm text-center"
+                               id="qty_{{ item.size.id }}"
+                               value="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                               min="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                               step="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                               style="width:80px;display:inline-block;" dir="ltr">
+                    </td>
+                    <td class="text-center">
+                        <button class="btn btn-hf-primary btn-sm"
+                                onclick="addToCart({{ product.id }}, {{ item.size.id }}, document.getElementById('qty_{{ item.size.id }}').value)">
+                            <i class="bi bi-cart-plus"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+            {% endif %}
         </table>
     </div>
 

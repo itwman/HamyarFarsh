@@ -3,63 +3,118 @@
 {% load price_tags %}
 
 {% block meta_title %}{{ catalog.title }} | کاتالوگ همیار فرش{% endblock %}
+{% block meta_description %}کاتالوگ {{ catalog.title }} - {{ products.count }} محصول فرش ماشینی{% endblock %}
+
+{% block extra_css %}
+<style>
+/* ===== Lightbox ===== */
+.lb-overlay {
+    position:fixed;inset:0;z-index:9999;background:#000;opacity:0;pointer-events:none;
+    transition:opacity .25s;display:flex;flex-direction:column;
+}
+.lb-overlay.active { opacity:1;pointer-events:all; }
+.lb-header {
+    position:absolute;top:0;left:0;right:0;z-index:10;
+    display:flex;justify-content:space-between;align-items:center;padding:10px 16px;
+    background:linear-gradient(180deg,rgba(0,0,0,.6) 0%,transparent 100%);
+}
+.lb-close {
+    width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.15);
+    border:none;color:#fff;font-size:1.2rem;cursor:pointer;
+    display:flex;align-items:center;justify-content:center;
+}
+.lb-counter { color:rgba(255,255,255,.7);font-size:.8rem; }
+.lb-slides { flex:1;position:relative;overflow:hidden;display:flex;align-items:center;justify-content:center; }
+.lb-img { max-width:100%;max-height:100%;object-fit:contain;transition:opacity .2s;user-select:none; }
+.lb-img.loading { opacity:.3; }
+.lb-spinner { position:absolute;width:36px;height:36px;border:3px solid rgba(255,255,255,.2);border-top-color:#fff;border-radius:50%;animation:spin .8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.lb-arrow {
+    position:absolute;top:50%;transform:translateY(-50%);width:48px;height:48px;border-radius:50%;
+    background:rgba(255,255,255,.12);border:none;color:#fff;font-size:1.4rem;cursor:pointer;z-index:5;
+    display:none;align-items:center;justify-content:center;transition:background .2s;
+}
+.lb-arrow:hover { background:rgba(255,255,255,.25); }
+.lb-arrow-prev { right:14px; }
+.lb-arrow-next { left:14px; }
+@media(min-width:768px) { .lb-arrow { display:flex; } }
+.lb-info {
+    position:absolute;bottom:0;left:0;right:0;z-index:10;
+    background:linear-gradient(0deg,rgba(0,0,0,.7) 0%,transparent 100%);
+    padding:40px 16px 16px;color:#fff;transition:transform .3s;
+}
+.lb-info-hidden .lb-info { transform:translateY(100%); }
+.lb-title { font-weight:700;font-size:1rem;margin-bottom:4px; }
+.lb-specs { display:flex;gap:8px;flex-wrap:wrap;margin-bottom:6px; }
+.lb-specs span { background:rgba(255,255,255,.15);padding:2px 8px;border-radius:12px;font-size:.75rem; }
+.lb-price { font-weight:700;font-size:1.1rem;color:#ffd54f; }
+.lb-buy { background:var(--hf-primary);color:#fff;padding:6px 14px;border-radius:8px;font-size:.8rem;text-decoration:none;margin-right:10px; }
+.lb-swipe-hint {
+    position:absolute;bottom:50%;left:50%;transform:translate(-50%,50%);
+    background:rgba(0,0,0,.6);color:#fff;padding:10px 20px;border-radius:20px;
+    font-size:.85rem;display:none;animation:fadeout 3s forwards;
+}
+@keyframes fadeout { 0%,60%{opacity:1} 100%{opacity:0;display:none} }
+
+/* ===== Grid ===== */
+.catalog-card { cursor:pointer;transition:transform .2s,box-shadow .2s;overflow:hidden;border-radius:12px; }
+.catalog-card:hover { transform:translateY(-4px);box-shadow:0 8px 24px rgba(0,0,0,.12); }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     {# هدر کاتالوگ #}
     <div class="hf-card p-4 mb-4">
-        <div class="row align-items-center">
-            <div class="col-md-8">
-                <h2 style="color:var(--hf-primary);">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h2 style="color:var(--hf-primary);margin-bottom:4px;">
                     <i class="bi bi-collection"></i> {{ catalog.title }}
                 </h2>
-                <p class="text-muted mb-0">
-                    <i class="bi bi-calendar3"></i> ایجاد شده: {{ catalog.created_at|date:"Y/m/d" }}
-                    <span class="mx-2">|</span>
+                <p class="text-muted mb-0 small">
                     <i class="bi bi-eye"></i> {{ catalog.view_count }} بازدید
-                    <span class="mx-2">|</span>
+                    <span class="mx-1">|</span>
                     <i class="bi bi-box-seam"></i> {{ products.count }} محصول
                 </p>
             </div>
-            <div class="col-md-4 text-end">
-                <button class="btn btn-hf-primary" onclick="shareDialog()">
-                    <i class="bi bi-share"></i> اشتراک‌گذاری
+            <div class="d-flex gap-2">
+                <a href="https://t.me/share/url?url={{ share_url }}&text={{ catalog.title }}" target="_blank" class="btn btn-sm btn-info">
+                    <i class="bi bi-telegram"></i> <span class="d-none d-md-inline">تلگرام</span>
+                </a>
+                <a href="https://wa.me/?text={{ catalog.title }}%20{{ share_url }}" target="_blank" class="btn btn-sm btn-success">
+                    <i class="bi bi-whatsapp"></i> <span class="d-none d-md-inline">واتساپ</span>
+                </a>
+                <button class="btn btn-sm btn-outline-secondary" onclick="copyUrl()">
+                    <i class="bi bi-clipboard"></i> <span class="d-none d-md-inline">کپی لینک</span>
                 </button>
             </div>
         </div>
     </div>
+    <input type="hidden" id="catalogUrl" value="{{ share_url }}">
 
-    {# محصولات #}
-    <div class="row g-4">
+    {# گرید محصولات — کلیک = Lightbox #}
+    <div class="row g-3">
         {% for product in products %}
         <div class="col-6 col-md-4 col-lg-3">
-            <div class="card h-100 product-card">
+            <div class="catalog-card hf-card h-100" onclick="openLightbox({{ forloop.counter0 }})">
                 {% with img=product.primary_image %}
                 {% if img and img.featured_image %}
-                <img src="{{ img.featured_image.url }}" class="card-img-top" 
-                     alt="{{ product.name }}"
-                     style="aspect-ratio:1/1;object-fit:cover;">
+                <img src="{{ img.featured_image.url }}" alt="{{ product.name }}"
+                     class="w-100" style="aspect-ratio:1/1;object-fit:contain;background:#fff;padding:8px;" loading="lazy">
+                {% elif img and img.thumbnail %}
+                <img src="{{ img.thumbnail.url }}" alt="{{ product.name }}"
+                     class="w-100" style="aspect-ratio:1/1;object-fit:contain;background:#fff;padding:8px;" loading="lazy">
                 {% else %}
                 <div style="aspect-ratio:1/1;background:var(--hf-gray-light);display:flex;align-items:center;justify-content:center;">
-                    <i class="bi bi-image" style="font-size:3rem;color:#999;"></i>
+                    <i class="bi bi-image" style="font-size:2.5rem;color:#ccc;"></i>
                 </div>
                 {% endif %}
                 {% endwith %}
-                
-                <div class="card-body">
-                    <h6 class="card-title">{{ product.name }}</h6>
-                    <p class="card-text small text-muted mb-2">
-                        {{ product.album.manufacturer.name }}<br>
-                        {{ product.comb }} شانه
-                    </p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <strong style="color:var(--hf-primary);">
-                            {{ product.get_sell_price_12m|price_comma }}
-                        </strong>
-                        <a href="{% url 'shop:product_detail' product.slug %}" 
-                           class="btn btn-sm btn-hf-outline" target="_blank">
-                            مشاهده
-                        </a>
+                <div class="p-2 p-md-3">
+                    <h6 class="mb-1" style="font-size:.8rem;">{{ product.display_title }}</h6>
+                    <small class="text-muted">{{ product.manufacturer.name }}</small>
+                    <div class="mt-1" style="color:var(--hf-primary);font-weight:700;font-size:.9rem;">
+                        {{ product.get_sell_price_12m|price_comma }} <small class="text-muted fw-normal">تومان</small>
                     </div>
                 </div>
             </div>
@@ -73,62 +128,131 @@
     </div>
 </div>
 
-{# مودال اشتراک‌گذاری #}
-<div class="modal fade" id="shareModal" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">اشتراک‌گذاری کاتالوگ</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
-            <div class="modal-body">
-                <div class="mb-3">
-                    <label class="form-label">لینک کاتالوگ:</label>
-                    <div class="input-group">
-                        <input type="text" class="form-control" id="catalogUrl" 
-                               value="{{ share_url }}" readonly>
-                        <button class="btn btn-outline-secondary" onclick="copyUrl()">
-                            <i class="bi bi-clipboard"></i> کپی
-                        </button>
-                    </div>
-                </div>
-                <div class="d-grid gap-2">
-                    <a href="https://t.me/share/url?url={{ share_url }}&text={{ catalog.title }}" 
-                       target="_blank" class="btn btn-info">
-                        <i class="bi bi-telegram"></i> ارسال به تلگرام
-                    </a>
-                    <a href="https://wa.me/?text={{ catalog.title }} {{ share_url }}" 
-                       target="_blank" class="btn btn-success">
-                        <i class="bi bi-whatsapp"></i> ارسال به واتساپ
-                    </a>
-                </div>
-            </div>
+{# ===== Fullscreen Lightbox ===== #}
+<div class="lb-overlay" id="lb">
+    <div class="lb-header">
+        <button class="lb-close" onclick="closeLightbox()"><i class="bi bi-x-lg"></i></button>
+        <span class="lb-counter" id="lbCounter"></span>
+    </div>
+    <div class="lb-slides" id="lbSlides">
+        <div class="lb-spinner" id="lbSpinner" style="display:none;"></div>
+        <img class="lb-img" id="lbImg" src="" alt="">
+        <button class="lb-arrow lb-arrow-prev" id="lbPrev" onclick="lbNav(-1)"><i class="bi bi-chevron-right"></i></button>
+        <button class="lb-arrow lb-arrow-next" id="lbNext" onclick="lbNav(1)"><i class="bi bi-chevron-left"></i></button>
+    </div>
+    <div class="lb-info" id="lbInfo">
+        <div class="lb-title" id="lbTitle"></div>
+        <div class="lb-specs" id="lbSpecs"></div>
+        <div>
+            <span class="lb-price" id="lbPrice"></span>
+            <a class="lb-buy" id="lbBuy" href="#" target="_blank"><i class="bi bi-cart-plus"></i> مشاهده و خرید</a>
         </div>
     </div>
+    <div class="lb-swipe-hint" id="lbHint">← بکشید برای ورق زدن →</div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-function shareDialog() {
-    new bootstrap.Modal(document.getElementById('shareModal')).show();
-}
+(function() {
+    var queue = [
+        {% for product in products %}
+        {
+            src: "{% with img=product.primary_image %}{% if img and img.featured_image %}{{ img.featured_image.url }}{% elif img and img.thumbnail %}{{ img.thumbnail.url }}{% elif img %}{{ img.original.url }}{% endif %}{% endwith %}",
+            title: "{{ product.display_title|escapejs }}",
+            manufacturer: "{{ product.manufacturer.name|escapejs }}",
+            comb: "{{ product.comb }} شانه",
+            color: "{{ product.background_color.name|default:'--'|escapejs }}",
+            price: "{% if product.get_sell_price_12m %}{{ product.get_sell_price_12m|price_comma }}{% endif %}",
+            url: "/farsh/{{ product.slug }}/"
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    var idx = 0;
+    var firstOpen = true;
+    var lb = document.getElementById('lb');
+    var lbImg = document.getElementById('lbImg');
+    var lbTitle = document.getElementById('lbTitle');
+    var lbSpecs = document.getElementById('lbSpecs');
+    var lbPrice = document.getElementById('lbPrice');
+    var lbBuy = document.getElementById('lbBuy');
+    var lbCounter = document.getElementById('lbCounter');
+    var lbSpinner = document.getElementById('lbSpinner');
+    var lbHint = document.getElementById('lbHint');
+    var slides = document.getElementById('lbSlides');
+
+    window.openLightbox = function(i) {
+        idx = i;
+        showCurrent();
+        lb.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        if (firstOpen) { lbHint.style.display = 'block'; firstOpen = false; }
+        else { lbHint.style.display = 'none'; }
+    };
+
+    window.closeLightbox = function() {
+        lb.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    function showCurrent() {
+        if (!queue[idx]) return;
+        var item = queue[idx];
+        lbImg.classList.add('loading');
+        lbSpinner.style.display = 'flex';
+        var img = new Image();
+        img.onload = function() { lbImg.src = item.src; lbImg.classList.remove('loading'); lbSpinner.style.display = 'none'; };
+        img.onerror = function() { lbImg.src = item.src; lbImg.classList.remove('loading'); lbSpinner.style.display = 'none'; };
+        img.src = item.src;
+        lbTitle.textContent = item.title;
+        lbSpecs.innerHTML = '<span>' + item.comb + '</span>' +
+            (item.color !== '--' ? '<span>' + item.color + '</span>' : '') +
+            '<span>' + item.manufacturer + '</span>';
+        lbPrice.textContent = item.price ? item.price + ' تومان' : '';
+        lbBuy.href = item.url;
+        lbCounter.textContent = (idx + 1) + ' / ' + queue.length;
+        if (queue[idx + 1]) { var pre = new Image(); pre.src = queue[idx + 1].src; }
+    }
+
+    window.lbNav = function(dir) {
+        idx += dir;
+        if (idx < 0) idx = queue.length - 1;
+        if (idx >= queue.length) idx = 0;
+        showCurrent();
+    };
+
+    // Keyboard
+    document.addEventListener('keydown', function(e) {
+        if (!lb.classList.contains('active')) return;
+        if (e.key === 'Escape') closeLightbox();
+        if (e.key === 'ArrowLeft') lbNav(1);
+        if (e.key === 'ArrowRight') lbNav(-1);
+    });
+
+    // Touch swipe
+    var touchX = 0, touchY = 0;
+    slides.addEventListener('touchstart', function(e) { touchX = e.touches[0].clientX; touchY = e.touches[0].clientY; }, {passive: true});
+    slides.addEventListener('touchend', function(e) {
+        var dx = touchX - e.changedTouches[0].clientX;
+        var dy = touchY - e.changedTouches[0].clientY;
+        if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) {
+            if (dx > 0) lbNav(1); else lbNav(-1);
+        }
+    }, {passive: true});
+
+    // Click overlay = close
+    slides.addEventListener('click', function(e) { if (e.target === slides) closeLightbox(); });
+
+    // Tap image = toggle info
+    lbImg.addEventListener('click', function(e) { e.stopPropagation(); lb.classList.toggle('lb-info-hidden'); });
+})();
 
 function copyUrl() {
-    const input = document.getElementById('catalogUrl');
-    input.select();
-    document.execCommand('copy');
+    var u = document.getElementById('catalogUrl');
+    if (navigator.clipboard) { navigator.clipboard.writeText(u.value); }
+    else { u.select(); document.execCommand('copy'); }
     alert('لینک کپی شد!');
 }
 </script>
 {% endblock %}
-
-<style>
-.product-card {
-    transition: transform 0.2s, box-shadow 0.2s;
-}
-.product-card:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-}
-</style>

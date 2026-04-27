@@ -4,14 +4,78 @@
 - صفحه جزئیات محصول + SEO کامل + Schema.org
 - سیستم امتیازدهی ستاره‌ای
 - سفارش سایز خاص
+- سیستم جستجوی پیشرفته + سرچ زنده (AJAX)
 """
 import json
+import re
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.db.models import Q, Avg, Count
+
+
+def normalize_persian(text):
+    """
+    نرمال‌سازی حروف عربی به فارسی:
+    ي (عربی) → ی (فارسی)
+    ك (عربی) → ک (فارسی)
+    ؤ → و  |  إ/أ → ا  |  ة → ه
+    همچنین عدد عربی/فارسی به انگلیسی
+    """
+    if not text:
+        return text
+    # حروف عربی به فارسی
+    text = text.replace('\u064A', '\u06CC')   # ي → ی
+    text = text.replace('\u0643', '\u06A9')   # ك → ک
+    text = text.replace('\u0624', '\u0648')   # ؤ → و
+    text = text.replace('\u0625', '\u0627')   # إ → ا
+    text = text.replace('\u0623', '\u0627')   # أ → ا
+    text = text.replace('\u0629', '\u0647')   # ة → ه
+    # اعداد فارسی/عربی به انگلیسی (برای سرچ عدد شانه مثلا)
+    persian_digits = '\u06F0\u06F1\u06F2\u06F3\u06F4\u06F5\u06F6\u06F7\u06F8\u06F9'
+    arabic_digits  = '\u0660\u0661\u0662\u0663\u0664\u0665\u0666\u0667\u0668\u0669'
+    for i in range(10):
+        text = text.replace(persian_digits[i], str(i))
+        text = text.replace(arabic_digits[i], str(i))
+    return text
+
+
+def normalize_to_arabic(text):
+    """
+    نرمال‌سازی حروف فارسی به عربی (عکس normalize_persian)
+    برای اینکه اگه دیتابیس عربی ذخیره کرده باشه، سرچ پیدا کنه
+    """
+    if not text:
+        return text
+    text = text.replace('\u06CC', '\u064A')   # ی → ي
+    text = text.replace('\u06A9', '\u0643')   # ک → ك
+    return text
+
+
+def build_search_q(query_text):
+    """
+    ساخت Q object برای سرچ که هم نسخه فارسی و هم عربی حروف رو پوشش بده.
+    اینطوری فرقی نمیکنه دیتابیس ي یا ی ذخیره کرده باشه.
+    """
+    persian_q = normalize_persian(query_text)
+    arabic_q = normalize_to_arabic(persian_q)
+
+    fields = [
+        'name', 'album__name', 'album__manufacturer__name',
+        'background_color__name', 'design_type__name',
+    ]
+
+    q_filter = Q()
+    for field in fields:
+        q_filter |= Q(**{f'{field}__icontains': persian_q})
+        # فقط اگه نسخه عربی متفاوت باشه، اضافه کن
+        if arabic_q != persian_q:
+            q_filter |= Q(**{f'{field}__icontains': arabic_q})
+
+    return q_filter
+from django.views.decorators.http import require_GET
 from products.models import Product, ProductImage, ProductRating, ProductSizeRule
 from catalog.models import (
     BackgroundColor, DesignType, WeaveType, Feature,
@@ -32,13 +96,7 @@ def catalog_view(request):
     # فیلترها
     q = request.GET.get('q', '').strip()
     if q:
-        products = products.filter(
-            Q(name__icontains=q) |
-            Q(album__name__icontains=q) |
-            Q(album__manufacturer__name__icontains=q) |
-            Q(background_color__name__icontains=q) |
-            Q(design_type__name__icontains=q)
-        )
+        products = products.filter(build_search_q(q))
 
     manufacturer = request.GET.get('manufacturer')
     if manufacturer:
@@ -112,15 +170,16 @@ def catalog_view(request):
     return render(request, 'shop/catalog.html', context)
 
 
-def product_detail_view(request, slug):
+def product_detail_view(request, slug=None, sku=None):
     """صفحه جزئیات محصول + SEO کامل + Schema.org استاندارد + امتیاز"""
-    product = get_object_or_404(
-        Product.objects.select_related(
-            'album__manufacturer', 'background_color',
-            'weave_type', 'feature', 'color_tone'
-        ).prefetch_related('design_type'),
-        slug=slug
-    )
+    qs = Product.objects.select_related(
+        'album__manufacturer', 'background_color',
+        'weave_type', 'feature', 'color_tone'
+    ).prefetch_related('design_type')
+    if sku:
+        product = get_object_or_404(qs, sku=sku.upper())
+    else:
+        product = get_object_or_404(qs, slug=slug)
 
     # اخیراً بازدیدشده (فاز 18)
     from wishlist.views import add_to_recently_viewed
@@ -139,6 +198,17 @@ def product_detail_view(request, slug):
     # جدول قیمت
     size_prices = product.get_all_size_prices()
     sell_12 = product.get_sell_price_12m()
+
+    # تفکیک سایزهای اصلی (۱۲/۹/۶ متری) و بقیه
+    main_size_names = ['12', '9', '6']  # بر اساس مساحت
+    main_sizes = []
+    other_sizes = []
+    for sp in size_prices:
+        area = float(sp['size'].area)
+        if area in [12.0, 8.75, 6.0] or sp['size'].is_nine_meter:
+            main_sizes.append(sp)
+        else:
+            other_sizes.append(sp)
 
     # کمترین و بیشترین قیمت (برای AggregateOffer)
     prices = [sp['price'] for sp in size_prices if sp['price'] > 0]
@@ -173,8 +243,8 @@ def product_detail_view(request, slug):
         "name": product.display_title,
         "description": product.get_effective_seo_description(),
         "url": page_url,
-        "sku": f"HF-{product.pk}",
-        "mpn": f"HF-{product.pk}",
+        "sku": product.sku,
+        "mpn": product.sku,
         "productID": str(product.pk),
         "brand": {
             "@type": "Brand",
@@ -295,6 +365,8 @@ def product_detail_view(request, slug):
         'images': images,
         'videos': videos,
         'size_prices': size_prices,
+        'main_sizes': main_sizes,
+        'other_sizes': other_sizes,
         'sell_12': sell_12,
         'sell_price_12m': sell_12,
         'low_price': low_price,
@@ -376,4 +448,168 @@ def custom_size_request(request):
         'success': True,
         'message': 'درخواست ثبت شد',
         'redirect': request.POST.get('next', '/')
+    })
+
+
+# ============================================================
+# سیستم جستجوی پیشرفته
+# ============================================================
+
+def _build_search_queryset(query, filters=None):
+    """
+    ساخت queryset جستجو با فیلترها — مشترک بین view صفحه و API
+    """
+    products = Product.objects.filter(
+        status__in=['available', 'coming_soon', 'exhibition']
+    ).select_related(
+        'album__manufacturer',
+        'background_color',
+        'weave_type',
+        'feature',
+    ).prefetch_related(
+        'design_type', 'images'
+    )
+
+    if query and len(query) >= 2:
+        # سرچ با پشتیبانی ی/ک عربی و فارسی
+        products = products.filter(build_search_q(query)).distinct()
+
+    if not filters:
+        return products
+
+    # فیلترهای اضافی
+    manufacturer = filters.get('manufacturer')
+    if manufacturer:
+        products = products.filter(album__manufacturer_id=manufacturer)
+
+    comb = filters.get('comb')
+    if comb:
+        products = products.filter(album__comb=comb)
+
+    color = filters.get('color')
+    if color:
+        products = products.filter(background_color_id=color)
+
+    design = filters.get('design')
+    if design:
+        products = products.filter(design_type__id=design)
+
+    weave = filters.get('weave')
+    if weave:
+        products = products.filter(weave_type_id=weave)
+
+    status = filters.get('status')
+    if status and status in ['available', 'unavailable', 'exhibition', 'coming_soon']:
+        products = products.filter(status=status)
+
+    return products
+
+
+def _apply_sort(products, sort_key):
+    """اعمال مرتب‌سازی"""
+    if sort_key == 'oldest':
+        return products.order_by('created_at')
+    elif sort_key == 'cheapest':
+        return products.order_by('album__base_price_12m', 'purchase_price_12m')
+    elif sort_key == 'expensive':
+        return products.order_by('-album__base_price_12m', '-purchase_price_12m')
+    elif sort_key == 'popular':
+        return products.order_by('-view_count')
+    else:  # newest
+        return products.order_by('-created_at')
+
+
+def search_view(request):
+    """
+    صفحه جستجوی عمومی با فیلتر پیشرفته
+    URL: /search/?q=...
+    """
+    query = request.GET.get('q', '').strip()
+
+    filters = {
+        'manufacturer': request.GET.get('manufacturer', ''),
+        'comb': request.GET.get('comb', ''),
+        'color': request.GET.get('color', ''),
+        'design': request.GET.get('design', ''),
+        'weave': request.GET.get('weave', ''),
+        'status': request.GET.get('status', ''),
+    }
+
+    sort = request.GET.get('sort', 'newest')
+
+    products = _build_search_queryset(query, filters)
+    products = _apply_sort(products, sort)
+
+    # صفحه‌بندی
+    paginator = Paginator(products, 24)
+    page = request.GET.get('page')
+    products_page = paginator.get_page(page)
+
+    context = {
+        'products': products_page,
+        'total': paginator.count,
+        'query': query,
+        'current_sort': sort,
+        # داده‌های فیلتر
+        'colors': BackgroundColor.objects.filter(is_active=True),
+        'designs': DesignType.objects.filter(is_active=True),
+        'weaves': WeaveType.objects.filter(is_active=True),
+        'manufacturers': Manufacturer.objects.filter(is_active=True),
+        'comb_choices': Album.COMB_CHOICES,
+        'status_choices': Product.Status.choices,
+        # مقادیر فعلی فیلتر
+        'sel_manufacturer': filters['manufacturer'],
+        'sel_comb': filters['comb'],
+        'sel_color': filters['color'],
+        'sel_design': filters['design'],
+        'sel_weave': filters['weave'],
+        'sel_status': filters['status'],
+    }
+
+    return render(request, 'shop/search.html', context)
+
+
+@require_GET
+def live_search_api(request):
+    """
+    API سرچ زنده (AJAX) — برای dropdown ناوبار
+    GET /search/live/?q=...
+    حداقل ۳ کاراکتر، حداکثر ۵ نتیجه
+    """
+    query = request.GET.get('q', '').strip()
+
+    if not query or len(query) < 3:
+        return JsonResponse({'results': []})
+
+    products = _build_search_queryset(query)[:5]
+
+    results = []
+    for p in products:
+        img = p.primary_image
+        thumb_url = None
+        if img:
+            if img.thumbnail:
+                thumb_url = img.thumbnail.url
+            elif img.original:
+                thumb_url = img.original.url
+
+        price_12m = p.get_sell_price_12m()
+
+        results.append({
+            'id': p.id,
+            'title': p.display_title,
+            'slug': p.slug,
+            'manufacturer': p.album.manufacturer.name,
+            'comb': p.comb,
+            'price': f'{price_12m:,}' if price_12m else '',
+            'color': p.background_color.name if p.background_color else '',
+            'thumbnail': thumb_url,
+            'url': f'/farsh/{p.slug}/',
+            'status': p.get_status_display(),
+        })
+
+    return JsonResponse({
+        'query': query,
+        'count': len(results),
+        'results': results,
     })

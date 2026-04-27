@@ -51,8 +51,16 @@ class ChatSession(models.Model):
 
 class ChatMessage(models.Model):
     """پیام چت"""
+    class MsgType(models.TextChoices):
+        TEXT = 'text', 'متن'
+        IMAGE = 'image', 'تصویر'
+        VOICE = 'voice', 'ویس'
+        FILE = 'file', 'فایل'
+
     session = models.ForeignKey(ChatSession, on_delete=models.CASCADE, related_name='messages', verbose_name='سشن')
-    message = models.TextField(verbose_name='متن پیام')
+    message = models.TextField(blank=True, verbose_name='متن پیام')
+    msg_type = models.CharField(max_length=10, choices=MsgType.choices, default=MsgType.TEXT, verbose_name='نوع پیام')
+    attachment = models.FileField(upload_to='chat/attachments/%Y/%m/', blank=True, null=True, verbose_name='فایل پیوست')
     is_admin = models.BooleanField(default=False, verbose_name='پیام مدیر')
     admin_user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL,
                                    null=True, blank=True, verbose_name='پاسخ‌دهنده')
@@ -71,6 +79,19 @@ class ChatMessage(models.Model):
     @property
     def jalali_time(self):
         return jdatetime.datetime.fromgregorian(datetime=self.created_at).strftime('%H:%M')
+
+    @property
+    def attachment_url(self):
+        if self.attachment:
+            return self.attachment.url
+        return ''
+
+    @property
+    def attachment_name(self):
+        if self.attachment:
+            import os
+            return os.path.basename(self.attachment.name)
+        return ''
 
 
 class Ticket(models.Model):

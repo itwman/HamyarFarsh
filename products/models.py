@@ -1,4 +1,5 @@
 import math
+import random
 import jdatetime
 from decimal import Decimal
 from django.db import models
@@ -25,6 +26,11 @@ class Product(models.Model):
     slug = models.SlugField(
         max_length=300, unique=True, allow_unicode=True,
         verbose_name='اسلاگ', blank=True
+    )
+    sku = models.CharField(
+        max_length=20, unique=True, blank=True, default='',
+        verbose_name='کد محصول (SKU)',
+        help_text='خودکار تولید می‌شود: IR{comb}-{random}'
     )
     album = models.ForeignKey(
         Album, on_delete=models.CASCADE, related_name='products',
@@ -129,6 +135,15 @@ class Product(models.Model):
         return self.design_type.first()
 
     def save(self, *args, **kwargs):
+        # تولید SKU خودکار: IR{comb}-{5digit}
+        if not self.sku:
+            comb = self.album.comb
+            while True:
+                code = random.randint(10000, 99999)
+                sku = f'IR{comb}-{code}'
+                if not Product.objects.filter(sku=sku).exists():
+                    self.sku = sku
+                    break
         if not self.slug:
             base = f'{self.name}'
             if self.background_color:
@@ -258,7 +273,12 @@ class Product(models.Model):
         
         # سایر سایزها
         price_per_sqm = self.get_price_per_sqm()
-        total_price = Decimal(str(price_per_sqm)) * carpet_size.area
+        # فرش گرد: مساحت بر اساس مربع محاسبه میشه (بخاطر پرتی)
+        if carpet_size.size_type == 'round' and carpet_size.diameter:
+            square_area = Decimal(str(carpet_size.diameter)) ** 2
+            total_price = Decimal(str(price_per_sqm)) * square_area
+        else:
+            total_price = Decimal(str(price_per_sqm)) * carpet_size.area
         
         return int(total_price)
 
@@ -273,7 +293,7 @@ class Product(models.Model):
         Returns:
             list: لیست dict شامل سایز و قیمت
         """
-        sizes = CarpetSize.objects.all().order_by('area')
+        sizes = CarpetSize.objects.filter(is_active=True).order_by('sort_order')
         result = []
         
         for size in sizes:

@@ -103,7 +103,7 @@
                     </td>
                     <td><strong>{{ product.get_sell_price_12m|price_comma }}</strong></td>
                     <td class="text-center">
-                        <a href="{% url 'products:product_images' product.pk %}" class="btn btn-sm btn-outline-primary">
+                        <a href="{% url 'products:product_media' product.pk %}" class="btn btn-sm btn-outline-primary">
                             <i class="bi bi-images"></i> {{ product.image_count }}
                         </a>
                     </td>
@@ -118,8 +118,8 @@
                                class="btn btn-outline-primary" title="ویرایش">
                                 <i class="bi bi-pencil"></i>
                             </a>
-                            <a href="{% url 'products:product_images' product.pk %}" 
-                               class="btn btn-outline-info" title="تصاویر">
+                            <a href="{% url 'products:product_media' product.pk %}" 
+                               class="btn btn-outline-info" title="رسانه (تصاویر + ویدیو)">
                                 <i class="bi bi-images"></i>
                             </a>
                             <a href="{% url 'products:product_size_rules' product.pk %}" 

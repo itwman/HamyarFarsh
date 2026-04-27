@@ -1,114 +1,91 @@
-{% extends 'base.html' %}
-{% load static %}
-
-{% block meta_title %}ایجاد کاتالوگ جدید{% endblock %}
-
+{% extends 'dashboard/base.html' %}
+{% load price_tags %}
+{% block title %}ایجاد کاتالوگ{% endblock %}
+{% block page_title %}ایجاد کاتالوگ جدید{% endblock %}
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-lg-10">
-            <div class="hf-card p-4">
-                <h3 class="mb-4" style="color:var(--hf-primary);">
-                    <i class="bi bi-plus-circle"></i> ایجاد کاتالوگ جدید
-                </h3>
-
-                <form method="post">
-                    {% csrf_token %}
-                    
-                    <div class="mb-4">
-                        <label class="form-label">عنوان کاتالوگ:</label>
-                        <input type="text" name="title" class="form-control" 
-                               placeholder="مثال: کاتالوگ ویژه آقای احمدی" required>
-                        <small class="form-text text-muted">
-                            این عنوان برای شناسایی کاتالوگ در لیست شما استفاده می‌شود.
-                        </small>
-                    </div>
-
-                    <div class="mb-3">
-                        <h5>انتخاب محصولات:</h5>
-                        <p class="text-muted">محصولاتی که می‌خواهید در کاتالوگ نمایش داده شوند را انتخاب کنید.</p>
-                    </div>
-
-                    <div class="row g-3 mb-4">
-                        {% for product in products %}
-                        <div class="col-6 col-md-4 col-lg-3">
-                            <div class="card h-100">
-                                <div class="form-check position-absolute top-0 end-0 m-2">
-                                    <input class="form-check-input" type="checkbox" 
-                                           name="products" value="{{ product.id }}" 
-                                           id="product{{ product.id }}"
-                                           style="width:20px;height:20px;">
-                                </div>
-                                
-                                {% with img=product.primary_image %}
-                                {% if img and img.thumbnail %}
-                                <img src="{{ img.thumbnail.url }}" class="card-img-top" 
-                                     alt="{{ product.name }}"
-                                     style="aspect-ratio:1/1;object-fit:cover;">
-                                {% else %}
-                                <div style="aspect-ratio:1/1;background:var(--hf-gray-light);display:flex;align-items:center;justify-content:center;">
-                                    <i class="bi bi-image text-muted"></i>
-                                </div>
-                                {% endif %}
-                                {% endwith %}
-                                
-                                <div class="card-body p-2">
-                                    <label for="product{{ product.id }}" class="form-label mb-0" style="cursor:pointer;">
-                                        <small><strong>{{ product.name }}</strong></small><br>
-                                        <small class="text-muted">{{ product.album.manufacturer.name }}</small>
-                                    </label>
-                                </div>
-                            </div>
-                        </div>
-                        {% empty %}
-                        <div class="col-12 text-center py-5">
-                            <p class="text-muted">محصول موجودی یافت نشد.</p>
-                        </div>
-                        {% endfor %}
-                    </div>
-
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-hf-primary">
-                            <i class="bi bi-check-circle"></i> ایجاد کاتالوگ
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="selectAll()">
-                            <i class="bi bi-check-all"></i> انتخاب همه
-                        </button>
-                        <button type="button" class="btn btn-outline-secondary" onclick="deselectAll()">
-                            <i class="bi bi-x-circle"></i> حذف انتخاب
-                        </button>
-                        <a href="{% url 'catalog_app:list' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-right"></i> بازگشت
-                        </a>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
+<form method="post" id="catalogForm">
+{% csrf_token %}
+<div class="card p-3 mb-3">
+<div class="row align-items-end g-3">
+<div class="col-md-6">
+<label class="form-label fw-bold">عنوان کاتالوگ</label>
+<input type="text" name="title" class="form-control" placeholder="مثال: کاتالوگ ویژه آقای احمدی" required>
 </div>
+<div class="col-md-3 text-center">
+<div class="p-2 rounded" style="background:var(--hf-primary,#C62828);color:#fff;"><strong id="selectedCount">0</strong> محصول انتخاب شده</div>
+</div>
+<div class="col-md-3 d-flex gap-2">
+<button type="submit" class="btn btn-danger btn-sm flex-grow-1"><i class="bi bi-check-circle"></i> ایجاد</button>
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAll(true)">همه</button>
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAll(false)">هیچ</button>
+</div>
+</div>
+</div>
+<div class="card p-3 mb-3">
+<div class="row g-2 align-items-end">
+<div class="col-md-2">
+<label class="form-label small fw-bold">جستجو</label>
+<input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="نام، شرکت..." form="filterForm">
+</div>
+<div class="col-6 col-md-2">
+<label class="form-label small fw-bold">شرکت</label>
+<select name="manufacturer" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for m in manufacturers %}<option value="{{ m.pk }}" {% if sel_manufacturer == m.pk|stringformat:"d" %}selected{% endif %}>{{ m.name }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-1">
+<label class="form-label small fw-bold">شانه</label>
+<select name="comb" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for val, label in comb_choices %}<option value="{{ val }}" {% if sel_comb == val|stringformat:"d" %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-2">
+<label class="form-label small fw-bold">رنگ زمینه</label>
+<select name="color" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for c in colors %}<option value="{{ c.pk }}" {% if sel_color == c.pk|stringformat:"d" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-2">
+<label class="form-label small fw-bold">نوع طرح</label>
+<select name="design" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for d in designs %}<option value="{{ d.pk }}" {% if sel_design == d.pk|stringformat:"d" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-1">
+<label class="form-label small fw-bold">بافت</label>
+<select name="weave" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for w in weaves %}<option value="{{ w.pk }}" {% if sel_weave == w.pk|stringformat:"d" %}selected{% endif %}>{{ w.name }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-1">
+<label class="form-label small fw-bold">ویژگی</label>
+<select name="feature" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for f in features %}<option value="{{ f.pk }}" {% if sel_feature == f.pk|stringformat:"d" %}selected{% endif %}>{{ f.name }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-1">
+<button type="submit" form="filterForm" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-funnel"></i></button>
+</div>
+</div>
+<small class="text-muted mt-2 d-block">{{ total }} محصول یافت شد</small>
+</div>
+<form id="filterForm" method="get" action="{% url 'catalog_app:create' %}" style="display:none;"></form>
+<div class="row g-2">
+{% for product in products %}
+<div class="col-6 col-md-3 col-lg-2">
+<div class="card h-100 catalog-pick" style="cursor:pointer;" onclick="toggleProduct(this,{{ product.id }})">
+<input type="checkbox" name="products" value="{{ product.id }}" class="d-none product-cb">
+<div class="position-absolute top-0 end-0 m-1 product-check" style="display:none;"><span class="badge bg-danger rounded-circle" style="width:22px;height:22px;display:flex;align-items:center;justify-content:center;"><i class="bi bi-check-lg"></i></span></div>
+{% with img=product.primary_image %}{% if img and img.thumbnail %}
+<img src="{{ img.thumbnail.url }}" alt="{{ product.name }}" class="card-img-top" style="aspect-ratio:1/1;object-fit:contain;background:#f9f9f9;padding:4px;" loading="lazy">
+{% else %}<div style="aspect-ratio:1/1;background:#f0f0f0;display:flex;align-items:center;justify-content:center;"><i class="bi bi-image text-muted" style="font-size:1.5rem;"></i></div>{% endif %}{% endwith %}
+<div class="card-body p-2">
+<div class="fw-bold text-truncate" style="font-size:.7rem;">{{ product.name }}</div>
+<small class="text-muted" style="font-size:.6rem;">{{ product.manufacturer.name }} | {{ product.comb }} شانه</small>
+{% if product.background_color %}<small class="d-block text-muted" style="font-size:.6rem;">{{ product.background_color.name }}</small>{% endif %}
+<div style="color:var(--hf-primary,#C62828);font-weight:700;font-size:.75rem;" class="mt-1">{{ product.get_sell_price_12m|price_comma }}</div>
+</div>
+</div>
+</div>
+{% empty %}
+<div class="col-12 text-center py-4"><i class="bi bi-inbox" style="font-size:2.5rem;color:#ccc;"></i><p class="text-muted mt-2 small">محصولی یافت نشد.</p></div>
+{% endfor %}
+</div>
+</form>
 {% endblock %}
-
 {% block extra_js %}
 <script>
-function selectAll() {
-    document.querySelectorAll('input[name="products"]').forEach(cb => cb.checked = true);
-}
-
-function deselectAll() {
-    document.querySelectorAll('input[name="products"]').forEach(cb => cb.checked = false);
-}
-
-// شمارش محصولات انتخابی
-document.addEventListener('DOMContentLoaded', function() {
-    const checkboxes = document.querySelectorAll('input[name="products"]');
-    checkboxes.forEach(cb => {
-        cb.addEventListener('change', updateCount);
-    });
-});
-
-function updateCount() {
-    const count = document.querySelectorAll('input[name="products"]:checked').length;
-    console.log(count + ' محصول انتخاب شده');
-}
+function toggleProduct(card,id){var cb=card.querySelector('.product-cb'),ck=card.querySelector('.product-check');cb.checked=!cb.checked;if(cb.checked){card.classList.add('border-danger','border-2');ck.style.display='block';}else{card.classList.remove('border-danger','border-2');ck.style.display='none';}updateCount();}
+function toggleAll(s){document.querySelectorAll('.product-cb').forEach(function(cb){cb.checked=s;var c=cb.closest('.catalog-pick'),k=c.querySelector('.product-check');if(s){c.classList.add('border-danger','border-2');k.style.display='block';}else{c.classList.remove('border-danger','border-2');k.style.display='none';}});updateCount();}
+function updateCount(){document.getElementById('selectedCount').textContent=document.querySelectorAll('.product-cb:checked').length;}
 </script>
+<style>.catalog-pick{transition:all .15s}.catalog-pick:hover{box-shadow:0 2px 8px rgba(0,0,0,.1)}.catalog-pick.border-danger{background:#fff5f5}</style>
 {% endblock %}

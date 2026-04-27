@@ -4,15 +4,47 @@
 <div class="container py-4">
     <h1 class="h4 mb-4" style="color:var(--hf-primary);"><i class="bi bi-plus-circle"></i> {{ title }}</h1>
     <div class="card"><div class="card-body">
+        {% if form.errors %}
+        <div class="alert alert-danger small">
+            <i class="bi bi-exclamation-triangle"></i> لطفاً خطاهای زیر را اصلاح کنید:
+            <ul class="mb-0 mt-1">
+            {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <li>{{ error }}</li>
+                {% endfor %}
+            {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
         <form method="post">{% csrf_token %}
             <div class="row g-3">
-                <div class="col-md-6"><label class="form-label fw-bold">موضوع</label>{{ form.subject }}</div>
-                <div class="col-md-3"><label class="form-label">بخش</label>{{ form.department }}</div>
-                <div class="col-md-3"><label class="form-label">اولویت</label>{{ form.priority }}</div>
-                <div class="col-md-6"><label class="form-label">سفارش مرتبط (اختیاری)</label>{{ form.order }}</div>
-                <div class="col-12"><label class="form-label fw-bold">متن پیام</label>{{ form.message }}</div>
+                <div class="col-md-8">
+                    <label class="form-label fw-bold">موضوع <span class="text-danger">*</span></label>
+                    {{ form.subject }}
+                    {% if form.subject.errors %}<small class="text-danger">{{ form.subject.errors.0 }}</small>{% endif %}
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label">بخش</label>
+                    {{ form.department }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">اولویت</label>
+                    {{ form.priority }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label">سفارش مرتبط (اختیاری)</label>
+                    {{ form.order }}
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-bold">متن پیام <span class="text-danger">*</span></label>
+                    {{ form.message }}
+                    {% if form.message.errors %}<small class="text-danger">{{ form.message.errors.0 }}</small>{% endif %}
+                </div>
             </div>
-            <div class="mt-3"><button type="submit" class="btn btn-hf-primary"><i class="bi bi-send"></i> ارسال تیکت</button></div>
+            <div class="mt-3 d-flex gap-2">
+                <button type="submit" class="btn btn-hf-primary"><i class="bi bi-send"></i> ارسال تیکت</button>
+                <a href="{% url 'live_chat:ticket_list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-right"></i> بازگشت</a>
+            </div>
         </form>
     </div></div>
 </div>

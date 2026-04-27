@@ -17,6 +17,7 @@ urlpatterns = [
     # پنل مدیریت — چت
     path('admin/chats/', views.admin_chat_list, name='admin_chat_list'),
     path('admin/chats/<int:pk>/', views.admin_chat_detail, name='admin_chat_detail'),
+    path('admin/chats/<int:pk>/messages/', views.admin_chat_messages_api, name='admin_chat_messages'),
     path('admin/chats/<int:pk>/close/', views.admin_chat_close, name='admin_chat_close'),
 
     # پنل مدیریت — تیکت

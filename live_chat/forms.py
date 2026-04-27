@@ -34,9 +34,14 @@ class TicketForm(forms.ModelForm):
     def __init__(self, *args, user=None, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['order'].required = False
+        self.fields['order'].empty_label = 'بدون سفارش'
         if user:
             from orders.models import Order
-            self.fields['order'].queryset = Order.objects.filter(customer=user).order_by('-created_at')[:20]
+            # مدیر همه سفارشات رو می‌بینه، مشتری فقط مال خودش رو
+            if hasattr(user, 'is_staff_user') and user.is_staff_user:
+                self.fields['order'].queryset = Order.objects.order_by('-created_at')[:50]
+            else:
+                self.fields['order'].queryset = Order.objects.filter(customer=user).order_by('-created_at')[:20]
         else:
             self.fields['order'].queryset = Order.objects.none()
 

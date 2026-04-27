@@ -12,6 +12,10 @@
     <link rel="stylesheet" href="{% static 'css/bootstrap.rtl.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/bootstrap-icons.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/dashboard.css' %}">
+    <style>
+    .nav-item { display:flex; align-items:center; }
+    .nav-item .badge { min-width:18px; padding:2px 5px; }
+    </style>
     {% block extra_css %}{% endblock %}
 </head>
 <body>
@@ -32,6 +36,7 @@
                 <a href="{% url 'dashboard:orders_manage' %}" class="nav-item {% if request.resolver_match.url_name == 'orders_manage' or request.resolver_match.url_name == 'order_detail_admin' %}active{% endif %}">
                     <i class="bi bi-cart3"></i>
                     <span>مدیریت سفارشات</span>
+                    <span class="badge bg-danger rounded-pill ms-auto" id="alertOrders" style="display:none;font-size:.6rem;"></span>
                 </a>
                 <a href="{% url 'coupons:coupon_list' %}" class="nav-item {% if 'coupons' in request.path %}active{% endif %}">
                     <i class="bi bi-ticket-perforated"></i>
@@ -48,14 +53,17 @@
                 <a href="{% url 'live_chat:admin_chat_list' %}" class="nav-item {% if 'chat/admin' in request.path %}active{% endif %}">
                     <i class="bi bi-chat-dots"></i>
                     <span>چت آنلاین</span>
+                    <span class="badge bg-danger rounded-pill ms-auto" id="alertChats" style="display:none;font-size:.6rem;"></span>
                 </a>
                 <a href="{% url 'live_chat:admin_ticket_list' %}" class="nav-item {% if 'chat/admin/tickets' in request.path %}active{% endif %}">
                     <i class="bi bi-ticket"></i>
                     <span>تیکت پشتیبانی</span>
+                    <span class="badge bg-warning text-dark rounded-pill ms-auto" id="alertTickets" style="display:none;font-size:.6rem;"></span>
                 </a>
                 <a href="{% url 'dashboard:reviews_manage' %}" class="nav-item {% if request.resolver_match.url_name == 'reviews_manage' %}active{% endif %}">
                     <i class="bi bi-chat-left-text"></i>
                     <span>مدیریت نظرات</span>
+                    <span class="badge bg-info rounded-pill ms-auto" id="alertReviews" style="display:none;font-size:.6rem;"></span>
                 </a>
                 <a href="{% url 'dashboard:reports' %}" class="nav-item {% if request.resolver_match.url_name == 'reports' %}active{% endif %}">
                     <i class="bi bi-graph-up"></i>
@@ -71,6 +79,10 @@
                     <i class="bi bi-plus-circle"></i>
                     <span>افزودن محصول</span>
                 </a>
+                <a href="{% url 'products:bulk_price_update' %}" class="nav-item">
+                    <i class="bi bi-currency-exchange"></i>
+                    <span>بروزرسانی قیمت</span>
+                </a>
                 <a href="{% url 'catalog:manufacturer_list' %}" class="nav-item">
                     <i class="bi bi-building"></i>
                     <span>شرکت‌ها</span>
@@ -78,6 +90,16 @@
                 <a href="{% url 'catalog:album_list' %}" class="nav-item">
                     <i class="bi bi-journal-album"></i>
                     <span>آلبوم‌ها</span>
+                </a>
+
+                <div class="nav-section">کاتالوگ و اشتراک‌گذاری</div>
+                <a href="{% url 'catalog_app:list' %}" class="nav-item {% if 'catalog/list' in request.path %}active{% endif %}">
+                    <i class="bi bi-collection"></i>
+                    <span>لیست کاتالوگ‌ها</span>
+                </a>
+                <a href="{% url 'catalog_app:create' %}" class="nav-item {% if 'catalog/create' in request.path %}active{% endif %}">
+                    <i class="bi bi-share"></i>
+                    <span>ایجاد کاتالوگ جدید</span>
                 </a>
                 
                 <div class="nav-section">کاربران</div>
@@ -116,6 +138,10 @@
                 <a href="{% url 'settings_app:site_settings' %}" class="nav-item">
                     <i class="bi bi-gear"></i>
                     <span>تنظیمات سایت</span>
+                </a>
+                <a href="{% url 'dashboard:media_storage' %}" class="nav-item {% if request.resolver_match.url_name == 'media_storage' %}active{% endif %}">
+                    <i class="bi bi-hdd"></i>
+                    <span>مدیریت فضای رسانه</span>
                 </a>
                 <a href="{% url 'dashboard:sms_settings' %}" class="nav-item {% if request.resolver_match.url_name == 'sms_settings' %}active{% endif %}">
                     <i class="bi bi-chat-dots"></i>
@@ -181,6 +207,71 @@
     {# JS #}
     <script src="{% static 'js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/chart.min.js' %}"></script>
+
+    {# ===== نوتیفیکیشن زنده با صدا ===== #}
+    <script>
+    (function(){
+        var lastTotal = -1;
+        var audio = null;
+
+        function playNotifSound(){
+            try {
+                if(!audio){
+                    // ساخت صدای بیپ با Web Audio API
+                    var ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    var osc = ctx.createOscillator();
+                    var gain = ctx.createGain();
+                    osc.connect(gain);
+                    gain.connect(ctx.destination);
+                    osc.frequency.value = 880;
+                    osc.type = 'sine';
+                    gain.gain.setValueAtTime(0.3, ctx.currentTime);
+                    gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.4);
+                    osc.start(ctx.currentTime);
+                    osc.stop(ctx.currentTime + 0.4);
+                } else {
+                    audio.currentTime = 0;
+                    audio.play();
+                }
+            } catch(e){}
+        }
+
+        function checkAlerts(){
+            fetch('{% url "dashboard:live_alerts" %}')
+            .then(function(r){ return r.json(); })
+            .then(function(d){
+                // بروزرسانی badgeهای سایدبار
+                updateBadge('alertChats', d.chats);
+                updateBadge('alertOrders', d.orders);
+                updateBadge('alertTickets', d.tickets);
+                updateBadge('alertReviews', d.reviews);
+                // صدا فقط وقتی تعداد بیشتر شده (آیتم جدید)
+                if(lastTotal >= 0 && d.total > lastTotal){
+                    playNotifSound();
+                }
+                lastTotal = d.total;
+            })
+            .catch(function(){});
+        }
+
+        function updateBadge(id, count){
+            var el = document.getElementById(id);
+            if(el){
+                if(count > 0){
+                    el.textContent = count;
+                    el.style.display = 'inline-block';
+                } else {
+                    el.style.display = 'none';
+                }
+            }
+        }
+
+        // اجرای اولیه + هر 15 ثانیه
+        checkAlerts();
+        setInterval(checkAlerts, 15000);
+    })();
+    </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>
