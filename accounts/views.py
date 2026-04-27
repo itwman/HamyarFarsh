@@ -63,7 +63,7 @@ def profile_view(request):
         if form.is_valid():
             form.save()
             messages.success(request, 'پروفایل شما به‌روزرسانی شد.')
-            return redirect('profile')
+            return redirect('accounts:profile')
     else:
         form = ProfileForm(instance=request.user)
 

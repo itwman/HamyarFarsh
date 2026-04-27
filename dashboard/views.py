@@ -16,6 +16,7 @@ from orders.models import Order, OrderItem, OrderStatusLog
 from products.models import Product
 from products.models import ProductRating
 from settings_app.models import SiteSettings
+from accounts.forms import AdminUserCreateForm, AdminUserEditForm, AdminPasswordResetForm
 
 
 @login_required
@@ -125,6 +126,138 @@ def users_list(request):
     }
     
     return render(request, 'dashboard/users_list.html', context)
+
+
+@login_required
+def user_create(request):
+    """افزودن کاربر جدید توسط مدیر"""
+    if not request.user.is_admin_user:
+        messages.error(request, 'شما دسترسی به این بخش را ندارید.')
+        return redirect('dashboard:home')
+
+    if request.method == 'POST':
+        form = AdminUserCreateForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            messages.success(request, f'کاربر «{user.get_full_name() or user.phone}» با موفقیت افزوده شد.')
+            return redirect('dashboard:users_list')
+    else:
+        form = AdminUserCreateForm()
+
+    return render(request, 'dashboard/user_form.html', {
+        'form': form,
+        'mode': 'create',
+        'page_title': 'افزودن کاربر جدید',
+    })
+
+
+@login_required
+def user_edit(request, user_id):
+    """ویرایش کاربر توسط مدیر"""
+    if not request.user.is_admin_user:
+        messages.error(request, 'شما دسترسی به این بخش را ندارید.')
+        return redirect('dashboard:home')
+
+    target = get_object_or_404(User, pk=user_id)
+
+    if request.method == 'POST':
+        form = AdminUserEditForm(request.POST, request.FILES, instance=target)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'تغییرات کاربر «{target.get_full_name() or target.phone}» ذخیره شد.')
+            return redirect('dashboard:users_list')
+    else:
+        form = AdminUserEditForm(instance=target)
+
+    return render(request, 'dashboard/user_form.html', {
+        'form': form,
+        'mode': 'edit',
+        'target_user': target,
+        'page_title': f'ویرایش کاربر: {target.get_full_name() or target.phone}',
+    })
+
+
+@login_required
+def user_password_reset(request, user_id):
+    """تغییر رمز کاربر توسط مدیر"""
+    if not request.user.is_admin_user:
+        messages.error(request, 'شما دسترسی به این بخش را ندارید.')
+        return redirect('dashboard:home')
+
+    target = get_object_or_404(User, pk=user_id)
+
+    if request.method == 'POST':
+        form = AdminPasswordResetForm(request.POST)
+        if form.is_valid():
+            target.set_password(form.cleaned_data['new_password1'])
+            target.save()
+            messages.success(request, f'رمز عبور کاربر «{target.get_full_name() or target.phone}» تغییر کرد.')
+            return redirect('dashboard:users_list')
+    else:
+        form = AdminPasswordResetForm()
+
+    return render(request, 'dashboard/user_password_reset.html', {
+        'form': form,
+        'target_user': target,
+    })
+
+
+@login_required
+def user_toggle_active(request, user_id):
+    """فعال/غیرفعال کردن کاربر (POST)"""
+    if not request.user.is_admin_user:
+        messages.error(request, 'شما دسترسی به این بخش را ندارید.')
+        return redirect('dashboard:home')
+
+    target = get_object_or_404(User, pk=user_id)
+
+    # محافظت: خود کاربر نمی‌تونه خودش رو غیرفعال کنه
+    if target.pk == request.user.pk:
+        messages.error(request, 'نمی‌توانید حساب خودتان را غیرفعال کنید.')
+        return redirect('dashboard:users_list')
+
+    if request.method == 'POST':
+        target.is_active = not target.is_active
+        target.save(update_fields=['is_active'])
+        status = 'فعال' if target.is_active else 'غیرفعال'
+        messages.success(request, f'کاربر «{target.get_full_name() or target.phone}» {status} شد.')
+
+    return redirect('dashboard:users_list')
+
+
+@login_required
+def user_delete(request, user_id):
+    """حذف کاربر (فقط توسط superuser جلوگیری می‌شود از حذف کاربر دارای داده)"""
+    if not request.user.is_admin_user:
+        messages.error(request, 'شما دسترسی به این بخش را ندارید.')
+        return redirect('dashboard:home')
+
+    target = get_object_or_404(User, pk=user_id)
+
+    # جلوگیری از حذف خود کاربر
+    if target.pk == request.user.pk:
+        messages.error(request, 'نمی‌توانید حساب خودتان را حذف کنید.')
+        return redirect('dashboard:users_list')
+
+    # بررسی وابستگی‌ها (سفارشات, نظرات, ...)
+    has_orders = Order.objects.filter(customer=target).exists()
+
+    if request.method == 'POST':
+        if has_orders:
+            # به جای حذف، غیرفعال کن
+            target.is_active = False
+            target.save(update_fields=['is_active'])
+            messages.warning(request, f'کاربر «{target.phone}» دارای سفارش بود، به جای حذف غیرفعال شد.')
+        else:
+            phone = target.phone
+            target.delete()
+            messages.success(request, f'کاربر «{phone}» حذف شد.')
+        return redirect('dashboard:users_list')
+
+    return render(request, 'dashboard/user_confirm_delete.html', {
+        'target_user': target,
+        'has_orders': has_orders,
+    })
 
 
 @login_required
