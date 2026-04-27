@@ -1,0 +1,72 @@
+{% extends 'dashboard/base.html' %}
+
+{% block page_title %}حذف کاربر{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-6">
+        <div class="card border-danger">
+            <div class="card-header bg-danger text-white">
+                <h5 class="mb-0">
+                    <i class="bi bi-exclamation-triangle"></i>
+                    حذف کاربر
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if has_orders %}
+                <div class="alert alert-warning">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <strong>توجه:</strong> این کاربر دارای سفارش است و نمی‌توان حذفش کرد.
+                    <br>
+                    در صورت ادامه، کاربر <strong>غیرفعال</strong> می‌شود (به جای حذف).
+                </div>
+                {% else %}
+                <div class="alert alert-danger">
+                    <i class="bi bi-trash3-fill"></i>
+                    آیا مطمئن هستید می‌خواهید این کاربر را به‌طور <strong>کامل حذف</strong> کنید؟
+                    <br>
+                    <small>این عملیات قابل بازگشت نیست.</small>
+                </div>
+                {% endif %}
+
+                <div class="card bg-light mb-3">
+                    <div class="card-body">
+                        <h6 class="mb-2">اطلاعات کاربر:</h6>
+                        <table class="table table-sm mb-0">
+                            <tr>
+                                <th class="w-25">نام:</th>
+                                <td>{{ target_user.get_full_name|default:"--" }}</td>
+                            </tr>
+                            <tr>
+                                <th>شماره موبایل:</th>
+                                <td dir="ltr">{{ target_user.phone }}</td>
+                            </tr>
+                            <tr>
+                                <th>نقش:</th>
+                                <td>{{ target_user.get_role_display }}</td>
+                            </tr>
+                            <tr>
+                                <th>تاریخ عضویت:</th>
+                                <td>{{ target_user.date_joined|date:"Y-m-d" }}</td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'dashboard:users_list' %}" class="btn btn-outline-secondary">
+                            <i class="bi bi-x-circle"></i> انصراف
+                        </a>
+                        <button type="submit" class="btn btn-danger">
+                            <i class="bi bi-trash"></i>
+                            {% if has_orders %}غیرفعال‌سازی{% else %}حذف کامل{% endif %}
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
