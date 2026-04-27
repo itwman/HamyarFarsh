@@ -3,6 +3,48 @@
 {% block title %}ایجاد کاتالوگ{% endblock %}
 {% block page_title %}ایجاد کاتالوگ جدید{% endblock %}
 {% block content %}
+
+{# === فرم فیلتر (GET) - باید قبل از فرم اصلی بیاد چون nested form مجاز نیست === #}
+<form id="filterForm" method="get" action="{% url 'catalog_app:create' %}">
+<div class="card p-3 mb-3">
+<div class="row g-2 align-items-end">
+<div class="col-md-2">
+<label class="form-label small fw-bold">جستجو</label>
+<input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="نام، شرکت...">
+</div>
+<div class="col-6 col-md-2">
+<label class="form-label small fw-bold">شرکت</label>
+<select name="manufacturer" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for m in manufacturers %}<option value="{{ m.pk }}" {% if sel_manufacturer == m.pk|stringformat:"d" %}selected{% endif %}>{{ m.name }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-1">
+<label class="form-label small fw-bold">شانه</label>
+<select name="comb" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for val, label in comb_choices %}<option value="{{ val }}" {% if sel_comb == val|stringformat:"d" %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-2">
+<label class="form-label small fw-bold">رنگ زمینه</label>
+<select name="color" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for c in colors %}<option value="{{ c.pk }}" {% if sel_color == c.pk|stringformat:"d" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-2">
+<label class="form-label small fw-bold">نوع طرح</label>
+<select name="design" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for d in designs %}<option value="{{ d.pk }}" {% if sel_design == d.pk|stringformat:"d" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-1">
+<label class="form-label small fw-bold">بافت</label>
+<select name="weave" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for w in weaves %}<option value="{{ w.pk }}" {% if sel_weave == w.pk|stringformat:"d" %}selected{% endif %}>{{ w.name }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-1">
+<label class="form-label small fw-bold">ویژگی</label>
+<select name="feature" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for f in features %}<option value="{{ f.pk }}" {% if sel_feature == f.pk|stringformat:"d" %}selected{% endif %}>{{ f.name }}</option>{% endfor %}</select>
+</div>
+<div class="col-6 col-md-1">
+<button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-funnel"></i></button>
+</div>
+</div>
+<small class="text-muted mt-2 d-block">{{ total }} محصول یافت شد</small>
+</div>
+</form>
+
+{# === فرم اصلی (POST) - شامل عنوان + چک‌باکس محصولات === #}
 <form method="post" id="catalogForm">
 {% csrf_token %}
 <div class="card p-3 mb-3">
@@ -21,43 +63,7 @@
 </div>
 </div>
 </div>
-<div class="card p-3 mb-3">
-<div class="row g-2 align-items-end">
-<div class="col-md-2">
-<label class="form-label small fw-bold">جستجو</label>
-<input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="نام، شرکت..." form="filterForm">
-</div>
-<div class="col-6 col-md-2">
-<label class="form-label small fw-bold">شرکت</label>
-<select name="manufacturer" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for m in manufacturers %}<option value="{{ m.pk }}" {% if sel_manufacturer == m.pk|stringformat:"d" %}selected{% endif %}>{{ m.name }}</option>{% endfor %}</select>
-</div>
-<div class="col-6 col-md-1">
-<label class="form-label small fw-bold">شانه</label>
-<select name="comb" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for val, label in comb_choices %}<option value="{{ val }}" {% if sel_comb == val|stringformat:"d" %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
-</div>
-<div class="col-6 col-md-2">
-<label class="form-label small fw-bold">رنگ زمینه</label>
-<select name="color" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for c in colors %}<option value="{{ c.pk }}" {% if sel_color == c.pk|stringformat:"d" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
-</div>
-<div class="col-6 col-md-2">
-<label class="form-label small fw-bold">نوع طرح</label>
-<select name="design" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for d in designs %}<option value="{{ d.pk }}" {% if sel_design == d.pk|stringformat:"d" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select>
-</div>
-<div class="col-6 col-md-1">
-<label class="form-label small fw-bold">بافت</label>
-<select name="weave" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for w in weaves %}<option value="{{ w.pk }}" {% if sel_weave == w.pk|stringformat:"d" %}selected{% endif %}>{{ w.name }}</option>{% endfor %}</select>
-</div>
-<div class="col-6 col-md-1">
-<label class="form-label small fw-bold">ویژگی</label>
-<select name="feature" class="form-select form-select-sm" form="filterForm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for f in features %}<option value="{{ f.pk }}" {% if sel_feature == f.pk|stringformat:"d" %}selected{% endif %}>{{ f.name }}</option>{% endfor %}</select>
-</div>
-<div class="col-6 col-md-1">
-<button type="submit" form="filterForm" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-funnel"></i></button>
-</div>
-</div>
-<small class="text-muted mt-2 d-block">{{ total }} محصول یافت شد</small>
-</div>
-<form id="filterForm" method="get" action="{% url 'catalog_app:create' %}" style="display:none;"></form>
+
 <div class="row g-2">
 {% for product in products %}
 <div class="col-6 col-md-3 col-lg-2">
