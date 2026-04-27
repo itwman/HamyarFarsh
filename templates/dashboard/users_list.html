@@ -5,14 +5,34 @@
 {% block page_title %}مدیریت کاربران{% endblock %}
 
 {% block content %}
+{# نوار بالا با دکمه افزودن #}
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="mb-0">
+        <i class="bi bi-people"></i> مدیریت کاربران
+    </h4>
+    <a href="{% url 'dashboard:user_create' %}" class="btn btn-primary">
+        <i class="bi bi-person-plus"></i> افزودن کاربر جدید
+    </a>
+</div>
+
+{# پیام‌ها #}
+{% if messages %}
+{% for message in messages %}
+<div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+    {{ message }}
+    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+</div>
+{% endfor %}
+{% endif %}
+
 {# فیلتر و جستجو #}
 <div class="card mb-4">
     <div class="card-body">
         <form method="get" class="row g-3">
             <div class="col-md-4">
                 <label class="form-label">جستجو</label>
-                <input type="text" name="search" class="form-control" 
-                       placeholder="نام، نام خانوادگی یا شماره موبایل" 
+                <input type="text" name="search" class="form-control"
+                       placeholder="نام، نام خانوادگی یا شماره موبایل"
                        value="{{ request.GET.search }}">
             </div>
             <div class="col-md-3">
@@ -46,7 +66,7 @@
 <div class="card">
     <div class="card-header">
         <h5 class="mb-0">
-            <i class="bi bi-people"></i> 
+            <i class="bi bi-list-ul"></i>
             لیست کاربران
             <span class="badge bg-primary">{{ users.count }}</span>
         </h5>
@@ -54,7 +74,7 @@
     <div class="card-body p-0">
         {% if users %}
         <div class="table-responsive">
-            <table class="table table-hover mb-0">
+            <table class="table table-hover mb-0 align-middle">
                 <thead class="table-light">
                     <tr>
                         <th>شناسه</th>
@@ -63,45 +83,64 @@
                         <th>نقش</th>
                         <th>وضعیت</th>
                         <th>تاریخ عضویت</th>
-                        <th>عملیات</th>
+                        <th class="text-center">عملیات</th>
                     </tr>
                 </thead>
                 <tbody>
-                    {% for user in users %}
+                    {% for u in users %}
                     <tr>
-                        <td><strong>#{{ user.id }}</strong></td>
+                        <td><strong>#{{ u.id }}</strong></td>
                         <td>
-                            {% if user.get_full_name %}
-                                <strong>{{ user.get_full_name }}</strong>
+                            {% if u.get_full_name %}
+                                <strong>{{ u.get_full_name }}</strong>
                             {% else %}
                                 <span class="text-muted">نام ثبت نشده</span>
                             {% endif %}
+                            {% if u.is_superuser %}
+                                <span class="badge bg-dark ms-1" title="کاربر ارشد">SU</span>
+                            {% endif %}
+                            {% if u.pk == request.user.pk %}
+                                <span class="badge bg-info ms-1">شما</span>
+                            {% endif %}
                         </td>
-                        <td dir="ltr" class="text-start">{{ user.phone }}</td>
+                        <td dir="ltr" class="text-start">{{ u.phone }}</td>
                         <td>
-                            <span class="badge 
-                                {% if user.role == 'admin' %}bg-danger
-                                {% elif user.role == 'staff' %}bg-warning
+                            <span class="badge
+                                {% if u.role == 'admin' %}bg-danger
+                                {% elif u.role == 'staff' %}bg-warning
                                 {% else %}bg-info{% endif %}">
-                                {{ user.get_role_display }}
+                                {{ u.get_role_display }}
                             </span>
                         </td>
                         <td>
-                            {% if user.is_active %}
+                            {% if u.is_active %}
                                 <span class="badge bg-success">فعال</span>
                             {% else %}
                                 <span class="badge bg-secondary">غیرفعال</span>
                             {% endif %}
                         </td>
-                        <td>{{ user.date_joined|date:"Y-m-d" }}</td>
-                        <td>
-                            <div class="btn-group btn-group-sm">
-                                <a href="#" class="btn btn-outline-primary" title="ویرایش">
+                        <td>{{ u.date_joined|date:"Y-m-d" }}</td>
+                        <td class="text-center">
+                            <div class="btn-group btn-group-sm" role="group">
+                                <a href="{% url 'dashboard:user_edit' u.id %}" class="btn btn-outline-primary" title="ویرایش">
                                     <i class="bi bi-pencil"></i>
                                 </a>
-                                <a href="#" class="btn btn-outline-info" title="مشاهده">
-                                    <i class="bi bi-eye"></i>
+                                <a href="{% url 'dashboard:user_password_reset' u.id %}" class="btn btn-outline-warning" title="تغییر رمز">
+                                    <i class="bi bi-key"></i>
                                 </a>
+                                {% if u.pk != request.user.pk %}
+                                <form method="post" action="{% url 'dashboard:user_toggle_active' u.id %}" class="d-inline">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-outline-{% if u.is_active %}secondary{% else %}success{% endif %}"
+                                            title="{% if u.is_active %}غیرفعال‌سازی{% else %}فعال‌سازی{% endif %}"
+                                            onclick="return confirm('{% if u.is_active %}آیا مطمئنید می‌خواهید این کاربر را غیرفعال کنید؟{% else %}آیا مطمئنید می‌خواهید این کاربر را فعال کنید؟{% endif %}');">
+                                        <i class="bi bi-{% if u.is_active %}pause-circle{% else %}play-circle{% endif %}"></i>
+                                    </button>
+                                </form>
+                                <a href="{% url 'dashboard:user_delete' u.id %}" class="btn btn-outline-danger" title="حذف">
+                                    <i class="bi bi-trash"></i>
+                                </a>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -113,6 +152,9 @@
         <div class="text-center py-5">
             <i class="bi bi-inbox text-muted" style="font-size: 3rem;"></i>
             <p class="text-muted mt-3">هیچ کاربری یافت نشد</p>
+            <a href="{% url 'dashboard:user_create' %}" class="btn btn-primary mt-2">
+                <i class="bi bi-person-plus"></i> افزودن اولین کاربر
+            </a>
         </div>
         {% endif %}
     </div>
