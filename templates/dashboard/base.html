@@ -91,6 +91,10 @@
                     <i class="bi bi-journal-album"></i>
                     <span>آلبوم‌ها</span>
                 </a>
+                <a href="{% url 'dashboard:taxonomies_manage' %}" class="nav-item {% if request.resolver_match.url_name == 'taxonomies_manage' %}active{% endif %}">
+                    <i class="bi bi-tags-fill"></i>
+                    <span>دسته‌بندی و ویژگی‌ها</span>
+                </a>
 
                 <div class="nav-section">کاتالوگ و اشتراک‌گذاری</div>
                 <a href="{% url 'catalog_app:list' %}" class="nav-item {% if 'catalog/list' in request.path %}active{% endif %}">

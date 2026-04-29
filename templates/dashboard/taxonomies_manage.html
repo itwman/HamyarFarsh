@@ -1,0 +1,622 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block page_title %}دسته‌بندی و ویژگی‌های محصولات{% endblock %}
+
+{% block extra_css %}
+<style>
+.tax-tabs .nav-link {
+    color: #555;
+    font-weight: 500;
+    border: 1px solid transparent;
+    border-bottom: none;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    padding: 12px 20px;
+    margin-left: 4px;
+    background: #f8f9fa;
+}
+.tax-tabs .nav-link.active {
+    color: #fff;
+    background: var(--hf-primary, #C62828);
+    border-color: var(--hf-primary, #C62828);
+}
+.tax-tabs .nav-link i {
+    margin-left: 6px;
+}
+.tax-tabs .nav-link .count-badge {
+    background: rgba(255,255,255,.3);
+    color: inherit;
+    border-radius: 12px;
+    padding: 2px 8px;
+    font-size: .75rem;
+    margin-right: 6px;
+}
+.tax-tabs .nav-link:not(.active) .count-badge {
+    background: #e9ecef;
+    color: #555;
+}
+.tax-content {
+    border: 1px solid #dee2e6;
+    border-radius: 0 8px 8px 8px;
+    padding: 24px;
+    background: #fff;
+    min-height: 400px;
+}
+
+/* فرم افزودن سریع */
+.add-form {
+    background: #f8f9fa;
+    border: 1px dashed #d0d0d0;
+    border-radius: 10px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+.add-form.expanded {
+    background: #fff5f5;
+    border-color: var(--hf-primary, #C62828);
+    border-style: solid;
+}
+
+/* جدول آیتم‌ها */
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+.items-table th {
+    background: #f8f9fa;
+    padding: 12px;
+    text-align: right;
+    font-weight: 600;
+    color: #555;
+    border-bottom: 2px solid #dee2e6;
+}
+.items-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+.items-table tr:hover {
+    background: #fafafa;
+}
+.items-table .item-row.editing {
+    background: #fff8e1;
+}
+
+/* رنگ swatch */
+.color-swatch {
+    display: inline-block;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    border: 1px solid #ddd;
+    vertical-align: middle;
+    margin-left: 6px;
+}
+
+/* badges */
+.status-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: .75rem;
+    font-weight: 600;
+}
+.status-badge.active {
+    background: #d1e7dd;
+    color: #0f5132;
+}
+.status-badge.inactive {
+    background: #f8d7da;
+    color: #842029;
+}
+.usage-badge {
+    background: #cfe2ff;
+    color: #084298;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: .75rem;
+    font-weight: 600;
+}
+.usage-badge.zero {
+    background: #e9ecef;
+    color: #6c757d;
+}
+
+/* دکمه‌های action */
+.btn-action {
+    border: none;
+    background: transparent;
+    padding: 6px 8px;
+    border-radius: 6px;
+    cursor: pointer;
+    color: #555;
+    transition: all .15s;
+}
+.btn-action:hover { background: #e9ecef; }
+.btn-action.edit:hover { background: #cfe2ff; color: #084298; }
+.btn-action.delete:hover { background: #f8d7da; color: #842029; }
+
+.empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #888;
+}
+.empty-state i {
+    font-size: 3rem;
+    color: #ddd;
+    margin-bottom: 12px;
+}
+
+/* Toast */
+#toastContainer {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+.toast-msg {
+    background: #fff;
+    padding: 12px 18px;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0,0,0,.15);
+    border-right: 4px solid #6c757d;
+    min-width: 280px;
+    animation: slideIn .3s ease;
+}
+.toast-msg.success { border-color: #198754; }
+.toast-msg.danger { border-color: #dc3545; }
+.toast-msg.warning { border-color: #ffc107; }
+@keyframes slideIn {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div id="toastContainer"></div>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="mb-3"><i class="bi bi-tags-fill"></i> مدیریت دسته‌بندی و ویژگی‌های محصولات</h5>
+        <p class="text-muted small mb-4">
+            <i class="bi bi-info-circle"></i>
+            از این صفحه می‌توانید رنگ‌های زمینه، انواع طرح، انواع بافت، ویژگی‌ها و تناژ رنگ را مدیریت کنید.
+        </p>
+
+        {# تب‌های اصلی #}
+        <ul class="nav nav-tabs tax-tabs" role="tablist">
+            {% for key, data in taxonomies_data.items %}
+            <li class="nav-item">
+                <button class="nav-link {% if forloop.first %}active{% endif %}" 
+                        data-bs-toggle="tab" 
+                        data-bs-target="#tab-{{ key }}" 
+                        type="button">
+                    <i class="bi bi-{{ data.config.icon }}"></i>
+                    {{ data.config.name_plural }}
+                    <span class="count-badge">{{ data.items|length }}</span>
+                </button>
+            </li>
+            {% endfor %}
+        </ul>
+
+        {# محتوای تب‌ها #}
+        <div class="tab-content tax-content">
+            {% for key, data in taxonomies_data.items %}
+            <div class="tab-pane fade {% if forloop.first %}show active{% endif %}" id="tab-{{ key }}">
+                
+                {# فرم افزودن #}
+                <div class="add-form" data-taxonomy="{{ key }}">
+                    <h6 class="mb-3">
+                        <i class="bi bi-plus-circle text-success"></i> 
+                        افزودن {{ data.config.name }} جدید
+                    </h6>
+                    <div class="row g-2">
+                        <div class="col-md-4">
+                            <label class="form-label small">نام <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control form-control-sm tax-add-name" placeholder="مثلاً: سرمه‌ای">
+                        </div>
+                        {% if data.config.has_color_code %}
+                        <div class="col-md-2">
+                            <label class="form-label small">کد رنگ HEX</label>
+                            <input type="color" class="form-control form-control-sm form-control-color tax-add-color" value="#000000">
+                        </div>
+                        {% endif %}
+                        {% if data.config.has_description %}
+                        <div class="col-md-3">
+                            <label class="form-label small">توضیح کوتاه</label>
+                            <input type="text" class="form-control form-control-sm tax-add-desc" placeholder="اختیاری">
+                        </div>
+                        {% endif %}
+                        <div class="col-md-2">
+                            <label class="form-label small">ترتیب</label>
+                            <input type="number" class="form-control form-control-sm tax-add-sort" value="0" min="0">
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <div class="form-check form-switch mb-1">
+                                <input class="form-check-input tax-add-active" type="checkbox" checked>
+                                <label class="form-check-label small">فعال</label>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mt-2">
+                            <button class="btn btn-success btn-sm" onclick="addTaxonomy('{{ key }}')">
+                                <i class="bi bi-check-circle"></i> افزودن
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                {# جدول آیتم‌ها #}
+                <div id="items-{{ key }}">
+                    {% if data.items %}
+                    <table class="items-table">
+                        <thead>
+                            <tr>
+                                <th width="50">#</th>
+                                <th>نام</th>
+                                {% if data.config.has_color_code %}
+                                <th width="100">رنگ</th>
+                                {% endif %}
+                                {% if data.config.has_description %}
+                                <th>توضیح</th>
+                                {% endif %}
+                                <th width="80">ترتیب</th>
+                                <th width="100">وضعیت</th>
+                                <th width="120">استفاده</th>
+                                <th width="120">عملیات</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for entry in data.items %}
+                            <tr class="item-row" data-id="{{ entry.item.id }}" data-taxonomy="{{ key }}">
+                                <td class="text-muted">{{ forloop.counter }}</td>
+                                <td>
+                                    <span class="item-name">{{ entry.item.name }}</span>
+                                    <small class="text-muted d-block">{{ entry.item.slug }}</small>
+                                </td>
+                                {% if data.config.has_color_code %}
+                                <td>
+                                    {% if entry.item.color_code %}
+                                    <span class="color-swatch" style="background: {{ entry.item.color_code }};"></span>
+                                    <code class="small">{{ entry.item.color_code }}</code>
+                                    {% else %}
+                                    <span class="text-muted small">—</span>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                                {% if data.config.has_description %}
+                                <td>
+                                    <small class="text-muted">
+                                        {{ entry.item.description|default:"—"|truncatechars:60 }}
+                                    </small>
+                                </td>
+                                {% endif %}
+                                <td>{{ entry.item.sort_order }}</td>
+                                <td>
+                                    {% if entry.item.is_active %}
+                                    <span class="status-badge active">فعال</span>
+                                    {% else %}
+                                    <span class="status-badge inactive">غیرفعال</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if entry.count > 0 %}
+                                    <span class="usage-badge">{{ entry.count }} محصول</span>
+                                    {% else %}
+                                    <span class="usage-badge zero">بدون استفاده</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    <button class="btn-action edit" onclick="editTaxonomy('{{ key }}', {{ entry.item.id }})" title="ویرایش">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                    <button class="btn-action delete" onclick="deleteTaxonomy('{{ key }}', {{ entry.item.id }}, '{{ entry.item.name|escapejs }}', {{ entry.count }})" title="حذف">
+                                        <i class="bi bi-trash"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% else %}
+                    <div class="empty-state">
+                        <i class="bi bi-{{ data.config.icon }}"></i>
+                        <p>هنوز {{ data.config.name }}ی ثبت نشده است.</p>
+                        <small>از فرم بالا اولین آیتم را اضافه کنید.</small>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+{# === Modal ویرایش === #}
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">ویرایش</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="edit-taxonomy">
+                <input type="hidden" id="edit-id">
+                
+                <div class="mb-3">
+                    <label class="form-label">نام <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control" id="edit-name">
+                </div>
+                
+                <div class="mb-3" id="edit-color-group" style="display:none;">
+                    <label class="form-label">کد رنگ HEX</label>
+                    <input type="color" class="form-control form-control-color" id="edit-color" value="#000000">
+                </div>
+                
+                <div class="mb-3" id="edit-desc-group" style="display:none;">
+                    <label class="form-label">توضیح کوتاه</label>
+                    <textarea class="form-control" id="edit-desc" rows="2"></textarea>
+                </div>
+                
+                <div class="row g-2">
+                    <div class="col-md-6">
+                        <label class="form-label">ترتیب نمایش</label>
+                        <input type="number" class="form-control" id="edit-sort" min="0">
+                    </div>
+                    <div class="col-md-6 d-flex align-items-end">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="edit-active">
+                            <label class="form-check-label">فعال</label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+                <button type="button" class="btn btn-primary" onclick="saveTaxonomyEdit()">
+                    <i class="bi bi-check-circle"></i> ذخیره تغییرات
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '{{ csrf_token }}';
+
+// === پیکربندی dataها برای taxonomies ===
+const taxonomyConfig = {
+    {% for key, data in taxonomies_data.items %}
+    "{{ key }}": {
+        name: "{{ data.config.name }}",
+        hasColorCode: {% if data.config.has_color_code %}true{% else %}false{% endif %},
+        hasDescription: {% if data.config.has_description %}true{% else %}false{% endif %}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
+// CSRF for forms outside main form
+document.body.insertAdjacentHTML('afterbegin', '<form style="display:none;">{% csrf_token %}</form>');
+
+// === Toast ===
+function showToast(message, type) {
+    type = type || 'success';
+    const container = document.getElementById('toastContainer');
+    const toast = document.createElement('div');
+    toast.className = 'toast-msg ' + type;
+    toast.innerHTML = message;
+    container.appendChild(toast);
+    setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateX(-100%)';
+        toast.style.transition = 'all .3s';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// === افزودن آیتم ===
+function addTaxonomy(taxonomy) {
+    const form = document.querySelector('.add-form[data-taxonomy="' + taxonomy + '"]');
+    const name = form.querySelector('.tax-add-name').value.trim();
+    
+    if (!name) {
+        showToast('نام الزامی است', 'danger');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('name', name);
+    
+    const colorInput = form.querySelector('.tax-add-color');
+    if (colorInput) formData.append('color_code', colorInput.value);
+    
+    const descInput = form.querySelector('.tax-add-desc');
+    if (descInput) formData.append('description', descInput.value);
+    
+    const sortInput = form.querySelector('.tax-add-sort');
+    if (sortInput) formData.append('sort_order', sortInput.value);
+    
+    const activeInput = form.querySelector('.tax-add-active');
+    if (activeInput && activeInput.checked) formData.append('is_active', 'on');
+    
+    fetch('/dashboard/taxonomies/' + taxonomy + '/create/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF_TOKEN },
+        body: formData,
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, 'success');
+            // بعد از 800 میلی‌ثانیه refresh کن تا دیتا تازه بشه
+            setTimeout(() => location.reload(), 800);
+        } else {
+            showToast(data.error || 'خطایی رخ داد', 'danger');
+        }
+    })
+    .catch(e => showToast('خطای شبکه: ' + e.message, 'danger'));
+}
+
+// === ویرایش آیتم ===
+function editTaxonomy(taxonomy, id) {
+    const row = document.querySelector('.item-row[data-id="' + id + '"][data-taxonomy="' + taxonomy + '"]');
+    if (!row) return;
+    
+    const config = taxonomyConfig[taxonomy];
+    document.getElementById('edit-taxonomy').value = taxonomy;
+    document.getElementById('edit-id').value = id;
+    document.getElementById('edit-name').value = row.querySelector('.item-name').textContent.trim();
+    
+    // مقدار فعلی فیلدها رو از row استخراج کن
+    const cells = row.querySelectorAll('td');
+    let cellIndex = 2; // 0=#, 1=نام
+    
+    if (config.hasColorCode) {
+        const colorCell = cells[cellIndex];
+        const codeEl = colorCell.querySelector('code');
+        document.getElementById('edit-color').value = codeEl ? codeEl.textContent.trim() : '#000000';
+        document.getElementById('edit-color-group').style.display = 'block';
+        cellIndex++;
+    } else {
+        document.getElementById('edit-color-group').style.display = 'none';
+    }
+    
+    if (config.hasDescription) {
+        const descCell = cells[cellIndex];
+        const desc = descCell.querySelector('small').textContent.trim();
+        document.getElementById('edit-desc').value = desc === '—' ? '' : desc;
+        document.getElementById('edit-desc-group').style.display = 'block';
+        cellIndex++;
+    } else {
+        document.getElementById('edit-desc-group').style.display = 'none';
+    }
+    
+    // ترتیب
+    document.getElementById('edit-sort').value = cells[cellIndex].textContent.trim();
+    cellIndex++;
+    
+    // وضعیت
+    const statusBadge = cells[cellIndex].querySelector('.status-badge');
+    document.getElementById('edit-active').checked = statusBadge.classList.contains('active');
+    
+    // باز کردن مودال
+    new bootstrap.Modal(document.getElementById('editModal')).show();
+}
+
+// === ذخیره ویرایش ===
+function saveTaxonomyEdit() {
+    const taxonomy = document.getElementById('edit-taxonomy').value;
+    const id = document.getElementById('edit-id').value;
+    const config = taxonomyConfig[taxonomy];
+    
+    const name = document.getElementById('edit-name').value.trim();
+    if (!name) {
+        showToast('نام الزامی است', 'danger');
+        return;
+    }
+    
+    const formData = new FormData();
+    formData.append('name', name);
+    
+    if (config.hasColorCode) {
+        formData.append('color_code', document.getElementById('edit-color').value);
+    }
+    if (config.hasDescription) {
+        formData.append('description', document.getElementById('edit-desc').value);
+    }
+    formData.append('sort_order', document.getElementById('edit-sort').value);
+    if (document.getElementById('edit-active').checked) {
+        formData.append('is_active', 'on');
+    }
+    
+    fetch('/dashboard/taxonomies/' + taxonomy + '/' + id + '/edit/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF_TOKEN },
+        body: formData,
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, 'success');
+            bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+            setTimeout(() => location.reload(), 800);
+        } else {
+            showToast(data.error || 'خطایی رخ داد', 'danger');
+        }
+    })
+    .catch(e => showToast('خطای شبکه: ' + e.message, 'danger'));
+}
+
+// === حذف آیتم ===
+function deleteTaxonomy(taxonomy, id, name, count) {
+    let message = 'آیا از حذف «' + name + '» مطمئن هستید؟';
+    if (count > 0) {
+        message = '⚠️ این آیتم در ' + count + ' محصول استفاده شده است.\n' +
+                  'با حذف آن، این محصولات بدون این ویژگی می‌مانند.\n\n' +
+                  'آیا واقعاً می‌خواهید حذف کنید؟';
+    }
+    
+    if (!confirm(message)) return;
+    
+    const formData = new FormData();
+    if (count > 0) {
+        formData.append('force', 'true');
+    }
+    
+    fetch('/dashboard/taxonomies/' + taxonomy + '/' + id + '/delete/', {
+        method: 'POST',
+        headers: { 'X-CSRFToken': CSRF_TOKEN },
+        body: formData,
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.success) {
+            showToast(data.message, 'success');
+            // remove row immediately
+            const row = document.querySelector('.item-row[data-id="' + id + '"][data-taxonomy="' + taxonomy + '"]');
+            if (row) {
+                row.style.transition = 'all .3s';
+                row.style.opacity = '0';
+                setTimeout(() => location.reload(), 600);
+            } else {
+                setTimeout(() => location.reload(), 600);
+            }
+        } else {
+            if (data.requires_force) {
+                if (confirm('این آیتم در ' + data.product_count + ' محصول استفاده شده. باز هم حذف کنم؟')) {
+                    // فراخوانی مجدد با force
+                    const fd = new FormData();
+                    fd.append('force', 'true');
+                    fetch('/dashboard/taxonomies/' + taxonomy + '/' + id + '/delete/', {
+                        method: 'POST',
+                        headers: { 'X-CSRFToken': CSRF_TOKEN },
+                        body: fd,
+                    })
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.success) {
+                            showToast(d.message, 'success');
+                            setTimeout(() => location.reload(), 800);
+                        } else {
+                            showToast(d.error, 'danger');
+                        }
+                    });
+                }
+            } else {
+                showToast(data.error || 'خطایی رخ داد', 'danger');
+            }
+        }
+    })
+    .catch(e => showToast('خطای شبکه: ' + e.message, 'danger'));
+}
+</script>
+{% endblock %}

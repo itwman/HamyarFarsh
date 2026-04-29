@@ -16,6 +16,7 @@ from orders.models import Order, OrderItem, OrderStatusLog
 from products.models import Product
 from products.models import ProductRating
 from settings_app.models import SiteSettings
+from catalog.models import BackgroundColor, DesignType, WeaveType, Feature, ColorTone
 from accounts.forms import AdminUserCreateForm, AdminUserEditForm, AdminPasswordResetForm
 
 
@@ -986,3 +987,263 @@ def live_alerts_api(request):
         'tickets': open_tickets,
         'reviews': pending_reviews,
     })
+
+
+# ===================================================================
+#  مدیریت دسته‌بندی‌های محصولات (Taxonomies)
+#  رنگ زمینه، نوع طرح، نوع بافت، ویژگی، تناژ رنگ
+# ===================================================================
+
+# لیست دسته‌بندی‌های مدیریت‌شدنی
+TAXONOMY_MODELS = {
+    'background_color': {
+        'model': BackgroundColor,
+        'name': 'رنگ زمینه',
+        'name_plural': 'رنگ‌های زمینه',
+        'icon': 'palette-fill',
+        'has_color_code': True,
+    },
+    'design_type': {
+        'model': DesignType,
+        'name': 'نوع طرح',
+        'name_plural': 'انواع طرح',
+        'icon': 'flower3',
+        'has_color_code': False,
+        'has_description': True,
+    },
+    'weave_type': {
+        'model': WeaveType,
+        'name': 'نوع بافت',
+        'name_plural': 'انواع بافت',
+        'icon': 'grid-3x3',
+        'has_color_code': False,
+    },
+    'feature': {
+        'model': Feature,
+        'name': 'ویژگی',
+        'name_plural': 'ویژگی‌ها',
+        'icon': 'star-fill',
+        'has_color_code': False,
+    },
+    'color_tone': {
+        'model': ColorTone,
+        'name': 'تناژ رنگ',
+        'name_plural': 'تناژ‌های رنگ',
+        'icon': 'droplet-half',
+        'has_color_code': False,
+    },
+}
+
+
+def _get_taxonomy_config(taxonomy):
+    """دریافت پیکربندی با اعتبارسنجی"""
+    config = TAXONOMY_MODELS.get(taxonomy)
+    if not config:
+        return None
+    return config
+
+
+@login_required
+def taxonomies_manage(request):
+    """صفحه یکپارچه مدیریت دسته‌بندی‌ها با تب\"‌ها"""
+    if not request.user.is_admin_user:
+        messages.error(request, 'شما دسترسی به این بخش را ندارید.')
+        return redirect('dashboard:home')
+
+    # جمع‌آوری داده هر taxonomy
+    taxonomies_data = {}
+    for key, config in TAXONOMY_MODELS.items():
+        items = config['model'].objects.all().order_by('sort_order' if hasattr(config['model'], 'sort_order') else 'name', 'name')
+        # تعداد محصولات مرتبط با هر آیتم
+        items_with_count = []
+        for item in items:
+            # برخی روابط M2M و برخی FK، باید هر دو را بررسی کنیم
+            try:
+                if key == 'design_type':
+                    # M2M
+                    count = item.products.count()
+                else:
+                    # FK
+                    count = item.products.count()
+            except Exception:
+                count = 0
+            items_with_count.append({'item': item, 'count': count})
+
+        taxonomies_data[key] = {
+            'config': config,
+            'items': items_with_count,
+        }
+
+    context = {
+        'taxonomies_data': taxonomies_data,
+    }
+
+    return render(request, 'dashboard/taxonomies_manage.html', context)
+
+
+@login_required
+def taxonomy_create(request, taxonomy):
+    """افزودن آیتم جدید به هر دسته‌بندی (AJAX)"""
+    if not request.user.is_admin_user:
+        return JsonResponse({'success': False, 'error': 'دسترسی غیرمجاز'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'فقط POST مجاز است'}, status=405)
+
+    config = _get_taxonomy_config(taxonomy)
+    if not config:
+        return JsonResponse({'success': False, 'error': 'دسته‌بندی نامعتبر'}, status=400)
+
+    name = request.POST.get('name', '').strip()
+    if not name:
+        return JsonResponse({'success': False, 'error': 'نام الزامی است'}, status=400)
+
+    Model = config['model']
+
+    # بررسی تکراری نبودن
+    if Model.objects.filter(name=name).exists():
+        return JsonResponse({'success': False, 'error': f'«{name}» قبلاً ثبت شده است'}, status=400)
+
+    # بررسی فیلدهای اختیاری
+    kwargs = {'name': name}
+    if config.get('has_color_code'):
+        color_code = request.POST.get('color_code', '').strip()
+        if color_code:
+            kwargs['color_code'] = color_code
+    if config.get('has_description'):
+        description = request.POST.get('description', '').strip()
+        if description:
+            kwargs['description'] = description
+
+    sort_order = request.POST.get('sort_order', '').strip()
+    if sort_order and sort_order.isdigit():
+        kwargs['sort_order'] = int(sort_order)
+
+    is_active = request.POST.get('is_active', 'on') == 'on'
+    kwargs['is_active'] = is_active
+
+    try:
+        item = Model.objects.create(**kwargs)
+        return JsonResponse({
+            'success': True,
+            'message': f'«{item.name}» با موفقیت افزوده شد.',
+            'item': {
+                'id': item.id,
+                'name': item.name,
+                'slug': item.slug,
+                'is_active': item.is_active,
+                'color_code': getattr(item, 'color_code', '') or '',
+                'description': getattr(item, 'description', '') or '',
+                'sort_order': getattr(item, 'sort_order', 0) or 0,
+                'count': 0,
+            },
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+def taxonomy_edit(request, taxonomy, pk):
+    """ویرایش آیتم (AJAX)"""
+    if not request.user.is_admin_user:
+        return JsonResponse({'success': False, 'error': 'دسترسی غیرمجاز'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'فقط POST مجاز است'}, status=405)
+
+    config = _get_taxonomy_config(taxonomy)
+    if not config:
+        return JsonResponse({'success': False, 'error': 'دسته‌بندی نامعتبر'}, status=400)
+
+    Model = config['model']
+
+    try:
+        item = Model.objects.get(pk=pk)
+    except Model.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'آیتم یافت نشد'}, status=404)
+
+    name = request.POST.get('name', '').strip()
+    if not name:
+        return JsonResponse({'success': False, 'error': 'نام الزامی است'}, status=400)
+
+    # بررسی تکراری (به جز خود آیتم)
+    if Model.objects.filter(name=name).exclude(pk=pk).exists():
+        return JsonResponse({'success': False, 'error': f'«{name}» قبلاً ثبت شده است'}, status=400)
+
+    item.name = name
+    if config.get('has_color_code'):
+        item.color_code = request.POST.get('color_code', '').strip()
+    if config.get('has_description'):
+        item.description = request.POST.get('description', '').strip()
+
+    sort_order = request.POST.get('sort_order', '').strip()
+    if sort_order and sort_order.isdigit() and hasattr(item, 'sort_order'):
+        item.sort_order = int(sort_order)
+
+    item.is_active = request.POST.get('is_active', 'on') == 'on'
+
+    try:
+        item.save()
+        return JsonResponse({
+            'success': True,
+            'message': f'«{item.name}» با موفقیت ویرایش شد.',
+            'item': {
+                'id': item.id,
+                'name': item.name,
+                'slug': item.slug,
+                'is_active': item.is_active,
+                'color_code': getattr(item, 'color_code', '') or '',
+                'description': getattr(item, 'description', '') or '',
+                'sort_order': getattr(item, 'sort_order', 0) or 0,
+            },
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@login_required
+def taxonomy_delete(request, taxonomy, pk):
+    """حذف آیتم (AJAX)"""
+    if not request.user.is_admin_user:
+        return JsonResponse({'success': False, 'error': 'دسترسی غیرمجاز'}, status=403)
+
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'فقط POST مجاز است'}, status=405)
+
+    config = _get_taxonomy_config(taxonomy)
+    if not config:
+        return JsonResponse({'success': False, 'error': 'دسته‌بندی نامعتبر'}, status=400)
+
+    Model = config['model']
+
+    try:
+        item = Model.objects.get(pk=pk)
+    except Model.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'آیتم یافت نشد'}, status=404)
+
+    # بررسی وابستگی‌ها (محصولات مرتبط)
+    try:
+        product_count = item.products.count()
+    except Exception:
+        product_count = 0
+
+    if product_count > 0:
+        force = request.POST.get('force') == 'true'
+        if not force:
+            return JsonResponse({
+                'success': False,
+                'error': f'این آیتم در {product_count} محصول استفاده شده است',
+                'requires_force': True,
+                'product_count': product_count,
+            }, status=400)
+
+    name = item.name
+    try:
+        item.delete()
+        return JsonResponse({
+            'success': True,
+            'message': f'«{name}» حذف شد.',
+        })
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+

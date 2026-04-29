@@ -186,6 +186,26 @@ class Product(models.Model):
         return self.purchase_price_12m or self.album.base_price_12m or 0
 
     @property
+    def effective_status(self):
+        """
+        وضعیت مؤثر محصول بر اساس قیمت:
+        - قیمت == 0 → ناموجود (الویت بالا)
+        - قیمت == 1 → به‌زودی (الویت بالا)
+        - قیمت > 1 → وضعیت تعیین‌شده توسط کاربر (status)
+        """
+        price = self.effective_purchase_price
+        if price == 0:
+            return self.Status.UNAVAILABLE
+        if price == 1:
+            return self.Status.COMING_SOON
+        return self.status
+
+    @property
+    def effective_status_display(self):
+        """نمایش فارسی وضعیت مؤثر"""
+        return dict(self.Status.choices).get(self.effective_status, '')
+
+    @property
     def jalali_created(self):
         if self.created_at:
             return jdatetime.datetime.fromgregorian(
@@ -209,15 +229,17 @@ class Product(models.Model):
             'exhibition': ('نمایشگاهی', 'info'),
             'coming_soon': ('به‌زودی', 'warning'),
         }
-        return badges.get(self.status, ('نامشخص', 'dark'))
+        # استفاده از effective_status تا قیمت 0/1 به درستی اعمال بشه
+        return badges.get(self.effective_status, ('نامشخص', 'dark'))
 
     # ===================== Pricing =====================
 
     def get_sell_price_12m(self):
         """قیمت فروش 12 متری"""
-        settings = SiteSettings.get_solo()  # اصلاح شد: get_settings() -> get_solo()
+        settings = SiteSettings.get_solo()
         purchase = self.effective_purchase_price
-        if not purchase:
+        # قیمت 0 یا 1 حالت خاص هستن (ناموجود / به‌زودی) - قیمت واقعی صفر
+        if not purchase or purchase <= 1:
             return 0
 
         profit_rate = Decimal(str(settings.profit_percent)) / Decimal('100')

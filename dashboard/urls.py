@@ -27,6 +27,12 @@ urlpatterns = [
     # مدیریت فضای رسانه
     path('media-storage/', views.media_storage, name='media_storage'),
 
+    # مدیریت دسته‌بندی‌ها (رنگ زمینه، نوع طرح، نوع بافت، ویژگی، تناژ رنگ)
+    path('taxonomies/', views.taxonomies_manage, name='taxonomies_manage'),
+    path('taxonomies/<str:taxonomy>/create/', views.taxonomy_create, name='taxonomy_create'),
+    path('taxonomies/<str:taxonomy>/<int:pk>/edit/', views.taxonomy_edit, name='taxonomy_edit'),
+    path('taxonomies/<str:taxonomy>/<int:pk>/delete/', views.taxonomy_delete, name='taxonomy_delete'),
+
     # API نوتیفیکیشن زنده (polling)
     path('api/live-alerts/', views.live_alerts_api, name='live_alerts'),
 ]
