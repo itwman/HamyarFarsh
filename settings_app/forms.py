@@ -5,11 +5,26 @@ from .models import SiteSettings
 class SiteSettingsForm(forms.ModelForm):
     class Meta:
         model = SiteSettings
-        exclude = ('updated_at',)
+        # حذف فیلدهایی که در UI نیستن و در مدل default دارن
+        # البته بعدا می‌تونیم اونا رو به UI اضافه کنیم
+        exclude = (
+            'updated_at',
+            # رنگ‌بندی سایت (فاز 16) - فعلا در UI نیست
+            'primary_color', 'secondary_color', 'header_bg_color', 'footer_bg_color',
+            # خبرنامه (فاز 20) - فعلا در UI نیست
+            'newsletter_enabled', 'newsletter_title', 'newsletter_text', 'newsletter_welcome_sms',
+            # چت آنلاین (فاز 21) - فعلا در UI نیست
+            'live_chat_enabled', 'live_chat_external_code',
+            # پیامک - جای دیگه‌ای داره
+            'sms_enabled', 'sms_api_key', 'sms_sender',
+            'sms_on_order', 'sms_on_confirm', 'sms_on_shipped', 'sms_on_delivered',
+            # کدهای سفارشی - فعلا در UI نیست
+            'custom_head_code', 'custom_body_start', 'custom_body_end', 'custom_footer_code',
+        )
         widgets = {
             # اطلاعات سایت
             'site_name': forms.TextInput(attrs={'class': 'form-control'}),
-            
+
             # اطلاعات تماس
             'phone': forms.TextInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
             'mobile': forms.TextInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
@@ -20,7 +35,7 @@ class SiteSettingsForm(forms.ModelForm):
             'bale_id': forms.TextInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
             'website_url': forms.URLInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
             'address': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
-            
+
             # تنظیمات تصویر
             'thumbnail_width': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
             'thumbnail_height': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
@@ -29,18 +44,18 @@ class SiteSettingsForm(forms.ModelForm):
             'featured_line1_template': forms.TextInput(attrs={'class': 'form-control', 'dir': 'rtl'}),
             'featured_line2_template': forms.TextInput(attrs={'class': 'form-control', 'dir': 'rtl'}),
             'featured_line3_template': forms.TextInput(attrs={'class': 'form-control', 'dir': 'rtl'}),
-            
+
             # تنظیمات قیمت‌گذاری
             'profit_percent': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr', 'step': '0.01'}),
             'shipping_cost': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
             'rounding_step': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
-            
+
             # تنظیمات سفارش
             'free_shipping_min': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
             'deposit_percent': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr', 'step': '0.01'}),
             'cancellation_fee_percent': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr', 'step': '0.01'}),
-            
-            # تنظیمات اقساط - ✅ اصلاح شده
+
+            # تنظیمات اقساط
             'installment_max': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
             'check_max_months': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
             'beta_max_months': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr'}),
@@ -48,7 +63,7 @@ class SiteSettingsForm(forms.ModelForm):
             'beta_monthly_interest_rate': forms.NumberInput(attrs={'class': 'form-control', 'dir': 'ltr', 'step': '0.01'}),
             'check_prepay_required': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'beta_prepay_required': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
-            
+
             # تنظیمات SEO
             'seo_title': forms.TextInput(attrs={'class': 'form-control'}),
             'seo_description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),

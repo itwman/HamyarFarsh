@@ -19,20 +19,6 @@
         {% endfor %}
         {% endif %}
 
-        {# نمایش خطاهای دقیق فرم #}
-        {% if form.errors %}
-        <div class="alert alert-danger">
-            <h6 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> خطاهای فرم:</h6>
-            <ul class="mb-0 small">
-                {% for field, errors in form.errors.items %}
-                {% for error in errors %}
-                <li><strong>{{ field }}:</strong> {{ error }}</li>
-                {% endfor %}
-                {% endfor %}
-            </ul>
-        </div>
-        {% endif %}
-
         <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
