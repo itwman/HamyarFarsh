@@ -1,0 +1,658 @@
+{% extends 'dashboard/base.html' %}
+{% load static %}
+
+{% block extra_css %}
+{# Select2 RTL #}
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet">
+<link href="https://cdn.jsdelivr.net/npm/select2-bootstrap-5-theme@1.3.0/dist/select2-bootstrap-5-theme.rtl.min.css" rel="stylesheet">
+<style>
+.select2-container { width: 100% !important; }
+.select2-container--bootstrap-5 .select2-selection { min-height: 38px; }
+
+/* === Drag & Drop Zone === */
+.upload-zone {
+    border: 3px dashed #d0d0d0;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    background: #fafafa;
+    transition: all .2s ease;
+    cursor: pointer;
+}
+.upload-zone:hover,
+.upload-zone.dragover {
+    border-color: var(--hf-primary, #C62828);
+    background: #fff5f5;
+    transform: scale(1.01);
+}
+.upload-zone.dragover {
+    box-shadow: 0 0 0 4px rgba(198, 40, 40, .1);
+}
+.upload-zone .icon {
+    font-size: 3rem;
+    color: var(--hf-primary, #C62828);
+    margin-bottom: 12px;
+}
+.upload-zone .hint {
+    color: #888;
+    font-size: .85rem;
+    margin-top: 8px;
+}
+
+/* === Image Preview Grid === */
+.preview-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+    gap: 12px;
+    margin-top: 16px;
+}
+.preview-item {
+    position: relative;
+    aspect-ratio: 1/1;
+    border-radius: 10px;
+    overflow: hidden;
+    background: #f5f5f5;
+    border: 2px solid #e0e0e0;
+    transition: all .15s ease;
+}
+.preview-item.is-primary {
+    border-color: var(--hf-primary, #C62828);
+    box-shadow: 0 0 0 3px rgba(198, 40, 40, .15);
+}
+.preview-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    background: #fff;
+}
+.preview-item .actions {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to bottom, rgba(0,0,0,.7), transparent);
+    padding: 6px;
+    display: flex;
+    justify-content: space-between;
+    opacity: 0;
+    transition: opacity .15s;
+}
+.preview-item:hover .actions {
+    opacity: 1;
+}
+.preview-item .badge-primary {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    background: var(--hf-primary, #C62828);
+    color: #fff;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: .7rem;
+    font-weight: 700;
+}
+.preview-item .btn-icon {
+    background: rgba(255,255,255,.9);
+    border: none;
+    color: #333;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    font-size: .9rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.preview-item .btn-icon:hover {
+    background: #fff;
+    transform: scale(1.1);
+}
+.preview-item .btn-icon.delete:hover {
+    background: #dc3545;
+    color: #fff;
+}
+.preview-item .btn-icon.star:hover {
+    background: #ffc107;
+    color: #fff;
+}
+.preview-item.uploading::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(255,255,255,.7);
+    z-index: 2;
+}
+.preview-item.uploading::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 30px;
+    height: 30px;
+    border: 3px solid #ddd;
+    border-top-color: var(--hf-primary, #C62828);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    animation: spin 0.8s linear infinite;
+    z-index: 3;
+}
+@keyframes spin {
+    to { transform: translate(-50%, -50%) rotate(360deg); }
+}
+
+/* === Section Headers === */
+.section-card {
+    border: 1px solid #e6e6e6;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 20px;
+    background: #fff;
+}
+.section-card .section-title {
+    color: var(--hf-primary, #C62828);
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.step-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--hf-primary, #C62828);
+    color: #fff;
+    font-weight: 700;
+    margin-left: 10px;
+}
+</style>
+{% endblock %}
+
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+{# === مرحله 1: آپلود تصاویر === #}
+<div class="section-card">
+    <h5 class="section-title">
+        <span class="step-badge">۱</span>
+        <i class="bi bi-cloud-upload"></i>
+        آپلود تصاویر فرش
+        <small class="text-muted fs-6 fw-normal">— ابتدا تصاویر را آپلود کنید تا هنگام وارد کردن اطلاعات، تصویر فرش را ببینید</small>
+    </h5>
+
+    <div id="uploadZone" class="upload-zone">
+        <div class="icon">
+            <i class="bi bi-cloud-arrow-up-fill"></i>
+        </div>
+        <h5>تصاویر را اینجا بکشید و رها کنید</h5>
+        <p class="text-muted mb-2">یا کلیک کنید و فایل‌ها را انتخاب کنید</p>
+        <p class="hint">JPG, PNG, WebP — حداکثر ۱۰ مگابایت برای هر تصویر</p>
+        <input type="file" id="fileInput" multiple accept="image/*" style="display:none;">
+    </div>
+
+    <div id="previewGrid" class="preview-grid">
+        {# تصاویر موقت قبلی (اگه صفحه refresh شده) #}
+        {% for temp in temp_images %}
+        <div class="preview-item {% if temp.is_primary %}is-primary{% endif %}" data-id="{{ temp.id }}">
+            <img src="{{ temp.file.url }}" alt="{{ temp.original_name }}">
+            <div class="actions">
+                <button type="button" class="btn-icon delete" onclick="deleteTemp({{ temp.id }})" title="حذف">
+                    <i class="bi bi-trash"></i>
+                </button>
+                <button type="button" class="btn-icon star" onclick="setPrimaryTemp({{ temp.id }})" title="تصویر شاخص">
+                    <i class="bi bi-star{% if temp.is_primary %}-fill{% endif %}"></i>
+                </button>
+            </div>
+            {% if temp.is_primary %}
+            <span class="badge-primary"><i class="bi bi-star-fill"></i> شاخص</span>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+
+    <div id="uploadStatus" class="mt-3" style="display:none;">
+        <div class="alert alert-info py-2">
+            <i class="bi bi-info-circle"></i>
+            <span id="uploadStatusText">در حال آپلود...</span>
+        </div>
+    </div>
+</div>
+
+{# === مرحله 2: اطلاعات محصول === #}
+<div class="section-card">
+    <h5 class="section-title">
+        <span class="step-badge">۲</span>
+        <i class="bi bi-info-circle"></i>
+        اطلاعات محصول
+    </h5>
+
+    <form method="post" id="productForm">
+        {% csrf_token %}
+        <input type="hidden" name="upload_session_key" value="{{ upload_session_key }}">
+
+        {% if form.non_field_errors %}
+        <div class="alert alert-danger">
+            {{ form.non_field_errors }}
+        </div>
+        {% endif %}
+
+        {# فیلتر شرکت #}
+        <div class="mb-3">
+            <label class="form-label">{{ form.manufacturer_filter.label }}</label>
+            {{ form.manufacturer_filter }}
+        </div>
+
+        {# نام محصول #}
+        <div class="mb-3">
+            <label class="form-label">{{ form.name.label }} <span class="text-danger">*</span></label>
+            {{ form.name }}
+            {% if form.name.errors %}
+            <div class="text-danger small">{{ form.name.errors }}</div>
+            {% endif %}
+        </div>
+
+        {# آلبوم #}
+        <div class="mb-3">
+            <label class="form-label">{{ form.album.label }} <span class="text-danger">*</span></label>
+            {{ form.album }}
+            {% if form.album.errors %}
+            <div class="text-danger small">{{ form.album.errors }}</div>
+            {% endif %}
+            <small class="text-muted d-block" id="album-debug"></small>
+        </div>
+
+        {# دسته‌بندی‌ها #}
+        <div class="row g-3 mb-3">
+            <div class="col-md-4">
+                <label class="form-label">{{ form.background_color.label }}</label>
+                {{ form.background_color }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">{{ form.design_type.label }}</label>
+                {{ form.design_type }}
+            </div>
+            <div class="col-md-4">
+                <label class="form-label">{{ form.weave_type.label }}</label>
+                {{ form.weave_type }}
+            </div>
+        </div>
+
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">{{ form.feature.label }}</label>
+                {{ form.feature }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">{{ form.color_tone.label }}</label>
+                {{ form.color_tone }}
+            </div>
+        </div>
+
+        {# قیمت خرید #}
+        <div class="mb-3">
+            <label class="form-label">{{ form.purchase_price_12m.label }}</label>
+            {{ form.purchase_price_12m }}
+            <small class="form-text text-muted d-block">
+                {{ form.purchase_price_12m.help_text }}
+            </small>
+        </div>
+
+        {# وضعیت #}
+        <div class="row g-3 mb-3">
+            <div class="col-md-6">
+                <label class="form-label">{{ form.status.label }}</label>
+                {{ form.status }}
+            </div>
+            <div class="col-md-6">
+                <div class="form-check mt-4">
+                    {{ form.is_featured }}
+                    <label class="form-check-label" for="{{ form.is_featured.id_for_label }}">
+                        {{ form.is_featured.label }}
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        {# SEO #}
+        <hr class="my-4">
+        <h6 class="mb-3 text-muted">تنظیمات SEO</h6>
+
+        <div class="mb-3">
+            <label class="form-label">{{ form.seo_title.label }}</label>
+            {{ form.seo_title }}
+            <small class="form-text text-muted d-block">
+                {{ form.seo_title.help_text }}
+            </small>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">{{ form.seo_description.label }}</label>
+            {{ form.seo_description }}
+            <small class="form-text text-muted d-block">
+                {{ form.seo_description.help_text }}
+            </small>
+        </div>
+
+        <div class="mb-3">
+            <label class="form-label">{{ form.description.label }}</label>
+            {{ form.description }}
+            <small class="form-text text-muted d-block">
+                {{ form.description.help_text }}
+            </small>
+        </div>
+
+        {# دکمه‌ها #}
+        <div class="d-flex gap-2 mt-4">
+            <button type="submit" class="btn btn-primary btn-lg">
+                <i class="bi bi-check-circle"></i> ذخیره محصول
+            </button>
+            <a href="{% url 'products:product_list' %}" class="btn btn-outline-secondary btn-lg">
+                <i class="bi bi-x-circle"></i> انصراف
+            </a>
+        </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+{# jQuery + Select2 #}
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+<script>
+// === Select2 ===
+document.addEventListener('DOMContentLoaded', function() {
+    $('.select2-single').select2({
+        theme: 'bootstrap-5',
+        dir: 'rtl',
+        language: {
+            noResults: function() { return 'نتیجه‌ای یافت نشد'; },
+            searching: function() { return 'در حال جستجو...'; },
+        },
+        allowClear: true,
+        placeholder: 'انتخاب کنید...',
+    });
+
+    $('.select2-multi').select2({
+        theme: 'bootstrap-5',
+        dir: 'rtl',
+        language: {
+            noResults: function() { return 'نتیجه‌ای یافت نشد'; },
+            searching: function() { return 'در حال جستجو...'; },
+        },
+        closeOnSelect: false,
+        placeholder: 'انتخاب طرح‌ها...',
+    });
+});
+</script>
+
+<script>
+// === فیلتر آلبوم بر اساس شرکت ===
+const albumData = {
+    {% for album in form.album.field.queryset %}
+    "{{ album.id }}": "{{ album.manufacturer.id }}"{% if not forloop.last %},{% endif %}
+    {% endfor %}
+};
+
+function filterAlbums(manufacturerId) {
+    const albumSelect = document.getElementById('id_album');
+    if (!albumSelect) return;
+    
+    const allOptions = Array.from(albumSelect.options);
+    let visibleCount = 0;
+    
+    allOptions.forEach((option, index) => {
+        if (index === 0) return;
+        
+        const albumId = option.value;
+        const albumManufacturerId = albumData[albumId];
+        
+        if (!manufacturerId || albumManufacturerId === manufacturerId) {
+            option.style.display = '';
+            option.disabled = false;
+            visibleCount++;
+        } else {
+            option.style.display = 'none';
+            option.disabled = true;
+        }
+    });
+    
+    const debugEl = document.getElementById('album-debug');
+    if (debugEl) {
+        debugEl.textContent = `فیلتر شرکت: ${manufacturerId || 'همه'} | آلبوم‌های قابل نمایش: ${visibleCount}`;
+    }
+    
+    const selectedOption = albumSelect.selectedOptions[0];
+    if (selectedOption && selectedOption.style.display === 'none') {
+        albumSelect.selectedIndex = 0;
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    const mfgFilter = document.getElementById('id_manufacturer_filter');
+    if (mfgFilter && mfgFilter.value) {
+        filterAlbums(mfgFilter.value);
+    }
+});
+</script>
+
+<script>
+// === Drag & Drop Upload ===
+const SESSION_KEY = '{{ upload_session_key }}';
+const CSRF_TOKEN = document.querySelector('[name=csrfmiddlewaretoken]').value;
+const UPLOAD_URL = '{% url "products:temp_upload" %}';
+
+const uploadZone = document.getElementById('uploadZone');
+const fileInput = document.getElementById('fileInput');
+const previewGrid = document.getElementById('previewGrid');
+const uploadStatus = document.getElementById('uploadStatus');
+const uploadStatusText = document.getElementById('uploadStatusText');
+
+// کلیک روی zone → انتخاب فایل
+uploadZone.addEventListener('click', () => fileInput.click());
+
+// انتخاب فایل از دیالوگ
+fileInput.addEventListener('change', (e) => {
+    if (e.target.files.length > 0) {
+        uploadFiles(e.target.files);
+        fileInput.value = ''; // reset
+    }
+});
+
+// Drag & Drop
+['dragenter', 'dragover'].forEach(evt => {
+    uploadZone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.add('dragover');
+    });
+});
+
+['dragleave', 'drop'].forEach(evt => {
+    uploadZone.addEventListener(evt, (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        uploadZone.classList.remove('dragover');
+    });
+});
+
+uploadZone.addEventListener('drop', (e) => {
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+        uploadFiles(files);
+    }
+});
+
+// آپلود فایل‌ها
+async function uploadFiles(files) {
+    const formData = new FormData();
+    formData.append('session_key', SESSION_KEY);
+    
+    for (let f of files) {
+        formData.append('files', f);
+    }
+    
+    showStatus(`در حال آپلود ${files.length} تصویر...`);
+    
+    try {
+        const response = await fetch(UPLOAD_URL, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': CSRF_TOKEN,
+            },
+            body: formData,
+        });
+        
+        const data = await response.json();
+        
+        if (data.success) {
+            data.uploaded.forEach(item => {
+                addPreview(item);
+            });
+            
+            if (data.errors && data.errors.length > 0) {
+                showStatus(`${data.uploaded.length} تصویر آپلود شد. خطاها: ${data.errors.join(', ')}`, 'warning');
+            } else {
+                showStatus(`✅ ${data.uploaded.length} تصویر با موفقیت آپلود شد`, 'success');
+                setTimeout(hideStatus, 3000);
+            }
+        } else {
+            showStatus(`خطا: ${data.error}`, 'danger');
+        }
+    } catch (e) {
+        showStatus(`خطای شبکه: ${e.message}`, 'danger');
+    }
+}
+
+// اضافه کردن preview جدید به grid
+function addPreview(item) {
+    // اگه این primary شد، بقیه رو غیر primary کن
+    if (item.is_primary) {
+        document.querySelectorAll('.preview-item.is-primary').forEach(el => {
+            el.classList.remove('is-primary');
+            const badge = el.querySelector('.badge-primary');
+            if (badge) badge.remove();
+            const star = el.querySelector('.btn-icon.star i');
+            if (star) star.className = 'bi bi-star';
+        });
+    }
+    
+    const div = document.createElement('div');
+    div.className = 'preview-item' + (item.is_primary ? ' is-primary' : '');
+    div.dataset.id = item.id;
+    div.innerHTML = `
+        <img src="${item.url}" alt="${item.name}">
+        <div class="actions">
+            <button type="button" class="btn-icon delete" onclick="deleteTemp(${item.id})" title="حذف">
+                <i class="bi bi-trash"></i>
+            </button>
+            <button type="button" class="btn-icon star" onclick="setPrimaryTemp(${item.id})" title="تصویر شاخص">
+                <i class="bi bi-star${item.is_primary ? '-fill' : ''}"></i>
+            </button>
+        </div>
+        ${item.is_primary ? '<span class="badge-primary"><i class="bi bi-star-fill"></i> شاخص</span>' : ''}
+    `;
+    previewGrid.appendChild(div);
+}
+
+// حذف تصویر موقت
+async function deleteTemp(id) {
+    if (!confirm('این تصویر حذف شود؟')) return;
+    
+    try {
+        const response = await fetch(`/admin-products/temp-upload/${id}/delete/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            const el = document.querySelector(`.preview-item[data-id="${id}"]`);
+            if (el) el.remove();
+            
+            // اگه این primary بود، اولین تصویر باقیمانده رو شاخص کن (server انجام می‌ده، فقط UI آپدیت می‌کنیم)
+            const remaining = document.querySelectorAll('.preview-item');
+            if (remaining.length > 0) {
+                const first = remaining[0];
+                const wasPrimary = document.querySelector('.preview-item.is-primary');
+                if (!wasPrimary) {
+                    first.classList.add('is-primary');
+                    const star = first.querySelector('.btn-icon.star i');
+                    if (star) star.className = 'bi bi-star-fill';
+                    if (!first.querySelector('.badge-primary')) {
+                        const badge = document.createElement('span');
+                        badge.className = 'badge-primary';
+                        badge.innerHTML = '<i class="bi bi-star-fill"></i> شاخص';
+                        first.appendChild(badge);
+                    }
+                }
+            }
+            
+            showStatus('تصویر حذف شد', 'info');
+            setTimeout(hideStatus, 2000);
+        } else {
+            showStatus(`خطا: ${data.error}`, 'danger');
+        }
+    } catch (e) {
+        showStatus(`خطای شبکه: ${e.message}`, 'danger');
+    }
+}
+
+// تعیین تصویر شاخص
+async function setPrimaryTemp(id) {
+    try {
+        const response = await fetch(`/admin-products/temp-upload/${id}/set-primary/`, {
+            method: 'POST',
+            headers: { 'X-CSRFToken': CSRF_TOKEN },
+        });
+        const data = await response.json();
+        
+        if (data.success) {
+            // غیر شاخص کردن همه
+            document.querySelectorAll('.preview-item').forEach(el => {
+                el.classList.remove('is-primary');
+                const badge = el.querySelector('.badge-primary');
+                if (badge) badge.remove();
+                const star = el.querySelector('.btn-icon.star i');
+                if (star) star.className = 'bi bi-star';
+            });
+            
+            // شاخص کردن این
+            const el = document.querySelector(`.preview-item[data-id="${id}"]`);
+            if (el) {
+                el.classList.add('is-primary');
+                const star = el.querySelector('.btn-icon.star i');
+                if (star) star.className = 'bi bi-star-fill';
+                const badge = document.createElement('span');
+                badge.className = 'badge-primary';
+                badge.innerHTML = '<i class="bi bi-star-fill"></i> شاخص';
+                el.appendChild(badge);
+            }
+            
+            showStatus('تصویر شاخص تعیین شد', 'success');
+            setTimeout(hideStatus, 2000);
+        } else {
+            showStatus(`خطا: ${data.error}`, 'danger');
+        }
+    } catch (e) {
+        showStatus(`خطای شبکه: ${e.message}`, 'danger');
+    }
+}
+
+// نمایش status
+function showStatus(text, type = 'info') {
+    uploadStatus.style.display = 'block';
+    const alert = uploadStatus.querySelector('.alert');
+    alert.className = `alert alert-${type} py-2`;
+    uploadStatusText.textContent = text;
+}
+
+function hideStatus() {
+    uploadStatus.style.display = 'none';
+}
+</script>
+{% endblock %}

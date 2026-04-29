@@ -800,3 +800,62 @@ class ProductRating(models.Model):
         # بروزرسانی میانگین امتیاز محصول
         if self.status == 'approved':
             self.product.update_rating_stats()
+
+
+# ============================================================
+# مدل آپلود موقت (برای صفحه افزودن محصول)
+# ============================================================
+class TempUpload(models.Model):
+    """
+    فایل‌های آپلود موقت قبل از ایجاد محصول.
+    کاربرد: صفحه افزودن محصول - کاربر اول تصویر رو آپلود می‌کنه
+    تا ببینه، بعد اطلاعات فرش رو وارد می‌کنه.
+    در زمان save، فایل‌های TempUpload به ProductImage منتقل می‌شون.
+    Cleanup job: رکوردهای قدیمی‌تر از 24 ساعت به‌طور خودکار پاک می‌شون.
+    """
+    session_key = models.CharField(
+        max_length=64, db_index=True,
+        verbose_name='کلید سشن',
+        help_text='UUID برای تفکیک آپلودهای مختلف'
+    )
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE,
+        related_name='temp_uploads', verbose_name='کاربر'
+    )
+    file = models.ImageField(
+        upload_to='products/temp/', verbose_name='فایل'
+    )
+    original_name = models.CharField(
+        max_length=255, blank=True, verbose_name='نام اصلی فایل'
+    )
+    file_size = models.PositiveIntegerField(
+        default=0, verbose_name='حجم (بایت)'
+    )
+    order = models.PositiveIntegerField(
+        default=0, verbose_name='ترتیب'
+    )
+    is_primary = models.BooleanField(
+        default=False, verbose_name='تصویر شاخص'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, verbose_name='تاریخ آپلود'
+    )
+
+    class Meta:
+        verbose_name = 'آپلود موقت'
+        verbose_name_plural = 'آپلودهای موقت'
+        ordering = ['order', 'created_at']
+
+    def __str__(self):
+        return f'TempUpload {self.id} - {self.session_key[:8]}'
+
+    def delete(self, *args, **kwargs):
+        """حذف فایل فیزیکی همراه رکورد"""
+        import os
+        try:
+            if self.file and os.path.isfile(self.file.path):
+                os.remove(self.file.path)
+        except Exception:
+            pass
+        super().delete(*args, **kwargs)
+

@@ -15,7 +15,7 @@ from PIL import Image
 import os
 import sys
 
-from .models import Product, ProductImage, ProductVideo, ProductSizeRule
+from .models import Product, ProductImage, ProductVideo, ProductSizeRule, TempUpload
 from .forms import ProductForm, ProductImageForm, MultiImageUploadForm, ProductFilterForm, ProductVideoForm
 from catalog.models import (
     Album, Manufacturer, BackgroundColor, DesignType,
@@ -81,7 +81,216 @@ def product_list(request):
 
 @staff_member_required
 def product_add(request):
-    """افزودن محصول جدید"""
+    """افزودن محصول جدید - ابتدا تصاویر، سپس اطلاعات"""
+    import uuid
+    import shutil
+    import os
+    from django.core.files.base import ContentFile
+
+    # دریافت یا ساخت session_key برای این صفحه
+    upload_session_key = request.POST.get('upload_session_key') or request.GET.get('upload_session_key')
+    if not upload_session_key:
+        upload_session_key = str(uuid.uuid4())
+
+    if request.method == 'POST':
+        form = ProductForm(request.POST)
+        if form.is_valid():
+            product = form.save()
+
+            # انتقال تصاویر موقت به محصول
+            temp_uploads = TempUpload.objects.filter(
+                session_key=upload_session_key,
+                user=request.user
+            ).order_by('order', 'created_at')
+
+            settings_obj = SiteSettings.get_solo()
+            transferred_count = 0
+
+            for temp in temp_uploads:
+                try:
+                    # خوندن فایل و ساخت ProductImage
+                    if temp.file and os.path.isfile(temp.file.path):
+                        with open(temp.file.path, 'rb') as f:
+                            content = ContentFile(f.read(), name=temp.original_name or os.path.basename(temp.file.name))
+                        
+                        img = ProductImage(
+                            product=product,
+                            original=content,
+                            order=temp.order,
+                            is_primary=temp.is_primary,
+                        )
+                        img.save()
+
+                        # تولید تامبنیل و تصویر شاخص
+                        try:
+                            generate_thumbnails(img, settings_obj)
+                            transferred_count += 1
+                        except Exception as e:
+                            messages.warning(request, f'خطا در پردازش تصویر: {str(e)}')
+                except Exception as e:
+                    messages.warning(request, f'خطا در انتقال تصویر: {str(e)}')
+
+            # حذف رکوردهای موقت بعد از انتقال موفق
+            for temp in temp_uploads:
+                temp.delete()
+
+            # اگر هیچ تصویر شاخصی تعیین نشده، اولین تصویر رو شاخص کن
+            if not product.images.filter(is_primary=True).exists():
+                first_img = product.images.first()
+                if first_img:
+                    first_img.is_primary = True
+                    first_img.save()
+                    settings_obj = SiteSettings.get_solo()
+                    try:
+                        generate_featured(first_img, settings_obj)
+                    except Exception:
+                        pass
+
+            if transferred_count > 0:
+                messages.success(
+                    request,
+                    f'محصول «{product.name}» با موفقیت ایجاد شد. {transferred_count} تصویر منتقل شد.'
+                )
+            else:
+                messages.success(request, f'محصول «{product.name}» ایجاد شد. لطفاً تصاویر را آپلود کنید.')
+
+            return redirect('products:product_media', product.pk)
+        else:
+            messages.error(request, 'لطفاً خطاهای فرم را برطرف کنید.')
+    else:
+        form = ProductForm()
+
+    # تصاویر موقت فعلی در این سشن (اگر صفحه رو refresh کرده)
+    temp_images = TempUpload.objects.filter(
+        session_key=upload_session_key,
+        user=request.user
+    ).order_by('order', 'created_at')
+
+    context = {
+        'form': form,
+        'title': 'افزودن محصول جدید',
+        'action': 'add',
+        'upload_session_key': upload_session_key,
+        'temp_images': temp_images,
+    }
+
+    return render(request, 'products/product_form_with_upload.html', context)
+
+
+@staff_member_required
+def temp_upload(request):
+    """AJAX endpoint برای آپلود تصاویر موقت (صفحه افزودن محصول)"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'فقط POST مجاز است'}, status=405)
+
+    session_key = request.POST.get('session_key', '').strip()
+    if not session_key:
+        return JsonResponse({'success': False, 'error': 'session_key لازم است'}, status=400)
+
+    files = request.FILES.getlist('files')
+    if not files:
+        return JsonResponse({'success': False, 'error': 'فایلی دریافت نشد'}, status=400)
+
+    # تعداد فعلی برای order
+    last_order = TempUpload.objects.filter(
+        session_key=session_key, user=request.user
+    ).count()
+
+    uploaded = []
+    errors = []
+
+    for f in files:
+        # اعتبارسنجی سایز (حداکثر 10MB)
+        if f.size > 10 * 1024 * 1024:
+            errors.append(f'فایل {f.name} بزرگتر از 10MB است')
+            continue
+
+        # اعتبارسنجی فرمت
+        if not f.content_type or not f.content_type.startswith('image/'):
+            errors.append(f'فایل {f.name} تصویر نیست')
+            continue
+
+        try:
+            temp = TempUpload.objects.create(
+                session_key=session_key,
+                user=request.user,
+                file=f,
+                original_name=f.name,
+                file_size=f.size,
+                order=last_order,
+                is_primary=(last_order == 0),  # اولین تصویر خودکار شاخص می‌شه
+            )
+            last_order += 1
+            uploaded.append({
+                'id': temp.id,
+                'url': temp.file.url,
+                'name': temp.original_name,
+                'size': temp.file_size,
+                'is_primary': temp.is_primary,
+            })
+        except Exception as e:
+            errors.append(f'خطا در {f.name}: {str(e)}')
+
+    return JsonResponse({
+        'success': True,
+        'uploaded': uploaded,
+        'errors': errors,
+    })
+
+
+@staff_member_required
+def temp_upload_delete(request, pk):
+    """حذف تصویر موقت (AJAX)"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'فقط POST مجاز است'}, status=405)
+
+    try:
+        temp = TempUpload.objects.get(pk=pk, user=request.user)
+        was_primary = temp.is_primary
+        session_key = temp.session_key
+        temp.delete()
+
+        # اگر تصویر شاخص حذف شد، اولین تصویر باقیمانده رو شاخص کن
+        if was_primary:
+            first = TempUpload.objects.filter(
+                session_key=session_key, user=request.user
+            ).order_by('order', 'created_at').first()
+            if first:
+                first.is_primary = True
+                first.save(update_fields=['is_primary'])
+
+        return JsonResponse({'success': True})
+    except TempUpload.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'تصویر یافت نشد'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@staff_member_required
+def temp_upload_set_primary(request, pk):
+    """تعیین تصویر شاخص در بین آپلودهای موقت (AJAX)"""
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'فقط POST مجاز است'}, status=405)
+
+    try:
+        temp = TempUpload.objects.get(pk=pk, user=request.user)
+        # غیر شاخص کردن بقیه
+        TempUpload.objects.filter(
+            session_key=temp.session_key, user=request.user
+        ).update(is_primary=False)
+        # شاخص کردن این تصویر
+        temp.is_primary = True
+        temp.save(update_fields=['is_primary'])
+        return JsonResponse({'success': True})
+    except TempUpload.DoesNotExist:
+        return JsonResponse({'success': False, 'error': 'تصویر یافت نشد'}, status=404)
+    except Exception as e:
+        return JsonResponse({'success': False, 'error': str(e)}, status=500)
+
+
+@staff_member_required
+def product_add_OLD(request):
+    """[بایگانی] افزودن محصول جدید - نسخه قدیمی"""
     if request.method == 'POST':
         form = ProductForm(request.POST)
         if form.is_valid():

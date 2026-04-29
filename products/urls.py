@@ -9,6 +9,11 @@ urlpatterns = [
     path('add/', views.product_add, name='product_add'),
     path('<int:pk>/edit/', views.product_edit, name='product_edit'),
     path('<int:pk>/delete/', views.product_delete, name='product_delete'),
+
+    # آپلود موقت (AJAX) برای صفحه افزودن محصول
+    path('temp-upload/', views.temp_upload, name='temp_upload'),
+    path('temp-upload/<int:pk>/delete/', views.temp_upload_delete, name='temp_upload_delete'),
+    path('temp-upload/<int:pk>/set-primary/', views.temp_upload_set_primary, name='temp_upload_set_primary'),
     
     # مدیریت تصاویر
     path('<int:pk>/images/', views.product_images, name='product_images'),
