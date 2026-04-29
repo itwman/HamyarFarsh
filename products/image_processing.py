@@ -92,22 +92,51 @@ def generate_featured_image(image_file, product, size=None):
         dim = ss.featured_image_size or 1000
         size = (dim, dim)
     W, H = size
-    info_parts = [f'نقشه {product.name}']
-    if product.background_color:
-        info_parts.append(f'رنگ {product.background_color.name}')
-    info_parts.append(f'{product.comb} شانه')
-    if product.density:
-        info_parts.append(f'تراکم {product.density}')
-    detail_parts = [product.manufacturer.name, f'جنس نخ: {product.yarn_type}']
-    if product.weave_type:
-        detail_parts.append(product.weave_type.name)
-    contact_parts = []
-    if ss.mobile:
-        contact_parts.append(ss.mobile)
-    if ss.whatsapp:
-        contact_parts.append(f'واتساپ: {ss.whatsapp}')
-    if ss.telegram_id:
-        contact_parts.append(f'تلگرام: @{ss.telegram_id}')
+
+    # متغیرهای قالب - همسان با نسخه ویندوز
+    template_vars = {
+        'name': product.name or '',
+        'color': product.background_color.name if product.background_color else '',
+        'comb': str(product.album.comb),
+        'density': str(product.album.density) if product.album.density else '',
+        'design': product.design_type_display if hasattr(product, 'design_type_display') else '',
+        'weave': product.weave_type.name if product.weave_type else '',
+        'feature': product.feature.name if product.feature else '',
+        'company': product.album.manufacturer.name,
+        'album': product.album.name,
+        'yarn': product.album.get_yarn_type_display(),
+        'mobile': ss.mobile or '',
+        'phone': ss.phone or '',
+        'website': ss.website_url or '',
+        'site_name': ss.site_name or '',
+        'telegram': ss.telegram_id or '',
+        'instagram': ss.instagram_id or '',
+    }
+
+    def apply_template(tpl, vars_dict):
+        """جایگزینی متغیرها در قالب و پاکسازی جداکننده‌های خالی"""
+        try:
+            result = tpl.format(**vars_dict)
+        except (KeyError, ValueError):
+            result = tpl
+        # پاکسازی جداکننده‌های تکراری و خالی
+        result = result.replace('|  |', '|').replace('  |  ', ' | ')
+        result = result.replace('•  •', '•').replace('  •  ', ' • ')
+        return result.strip(' |•')
+
+    # خوندن templates از تنظیمات
+    line1_tpl = (getattr(ss, 'featured_line1_template', '') or
+                 'نقشه {name} | رنگ {color} | {comb} شانه | تراکم {density}')
+    line2_tpl = (getattr(ss, 'featured_line2_template', '') or
+                 '{company} | جنس نخ: {yarn} | {weave}')
+    line3_tpl = (getattr(ss, 'featured_line3_template', '') or
+                 '{mobile}  •  {website}')
+
+    # پر کردن قالب‌ها
+    line1 = apply_template(line1_tpl, template_vars)
+    line2 = apply_template(line2_tpl, template_vars)
+    line3 = apply_template(line3_tpl, template_vars)
+
     with tempfile.NamedTemporaryFile(suffix='.jpg', delete=False) as tmp:
         tmp_output = tmp.name
     try:
@@ -115,10 +144,10 @@ def generate_featured_image(image_file, product, size=None):
             'width': W, 'height': H,
             'bar_color': ss.info_bar_color or '#C62828',
             'site_name': ss.site_name or 'همیار فرش',
-            'line1': ' | '.join(info_parts),
-            'line2': ' | '.join(detail_parts),
-            'line3': ' | '.join(contact_parts),
-            'line4': ss.website_url or '',
+            'line1': line1,
+            'line2': line2,
+            'line3': line3,
+            'line4': '',  # دیگر استفاده نمی‌شود - همه چیز در line3 است
             'image_path': str(image_file),
             'output_path': tmp_output,
         }
