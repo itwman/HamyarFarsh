@@ -20,6 +20,13 @@ def settings_view(request):
             form.save()
             messages.success(request, 'تنظیمات با موفقیت ذخیره شد.')
             return redirect('settings_app:site_settings')
+        else:
+            # نمایش خطاهای دقیق به کاربر
+            error_count = sum(len(errors) for errors in form.errors.values())
+            messages.error(
+                request,
+                f'خطا در ذخیره تنظیمات ({error_count} خطا). لطفاً فیلدهای قرمزرنگ را بررسی کنید.'
+            )
     else:
         form = SiteSettingsForm(instance=settings_obj)
 

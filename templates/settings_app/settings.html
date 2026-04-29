@@ -9,6 +9,30 @@
         <h5 class="mb-0"><i class="bi bi-gear"></i> تنظیمات سایت</h5>
     </div>
     <div class="card-body">
+        {# نمایش پیام‌ها #}
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show">
+            {{ message }}
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        {# نمایش خطاهای دقیق فرم #}
+        {% if form.errors %}
+        <div class="alert alert-danger">
+            <h6 class="alert-heading"><i class="bi bi-exclamation-triangle"></i> خطاهای فرم:</h6>
+            <ul class="mb-0 small">
+                {% for field, errors in form.errors.items %}
+                {% for error in errors %}
+                <li><strong>{{ field }}:</strong> {{ error }}</li>
+                {% endfor %}
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
         <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
 
@@ -224,20 +248,13 @@
                         </div>
                     </div>
                     <div class="col-md-3">
-                        <label class="form-label">{{ form.check_bimonthly_interest_rate.label }}</label>
-                        <div class="input-group">
-                            {{ form.check_bimonthly_interest_rate }}
-                            <span class="input-group-text">%</span>
-                        </div>
-                    </div>
-                    <div class="col-md-3">
                         <label class="form-label">{{ form.beta_monthly_interest_rate.label }}</label>
                         <div class="input-group">
                             {{ form.beta_monthly_interest_rate }}
                             <span class="input-group-text">%</span>
                         </div>
                     </div>
-                    <div class="col-md-3 d-flex flex-column justify-content-center gap-2 pt-3">
+                    <div class="col-md-6 d-flex flex-column justify-content-center gap-2 pt-3">
                         <div class="form-check form-switch">
                             {{ form.check_prepay_required }}
                             <label class="form-check-label" for="{{ form.check_prepay_required.id_for_label }}">
