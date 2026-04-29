@@ -485,6 +485,44 @@ class ProductImage(models.Model):
         parts.append(f'{self.product.album.comb} شانه')
         
         return ' '.join(parts)
+
+    @property
+    def display_url(self):
+        """
+        بهترین URL تصویر برای نمایش در صفحه‌ها با fallback هوشمند.
+        اگر اوریجینال حذف شده (از بخش مدیریت فضای رسانه)، از featured یا thumbnail استفاده می‌کند.
+        اولویت:
+          1. featured_image (1000x1000) - بهترین کیفیت
+          2. original - کیفیت کامل
+          3. thumbnail - در صورت عدم وجود دوتای بالا
+        """
+        try:
+            if self.featured_image and self.featured_image.name:
+                return self.featured_image.url
+        except (ValueError, AttributeError):
+            pass
+        try:
+            if self.original and self.original.name:
+                return self.original.url
+        except (ValueError, AttributeError):
+            pass
+        try:
+            if self.thumbnail and self.thumbnail.name:
+                return self.thumbnail.url
+        except (ValueError, AttributeError):
+            pass
+        return ''
+
+    @property
+    def thumbnail_url(self):
+        """URL تامبنیل با fallback - برای نمایش در لیست/گالری"""
+        try:
+            if self.thumbnail and self.thumbnail.name:
+                return self.thumbnail.url
+        except (ValueError, AttributeError):
+            pass
+        # fallback به display_url
+        return self.display_url
     
     def save(self, *args, **kwargs):
         # اگر این تصویر شاخص شد، بقیه رو غیرشاخص کن

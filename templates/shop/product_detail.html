@@ -13,8 +13,8 @@
 {% with img=product.primary_image %}
 {% if img and img.featured_image %}
 <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ img.featured_image.url }}">
-{% elif img %}
-<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ img.original.url }}">
+{% elif img and img.display_url %}
+<meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ img.display_url }}">
 {% endif %}
 {% endwith %}
 <meta property="og:url" content="{{ request.build_absolute_uri }}">
@@ -63,8 +63,8 @@
             {# تصویر اصلی #}
             <div id="mainImage" class="text-center mb-3" style="min-height:300px;">
                 {% with img=product.primary_image %}
-                {% if img %}
-                <img src="{{ img.original.url }}" alt="{{ img.get_effective_alt }}" class="img-fluid rounded"
+                {% if img and img.display_url %}
+                <img src="{{ img.display_url }}" alt="{{ img.get_effective_alt }}" class="img-fluid rounded"
                      style="max-height:450px;object-fit:contain;" id="mainImg">
                 {% else %}
                 <div class="d-flex align-items-center justify-content-center" style="height:300px;background:var(--hf-gray-light);border-radius:8px;">
@@ -78,11 +78,13 @@
             {% if images.count > 1 %}
             <div class="d-flex gap-2 overflow-auto pb-2">
                 {% for img in images %}
-                <img src="{% if img.thumbnail %}{{ img.thumbnail.url }}{% else %}{{ img.original.url }}{% endif %}"
+                {% if img.thumbnail_url %}
+                <img src="{{ img.thumbnail_url }}"
                      alt="{{ img.get_effective_alt }}" loading="lazy"
                      class="rounded border {% if img.is_primary %}border-danger border-2{% endif %}"
                      style="width:60px;height:60px;object-fit:contain;cursor:pointer;flex-shrink:0;"
-                     onclick="document.getElementById('mainImg').src='{{ img.original.url }}'">
+                     onclick="document.getElementById('mainImg').src='{{ img.display_url }}'">
+                {% endif %}
                 {% endfor %}
             </div>
             {% endif %}
@@ -447,8 +449,8 @@
             <a href="{% url 'shop:product_detail' p.slug %}" class="text-decoration-none">
                 <div class="hf-card h-100">
                     {% with img=p.primary_image %}
-                    {% if img and img.thumbnail %}
-                    <img src="{{ img.thumbnail.url }}" alt="{{ p.name }}" class="card-img-top" loading="lazy"
+                    {% if img and img.thumbnail_url %}
+                    <img src="{{ img.thumbnail_url }}" alt="{{ p.name }}" class="card-img-top" loading="lazy"
                          style="aspect-ratio:1/1;object-fit:contain;background:#fff;padding:8px;">
                     {% endif %}
                     {% endwith %}
