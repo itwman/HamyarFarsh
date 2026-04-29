@@ -69,11 +69,22 @@ def product_list(request):
     page = request.GET.get('page')
     products_page = paginator.get_page(page)
 
+    # داده‌های لازم برای عملیات گروهی
+    bulk_albums = Album.objects.filter(is_active=True).select_related('manufacturer').order_by('manufacturer__name', 'name')
+    bulk_colors = BackgroundColor.objects.filter(is_active=True).order_by('name')
+    bulk_weaves = WeaveType.objects.filter(is_active=True).order_by('name')
+    bulk_features = Feature.objects.filter(is_active=True).order_by('name')
+
     context = {
         'products': products_page,
         'form': form,
         'total': paginator.count,
         'current_sort': sort,
+        'status_choices': Product.Status.choices,
+        'bulk_albums': bulk_albums,
+        'bulk_colors': bulk_colors,
+        'bulk_weaves': bulk_weaves,
+        'bulk_features': bulk_features,
     }
 
     return render(request, 'products/product_list.html', context)
@@ -831,3 +842,140 @@ def _generate_featured_windows(product_image, settings_obj):
         save=False
     )
     product_image.save()
+
+
+# ============================================================
+# عملیات گروهی روی محصولات (Bulk Actions)
+# ============================================================
+
+@staff_member_required
+def bulk_action(request):
+    """
+    عملیات گروهی روی محصولات:
+    - حذف دسته‌جمعی
+    - تغییر وضعیت
+    - تغییر آلبوم
+    - تغییر رنگ زمینه
+    - تغییر نوع بافت
+    - تغییر ویژگی
+    """
+    if request.method != 'POST':
+        return redirect('products:product_list')
+
+    action = request.POST.get('bulk_action', '').strip()
+    product_ids = request.POST.getlist('product_ids')
+
+    if not product_ids:
+        messages.warning(request, 'هیچ محصولی انتخاب نشده است.')
+        return redirect('products:product_list')
+
+    if not action:
+        messages.warning(request, 'لطفاً عملیات را انتخاب کنید.')
+        return redirect('products:product_list')
+
+    products = Product.objects.filter(pk__in=product_ids)
+    count = products.count()
+
+    if count == 0:
+        messages.warning(request, 'محصولی یافت نشد.')
+        return redirect('products:product_list')
+
+    # ===== حذف دسته‌جمعی =====
+    if action == 'delete':
+        # بررسی تأیید
+        confirmed = request.POST.get('confirmed') == 'yes'
+        if not confirmed:
+            messages.error(request, 'برای حذف باید تأیید کنید.')
+            return redirect('products:product_list')
+        names = list(products.values_list('name', flat=True)[:5])
+        products.delete()
+        if count <= 5:
+            messages.success(request, f'{count} محصول حذف شد: {"، ".join(names)}')
+        else:
+            messages.success(request, f'{count} محصول حذف شد.')
+        return redirect('products:product_list')
+
+    # ===== تغییر وضعیت =====
+    if action == 'set_status':
+        new_status = request.POST.get('new_status', '').strip()
+        valid_statuses = [s[0] for s in Product.Status.choices]
+        if new_status not in valid_statuses:
+            messages.error(request, 'وضعیت نامعتبر است.')
+            return redirect('products:product_list')
+        products.update(status=new_status)
+        status_display = dict(Product.Status.choices).get(new_status, new_status)
+        messages.success(request, f'وضعیت {count} محصول به «{status_display}» تغییر کرد.')
+        return redirect('products:product_list')
+
+    # ===== تغییر آلبوم =====
+    if action == 'set_album':
+        album_id = request.POST.get('new_album', '').strip()
+        if not album_id:
+            messages.error(request, 'آلبوم انتخاب نشده است.')
+            return redirect('products:product_list')
+        try:
+            album = Album.objects.get(pk=album_id)
+            products.update(album=album)
+            messages.success(request, f'آلبوم {count} محصول به «{album.name}» ({album.manufacturer.name}) تغییر کرد.')
+        except Album.DoesNotExist:
+            messages.error(request, 'آلبوم یافت نشد.')
+        return redirect('products:product_list')
+
+    # ===== تغییر رنگ زمینه =====
+    if action == 'set_color':
+        color_id = request.POST.get('new_color', '').strip()
+        if color_id == 'none':
+            # حذف رنگ
+            products.update(background_color=None)
+            messages.success(request, f'رنگ زمینه {count} محصول حذف شد.')
+            return redirect('products:product_list')
+        if not color_id:
+            messages.error(request, 'رنگ انتخاب نشده است.')
+            return redirect('products:product_list')
+        try:
+            color = BackgroundColor.objects.get(pk=color_id)
+            products.update(background_color=color)
+            messages.success(request, f'رنگ زمینه {count} محصول به «{color.name}» تغییر کرد.')
+        except BackgroundColor.DoesNotExist:
+            messages.error(request, 'رنگ یافت نشد.')
+        return redirect('products:product_list')
+
+    # ===== تغییر نوع بافت =====
+    if action == 'set_weave':
+        weave_id = request.POST.get('new_weave', '').strip()
+        if weave_id == 'none':
+            products.update(weave_type=None)
+            messages.success(request, f'نوع بافت {count} محصول حذف شد.')
+            return redirect('products:product_list')
+        if not weave_id:
+            messages.error(request, 'نوع بافت انتخاب نشده است.')
+            return redirect('products:product_list')
+        try:
+            weave = WeaveType.objects.get(pk=weave_id)
+            products.update(weave_type=weave)
+            messages.success(request, f'نوع بافت {count} محصول به «{weave.name}» تغییر کرد.')
+        except WeaveType.DoesNotExist:
+            messages.error(request, 'نوع بافت یافت نشد.')
+        return redirect('products:product_list')
+
+    # ===== تغییر ویژگی =====
+    if action == 'set_feature':
+        feature_id = request.POST.get('new_feature', '').strip()
+        if feature_id == 'none':
+            products.update(feature=None)
+            messages.success(request, f'ویژگی {count} محصول حذف شد.')
+            return redirect('products:product_list')
+        if not feature_id:
+            messages.error(request, 'ویژگی انتخاب نشده است.')
+            return redirect('products:product_list')
+        try:
+            feature = Feature.objects.get(pk=feature_id)
+            products.update(feature=feature)
+            messages.success(request, f'ویژگی {count} محصول به «{feature.name}» تغییر کرد.')
+        except Feature.DoesNotExist:
+            messages.error(request, 'ویژگی یافت نشد.')
+        return redirect('products:product_list')
+
+    messages.error(request, 'عملیات نامعتبر است.')
+    return redirect('products:product_list')
+

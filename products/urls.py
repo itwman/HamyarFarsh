@@ -29,4 +29,7 @@ urlpatterns = [
     
     # بروزرسانی انبوه
     path('bulk-price-update/', views.bulk_price_update, name='bulk_price_update'),
+
+    # عملیات گروهی روی محصولات (حذف، تغییر وضعیت، تغییر آلبوم و ...)
+    path('bulk-action/', views.bulk_action, name='bulk_action'),
 ]
