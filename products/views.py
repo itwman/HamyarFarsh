@@ -151,10 +151,12 @@ def product_add(request):
                     request,
                     f'محصول «{product.name}» با موفقیت ایجاد شد. {transferred_count} تصویر منتقل شد.'
                 )
+                # اگر تصاویر آپلود شده → برگرد به لیست محصولات
+                return redirect('products:product_list')
             else:
-                messages.success(request, f'محصول «{product.name}» ایجاد شد. لطفاً تصاویر را آپلود کنید.')
-
-            return redirect('products:product_media', product.pk)
+                messages.warning(request, f'محصول «{product.name}» ایجاد شد ولی تصویری آپلود نشده بود. لطفاً تصاویر را آپلود کنید.')
+                # فقط اگر تصویری آپلود نشد → برو به صفحه مدیریت رسانه
+                return redirect('products:product_media', product.pk)
         else:
             messages.error(request, 'لطفاً خطاهای فرم را برطرف کنید.')
     else:
