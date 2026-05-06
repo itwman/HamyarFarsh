@@ -17,6 +17,25 @@
         <form method="post" novalidate>
             {% csrf_token %}
 
+            {# نمایش خطاهای عمومی فرم در بالای صفحه #}
+            {% if form.errors %}
+            <div class="alert alert-danger">
+                <strong><i class="bi bi-exclamation-triangle"></i> خطاهای فرم:</strong>
+                <ul class="mb-0 mt-2">
+                    {% for field in form %}
+                        {% if field.errors %}
+                            <li><strong>{{ field.label }}:</strong> {{ field.errors|join:"، " }}</li>
+                        {% endif %}
+                    {% endfor %}
+                    {% if form.non_field_errors %}
+                        {% for error in form.non_field_errors %}
+                            <li>{{ error }}</li>
+                        {% endfor %}
+                    {% endif %}
+                </ul>
+            </div>
+            {% endif %}
+
             {# اطلاعات اصلی #}
             <div class="card mb-4">
                 <div class="card-header fw-bold bg-light">

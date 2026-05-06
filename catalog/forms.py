@@ -27,6 +27,11 @@ class ManufacturerForm(forms.ModelForm):
             'logo': forms.FileInput(attrs={'class': 'form-control'}),
         }
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # اسلاگ اختیاری - اگر خالی بود، خودکار از روی نام ساخته می‌شود
+        self.fields['slug'].required = False
+
     def clean_slug(self):
         slug = self.cleaned_data.get('slug')
         if not slug:
@@ -65,6 +70,8 @@ class AlbumForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['manufacturer'].queryset = Manufacturer.objects.filter(is_active=True)
+        # اسلاگ اختیاری - اگر خالی بود، خودکار از روی نام ساخته می‌شود
+        self.fields['slug'].required = False
 
     def clean_slug(self):
         slug = self.cleaned_data.get('slug')
