@@ -160,9 +160,9 @@
                 <h5><i class="bi bi-box-seam"></i> مشخصات محصول</h5>
 
                 {% with product as p %}
-                {% if p.primary_image %}
+                {% if p.primary_image and p.primary_image.thumbnail_url %}
                 <a href="/farsh/{{ p.slug }}/">
-                    <img src="{% if p.primary_image.thumbnail %}{{ p.primary_image.thumbnail.url }}{% else %}{{ p.primary_image.original.url }}{% endif %}"
+                    <img src="{{ p.primary_image.thumbnail_url }}"
                          alt="{{ p.primary_image.get_effective_alt }}"
                          class="product-card-img"
                          loading="lazy">
@@ -188,10 +188,10 @@
                         <td>{{ p.background_color.name }}</td>
                     </tr>
                     {% endif %}
-                    {% if p.design_type %}
+                    {% if p.design_type_display %}
                     <tr>
                         <td>نوع طرح</td>
-                        <td>{{ p.design_type.name }}</td>
+                        <td>{{ p.design_type_display }}</td>
                     </tr>
                     {% endif %}
                     {% if p.density %}
