@@ -23,6 +23,7 @@ urlpatterns = [
     # مدیریت رسانه (تصاویر + ویدیو)
     path('<int:pk>/media/', views.product_media, name='product_media'),
     path('video/<int:pk>/delete/', views.video_delete, name='video_delete'),
+    path('video/<int:pk>/reprocess/', views.video_reprocess, name='video_reprocess'),
     
     # قوانین سایز
     path('<int:pk>/size-rules/', views.product_size_rules, name='product_size_rules'),

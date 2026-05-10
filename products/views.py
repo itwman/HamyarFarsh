@@ -636,6 +636,49 @@ def video_delete(request, pk):
     return redirect('products:product_media', pk=product_pk)
 
 
+@staff_member_required
+def video_reprocess(request, pk):
+    """پردازش مجدد ویدیو (برای ویدیوهایی که failed/pending هستن)"""
+    import threading
+    video = get_object_or_404(ProductVideo, pk=pk)
+    product_pk = video.product.pk
+
+    if request.method == 'POST':
+        # حذف فایل‌های قبلی اگر بودن
+        for field in [video.video_720p, video.video_480p, video.thumbnail]:
+            try:
+                if field and field.name and os.path.isfile(field.path):
+                    os.remove(field.path)
+            except Exception:
+                pass
+        # پاک کردن فیلدها
+        video.video_720p = None
+        video.video_480p = None
+        video.thumbnail = None
+        video.processing_status = 'pending'
+        video.processing_progress = 0
+        video.processing_error = ''
+        video.size_720p = None
+        video.size_480p = None
+        video.save()
+
+        # اجرای بک‌گراندی
+        def process_in_background():
+            from utils.video_processor import process_video
+            try:
+                process_video(video.id)
+            except Exception as e:
+                pass
+
+        thread = threading.Thread(target=process_in_background)
+        thread.daemon = True
+        thread.start()
+
+        messages.success(request, 'پردازش مجدد ویدیو شروع شد. تا چند دقیقه دیگر صفحه رو refresh کنید.')
+
+    return redirect('products:product_media', pk=product_pk)
+
+
 # ============================================================
 # Helper Functions
 # ============================================================

@@ -2,7 +2,10 @@
 پردازشگر خودکار ویدیو - بهینه‌سازی برای پخش آنلاین
 """
 import os
+import sys
+import shutil
 import logging
+import subprocess
 from pathlib import Path
 from django.core.files import File
 from django.utils import timezone
@@ -18,12 +21,62 @@ except ImportError:
     FFMPEG_AVAILABLE = False
 
 
+def _detect_ffmpeg_path():
+    """
+    تشخیص خودکار مسیر ffmpeg بر اساس سیستم‌عامل:
+    1. اول از settings.FFMPEG_PATH چک می‌کنه
+    2. اگر نبود، در PATH دنبال ffmpeg می‌گرده (لینوکس: /usr/bin/ffmpeg)
+    3. اگر باز نبود، روی ویندوز مسیرهای رایج رو چک می‌کنه
+    """
+    # 1. از settings
+    custom_path = getattr(settings, 'FFMPEG_PATH', None)
+    if custom_path and os.path.isfile(custom_path):
+        return custom_path
+
+    # 2. جستجو در PATH (لینوکس/مک پیدا می‌شه)
+    found = shutil.which('ffmpeg')
+    if found:
+        return found
+
+    # 3. مسیرهای رایج ویندوز
+    if sys.platform.startswith('win'):
+        windows_paths = [
+            r'C:\ffmpeg\bin\ffmpeg.exe',
+            r'C:\Program Files\ffmpeg\bin\ffmpeg.exe',
+            r'C:\tools\ffmpeg\bin\ffmpeg.exe',
+        ]
+        for p in windows_paths:
+            if os.path.isfile(p):
+                return p
+
+    # 4. پیدا نشد
+    return None
+
+
+def _get_ffprobe_path(ffmpeg_path):
+    """استخراج مسیر ffprobe از روی مسیر ffmpeg"""
+    if not ffmpeg_path:
+        return None
+    # ویندوز
+    if ffmpeg_path.lower().endswith('ffmpeg.exe'):
+        return ffmpeg_path[:-10] + 'ffprobe.exe'
+    # لینوکس/مک: راه اول = which
+    found = shutil.which('ffprobe')
+    if found:
+        return found
+    # جایگزینی اسم
+    if ffmpeg_path.endswith('ffmpeg'):
+        return ffmpeg_path[:-6] + 'ffprobe'
+    return ffmpeg_path.replace('ffmpeg', 'ffprobe')
+
+
 class VideoProcessor:
     """کلاس بهینه‌سازی ویدیو"""
-    
-    # مسیر FFmpeg (برای ویندوز)
-    FFMPEG_PATH = r'C:\ffmpeg\bin\ffmpeg.exe'
-    
+
+    # مسیر FFmpeg - تشخیص خودکار در زمان بارگذاری
+    FFMPEG_PATH = _detect_ffmpeg_path()
+    FFPROBE_PATH = _get_ffprobe_path(FFMPEG_PATH)
+
     def __init__(self, video_instance):
         """
         Args:
@@ -38,6 +91,14 @@ class VideoProcessor:
             logger.error("FFmpeg not available for video processing")
             self.video.processing_status = 'failed'
             self.video.processing_error = 'FFmpeg not installed'
+            self.video.save()
+            return False
+
+        if not self.FFMPEG_PATH:
+            err = 'FFmpeg binary not found. Install ffmpeg or set FFMPEG_PATH in settings.'
+            logger.error(err)
+            self.video.processing_status = 'failed'
+            self.video.processing_error = err
             self.video.save()
             return False
         
@@ -90,8 +151,8 @@ class VideoProcessor:
     def extract_metadata(self):
         """استخراج اطلاعات ویدیو"""
         try:
-            # استفاده از مسیر کامل FFmpeg
-            probe = ffmpeg.probe(self.original_path, cmd=self.FFMPEG_PATH.replace('ffmpeg.exe', 'ffprobe.exe'))
+            # استفاده از مسیر ffprobe تشخیص‌داده‌شده
+            probe = ffmpeg.probe(self.original_path, cmd=self.FFPROBE_PATH or 'ffprobe')
             
             # پیدا کردن stream ویدیو
             video_stream = next(
@@ -138,7 +199,7 @@ class VideoProcessor:
                 .filter('scale', 640, -1)
                 .output(thumb_path, vframes=1, format='image2')
                 .overwrite_output()
-                .run(cmd=self.FFMPEG_PATH, capture_stdout=True, capture_stderr=True, quiet=True)
+                .run(cmd=self.FFMPEG_PATH or 'ffmpeg', capture_stdout=True, capture_stderr=True, quiet=True)
             )
             
             # ذخیره در مدل
@@ -183,7 +244,7 @@ class VideoProcessor:
                     **{'profile:v': 'high', 'level': '4.0'}
                 )
                 .overwrite_output()
-                .run(cmd=self.FFMPEG_PATH, capture_stdout=True, capture_stderr=True, quiet=True)
+                .run(cmd=self.FFMPEG_PATH or 'ffmpeg', capture_stdout=True, capture_stderr=True, quiet=True)
             )
             
             # ذخیره در مدل
@@ -229,7 +290,7 @@ class VideoProcessor:
                     **{'profile:v': 'main', 'level': '3.1'}
                 )
                 .overwrite_output()
-                .run(cmd=self.FFMPEG_PATH, capture_stdout=True, capture_stderr=True, quiet=True)
+                .run(cmd=self.FFMPEG_PATH or 'ffmpeg', capture_stdout=True, capture_stderr=True, quiet=True)
             )
             
             # ذخیره در مدل

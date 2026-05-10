@@ -224,6 +224,14 @@
                                     {% if vid.processing_status == 'failed' and vid.processing_error %}
                                     <div class="alert alert-danger py-1 px-2 mb-1" style="font-size:.65rem;">{{ vid.processing_error|truncatechars:60 }}</div>
                                     {% endif %}
+                                    {% if vid.processing_status == 'failed' or vid.processing_status == 'pending' %}
+                                    <form method="post" action="{% url 'products:video_reprocess' vid.pk %}" class="mb-1">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-outline-warning w-100" style="font-size:.7rem;padding:2px;">
+                                            <i class="bi bi-arrow-clockwise"></i> پردازش مجدد
+                                        </button>
+                                    </form>
+                                    {% endif %}
                                     <form method="post" action="{% url 'products:video_delete' vid.pk %}" onsubmit="return confirm('حذف ویدیو؟')">
                                         {% csrf_token %}
                                         <button type="submit" class="btn btn-outline-danger w-100" style="font-size:.7rem;padding:2px;">
