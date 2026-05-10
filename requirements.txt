@@ -9,3 +9,4 @@ requests>=2.31
 python-dateutil>=2.9
 django-solo>=2.3
 django-ckeditor-5>=0.2.15
+ffmpeg-python>=0.2.0
