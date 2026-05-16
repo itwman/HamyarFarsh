@@ -95,23 +95,49 @@ def cart_add_ajax(request):
         product_id = request.POST.get('product_id')
         size_id = request.POST.get('size_id')
         quantity = int(request.POST.get('quantity', 1))
-        
+
         product = get_object_or_404(Product, id=product_id)
         size = get_object_or_404(CarpetSize, id=size_id) if size_id else None
-        
+
+        # اعتبارسنجی تعداد
+        if quantity < 1:
+            return JsonResponse({
+                'success': False,
+                'message': 'تعداد باید حداقل یک باشد.'
+            }, status=400)
+
+        # بررسی قانون زوج/فرد
+        is_pair = False
+        if size:
+            # اولویت: override از محصول
+            size_rule = product.size_rules.filter(size=size).first()
+            if size_rule:
+                require_even = size_rule.order_rule == 'pair_only'
+            else:
+                require_even = size.default_order_rule == 'pair_only'
+
+            if require_even:
+                if quantity % 2 != 0:
+                    # خودکار به زوج بعدی برسون
+                    quantity = quantity + 1
+                is_pair = True
+
         # افزودن به سبد
         cart.add(
             product=product,
             size=size,
-            quantity=quantity
+            quantity=quantity,
+            is_pair=is_pair
         )
-        
+
         return JsonResponse({
             'success': True,
             'message': 'محصول به سبد خرید اضافه شد',
+            'quantity': quantity,
+            'is_pair': is_pair,
             'cart_count': len(cart)
         })
-        
+
     except Exception as e:
         return JsonResponse({
             'success': False,

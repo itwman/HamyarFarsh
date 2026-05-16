@@ -274,16 +274,12 @@
     <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-table"></i> جدول قیمت سایزها</h5>
     {% if product.sku %}<small class="text-muted d-block mb-2">کد محصول: <strong dir="ltr">{{ product.sku }}</strong></small>{% endif %}
     <div class="table-responsive">
-        <table class="table table-hover align-middle mb-0">
+        <table class="table table-hover align-middle mb-0 size-prices-table">
             <thead style="background:var(--hf-primary);color:#fff;">
                 <tr>
                     <th>سایز</th>
-                    <th>ابعاد</th>
                     <th>قیمت (تومان)</th>
-                    <th>سفارش</th>
-                    <th class="d-none d-md-table-cell">وضعیت</th>
-                    <th class="text-center">تعداد</th>
-                    <th class="text-center">افزودن</th>
+                    <th class="text-center">تعداد و سفارش</th>
                 </tr>
             </thead>
             <tbody>
@@ -291,30 +287,30 @@
                 {% for item in main_sizes %}
                 {% if item.is_available %}
                 <tr class="{% if item.size.is_nine_meter %}table-warning{% endif %}">
-                    <td class="fw-bold">{{ item.size.name }}</td>
-                    <td class="small">{{ item.size.dimensions_display }}</td>
-                    <td class="fw-bold" style="color:var(--hf-primary);">{{ item.price|price_comma }}</td>
                     <td>
-                        {% if item.order_rule == 'even' %}
-                        <span class="badge bg-info">فقط زوج</span>
-                        {% else %}
-                        <span class="badge bg-success">آزاد</span>
-                        {% endif %}
+                        <div class="fw-bold">{{ item.size.name }}
+                            {% if item.order_rule == 'even' %}
+                            <span class="badge bg-info ms-1" style="font-size:.65rem;">فقط زوج</span>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">{{ item.size.dimensions_display }}</small>
                     </td>
-                    <td class="d-none d-md-table-cell"><i class="bi bi-check-circle-fill text-success"></i></td>
+                    <td class="fw-bold" style="color:var(--hf-primary);">{{ item.price|price_comma }}</td>
                     <td class="text-center">
-                        <input type="number" class="form-control form-control-sm text-center"
-                               id="qty_{{ item.size.id }}"
-                               value="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
-                               min="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
-                               step="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
-                               style="width:80px;display:inline-block;" dir="ltr">
-                    </td>
-                    <td class="text-center">
-                        <button class="btn btn-hf-primary btn-sm"
-                                onclick="addToCart({{ product.id }}, {{ item.size.id }}, document.getElementById('qty_{{ item.size.id }}').value)">
-                            <i class="bi bi-cart-plus"></i> افزودن
-                        </button>
+                        <div class="qty-add-group">
+                            <input type="number" class="form-control form-control-sm qty-input"
+                                   id="qty_{{ item.size.id }}"
+                                   data-rule="{{ item.order_rule }}"
+                                   value="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                                   min="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                                   step="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                                   onchange="validateQty(this)" dir="ltr">
+                            <button class="btn btn-hf-primary btn-sm qty-add-btn"
+                                    onclick="addToCart({{ product.id }}, {{ item.size.id }}, document.getElementById('qty_{{ item.size.id }}'))">
+                                <i class="bi bi-cart-plus"></i>
+                                <span class="qty-btn-text">افزودن</span>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 {% endif %}
@@ -323,7 +319,7 @@
                 {# سایر سایزها — مخفی #}
                 {% if other_sizes %}
                 <tr id="moreSizesBtn">
-                    <td colspan="7" class="text-center py-2">
+                    <td colspan="3" class="text-center py-2">
                         <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('moreSizesBtn').style.display='none';document.getElementById('moreSizes').style.display='';">
                             <i class="bi bi-chevron-down"></i> مشاهده قیمت {{ other_sizes|length }} سایز دیگر
                         </button>
@@ -336,30 +332,30 @@
                 {% for item in other_sizes %}
                 {% if item.is_available %}
                 <tr>
-                    <td class="fw-bold">{{ item.size.name }}</td>
-                    <td class="small">{{ item.size.dimensions_display }}</td>
-                    <td class="fw-bold" style="color:var(--hf-primary);">{{ item.price|price_comma }}</td>
                     <td>
-                        {% if item.order_rule == 'even' %}
-                        <span class="badge bg-info">فقط زوج</span>
-                        {% else %}
-                        <span class="badge bg-success">آزاد</span>
-                        {% endif %}
+                        <div class="fw-bold">{{ item.size.name }}
+                            {% if item.order_rule == 'even' %}
+                            <span class="badge bg-info ms-1" style="font-size:.65rem;">فقط زوج</span>
+                            {% endif %}
+                        </div>
+                        <small class="text-muted">{{ item.size.dimensions_display }}</small>
                     </td>
-                    <td class="d-none d-md-table-cell"><i class="bi bi-check-circle-fill text-success"></i></td>
+                    <td class="fw-bold" style="color:var(--hf-primary);">{{ item.price|price_comma }}</td>
                     <td class="text-center">
-                        <input type="number" class="form-control form-control-sm text-center"
-                               id="qty_{{ item.size.id }}"
-                               value="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
-                               min="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
-                               step="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
-                               style="width:80px;display:inline-block;" dir="ltr">
-                    </td>
-                    <td class="text-center">
-                        <button class="btn btn-hf-primary btn-sm"
-                                onclick="addToCart({{ product.id }}, {{ item.size.id }}, document.getElementById('qty_{{ item.size.id }}').value)">
-                            <i class="bi bi-cart-plus"></i>
-                        </button>
+                        <div class="qty-add-group">
+                            <input type="number" class="form-control form-control-sm qty-input"
+                                   id="qty_{{ item.size.id }}"
+                                   data-rule="{{ item.order_rule }}"
+                                   value="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                                   min="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                                   step="{% if item.order_rule == 'even' %}2{% else %}1{% endif %}"
+                                   onchange="validateQty(this)" dir="ltr">
+                            <button class="btn btn-hf-primary btn-sm qty-add-btn"
+                                    onclick="addToCart({{ product.id }}, {{ item.size.id }}, document.getElementById('qty_{{ item.size.id }}'))">
+                                <i class="bi bi-cart-plus"></i>
+                                <span class="qty-btn-text">افزودن</span>
+                            </button>
+                        </div>
                     </td>
                 </tr>
                 {% endif %}
@@ -368,6 +364,34 @@
             {% endif %}
         </table>
     </div>
+
+    {# استایل جدول و گروه تعداد+افزودن #}
+    <style>
+    .size-prices-table .qty-add-group {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        justify-content: center;
+    }
+    .size-prices-table .qty-input {
+        width: 70px;
+        text-align: center;
+    }
+    .size-prices-table .qty-add-btn {
+        white-space: nowrap;
+    }
+    /* روی موبایل: input کوچیک‌تر، متن دکمه مخفی فقط آیکون */
+    @media (max-width: 575.98px) {
+        .size-prices-table th,
+        .size-prices-table td {
+            padding: .5rem .35rem;
+            font-size: .85rem;
+        }
+        .size-prices-table .qty-input { width: 52px; padding: .25rem; }
+        .size-prices-table .qty-btn-text { display: none; }
+        .size-prices-table .qty-add-btn { padding: .25rem .5rem; }
+    }
+    </style>
 
     {# سفارش سایز خاص #}
     <div class="mt-3 p-3 rounded" style="background:var(--hf-gray-light);">
@@ -568,6 +592,41 @@ function switchVideo(thumb) {
     thumb.classList.add('active');
 }
 
+// === اعتبارسنجی تعداد (زوج/آزاد) ===
+function validateQty(input) {
+    var rule = input.dataset.rule;
+    var val = parseInt(input.value, 10);
+
+    if (isNaN(val) || val < 1) {
+        input.value = rule === 'even' ? 2 : 1;
+        return;
+    }
+
+    if (rule === 'even' && val % 2 !== 0) {
+        // فرد وارد شده — خودکار به زوج بعدی برسون + پیام
+        input.value = val + 1;
+        showToast('این سایز فقط به صورت زوج سفارش داده می‌شود. تعداد به ' + (val + 1) + ' رسید.', 'warning');
+    }
+}
+
+// نمایش toast پایین صفحه (بهتر از alert)
+function showToast(msg, type) {
+    type = type || 'info';
+    var colors = { 'success': '#28a745', 'warning': '#ffc107', 'danger': '#dc3545', 'info': '#0d6efd' };
+    var t = document.createElement('div');
+    t.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);' +
+        'background:' + (colors[type] || colors.info) + ';color:#fff;padding:12px 24px;' +
+        'border-radius:8px;font-size:.9rem;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.2);' +
+        'max-width:90%;text-align:center;animation:toastSlideUp .3s ease;';
+    t.textContent = msg;
+    document.body.appendChild(t);
+    setTimeout(function() {
+        t.style.opacity = '0';
+        t.style.transition = 'opacity .3s';
+        setTimeout(function() { t.remove(); }, 300);
+    }, 3000);
+}
+
 function setRating(val) {
     document.getElementById('ratingInput').value = val;
     document.querySelectorAll('#starRating i').forEach(function(el, i) {
@@ -581,8 +640,35 @@ function setRating(val) {
     });
 }
 
-// افزودن به سبد خرید
-function addToCart(productId, sizeId, quantity) {
+// افزودن به سبد خرید (با اعتبارسنجی زوج)
+function addToCart(productId, sizeId, inputEl) {
+    // ارسال input element به جای value تا بتونیم rule رو بخونیم
+    var quantity, rule;
+    if (typeof inputEl === 'object' && inputEl !== null) {
+        rule = inputEl.dataset.rule;
+        quantity = parseInt(inputEl.value, 10);
+    } else {
+        // backward compatible
+        quantity = parseInt(inputEl, 10);
+        rule = 'free';
+    }
+
+    if (isNaN(quantity) || quantity < 1) {
+        showToast('تعداد واردشده نامعتبر است.', 'danger');
+        return;
+    }
+
+    // چک زوج بودن
+    if (rule === 'even' && quantity % 2 !== 0) {
+        // خودکار به زوج برسون
+        quantity = quantity + 1;
+        if (inputEl && typeof inputEl === 'object') {
+            inputEl.value = quantity;
+        }
+        showToast('این سایز فقط زوج سفارش داده می‌شود. تعداد به ' + quantity + ' اصلاح شد.', 'warning');
+        return; // دوباره کلیک کنه تأیید کرده
+    }
+
     fetch('/orders/cart/add/', {
         method: 'POST',
         headers: {
@@ -594,14 +680,14 @@ function addToCart(productId, sizeId, quantity) {
     .then(response => response.json())
     .then(data => {
         if (data.success) {
-            alert('محصول به سبد خرید اضافه شد!');
+            showToast('✅ ' + quantity + ' عدد به سبد خرید اضافه شد.', 'success');
         } else {
-            alert('خطا: ' + (data.message || 'مشکلی پیش آمد'));
+            showToast('خطا: ' + (data.message || 'مشکلی پیش آمد'), 'danger');
         }
     })
     .catch(error => {
         console.error('Error:', error);
-        alert('خطا در اتصال به سرور');
+        showToast('خطا در اتصال به سرور', 'danger');
     });
 }
 
