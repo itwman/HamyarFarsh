@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load humanize %}
 {% load price_tags %}
 {% load jalali_tags %}
@@ -6,7 +7,7 @@
 <html lang="fa" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>فاکتور شماره {{ order.invoice_number }}</title>
+    <title>{% trans "فاکتور شماره" %} {{ order.invoice_number }}</title>
     <style>
         @font-face {
             font-family: 'Vazirmatn';
@@ -189,35 +190,35 @@
             <div class="company-info">
                 <div><strong>{{ ss.company_name }}</strong></div>
                 <div>{{ ss.address }}</div>
-                <div>تلفن: {{ ss.phone }}</div>
-                {% if ss.email %}<div>ایمیل: {{ ss.email }}</div>{% endif %}
+                <div>{% trans "تلفن:" %} {{ ss.phone }}</div>
+                {% if ss.email %}<div>{% trans "ایمیل:" %} {{ ss.email }}</div>{% endif %}
             </div>
         </div>
         
         {# عنوان #}
         <div class="invoice-title">
-            فاکتور فروش
+            {% trans "فاکتور فروش" %}
         </div>
         
         {# اطلاعات فاکتور #}
         <div class="invoice-meta">
             <div>
                 <div class="meta-item">
-                    <span class="meta-label">شماره فاکتور:</span>
+                    <span class="meta-label">{% trans "شماره فاکتور:" %}</span>
                     <span>{{ order.invoice_number }}</span>
                 </div>
                 <div class="meta-item">
-                    <span class="meta-label">تاریخ صدور:</span>
+                    <span class="meta-label">{% trans "تاریخ صدور:" %}</span>
                     <span>{{ today }}</span>
                 </div>
             </div>
             <div>
                 <div class="meta-item">
-                    <span class="meta-label">شماره سفارش:</span>
+                    <span class="meta-label">{% trans "شماره سفارش:" %}</span>
                     <span>#{{ order.id }}</span>
                 </div>
                 <div class="meta-item">
-                    <span class="meta-label">تاریخ سفارش:</span>
+                    <span class="meta-label">{% trans "تاریخ سفارش:" %}</span>
                     <span>{{ order.created_at|jalali }}</span>
                 </div>
             </div>
@@ -225,25 +226,25 @@
         
         {# اطلاعات مشتری #}
         <div class="customer-info">
-            <h4 style="color:#C62828;margin-bottom:10px;">مشخصات خریدار</h4>
-            <div><strong>نام:</strong> {{ order.customer_name }}</div>
-            <div><strong>موبایل:</strong> {{ order.customer_phone }}</div>
+            <h4 style="color:#C62828;margin-bottom:10px;">{% trans "مشخصات خریدار" %}</h4>
+            <div><strong>{% trans "نام:" %}</strong> {{ order.customer_name }}</div>
+            <div><strong>{% trans "موبایل:" %}</strong> {{ order.customer_phone }}</div>
             {% if order.customer_email %}
-            <div><strong>ایمیل:</strong> {{ order.customer_email }}</div>
+            <div><strong>{% trans "ایمیل:" %}</strong> {{ order.customer_email }}</div>
             {% endif %}
-            <div><strong>آدرس:</strong> {{ order.shipping_address }}</div>
+            <div><strong>{% trans "آدرس:" %}</strong> {{ order.shipping_address }}</div>
         </div>
         
         {# جدول اقلام #}
         <table class="items-table">
             <thead>
                 <tr>
-                    <th>ردیف</th>
-                    <th>شرح کالا</th>
-                    <th>سایز</th>
-                    <th>تعداد</th>
-                    <th>قیمت واحد</th>
-                    <th>جمع</th>
+                    <th>{% trans "ردیف" %}</th>
+                    <th>{% trans "شرح کالا" %}</th>
+                    <th>{% trans "سایز" %}</th>
+                    <th>{% trans "تعداد" %}</th>
+                    <th>{% trans "قیمت واحد" %}</th>
+                    <th>{% trans "جمع" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -253,7 +254,7 @@
                     <td>{{ item.product.name }}</td>
                     <td>
                         {% if item.is_custom_size %}
-                        {{ item.custom_length }}×{{ item.custom_width }} متر
+                        {{ item.custom_length }}×{{ item.custom_width }} {% trans "متر" %}
                         {% else %}
                         {{ item.carpet_size.name }}
                         {% endif %}
@@ -269,81 +270,81 @@
         {# جمع کل #}
         <div class="totals">
             <div class="total-row">
-                <span>جمع فاکتور:</span>
-                <span>{{ subtotal|price_comma }} تومان</span>
+                <span>{% trans "جمع فاکتور:" %}</span>
+                <span>{{ subtotal|price_comma }} {% trans "تومان" %}</span>
             </div>
             
             {% if shipping_cost > 0 %}
             <div class="total-row">
-                <span>هزینه ارسال:</span>
-                <span>{{ shipping_cost|price_comma }} تومان</span>
+                <span>{% trans "هزینه ارسال:" %}</span>
+                <span>{{ shipping_cost|price_comma }} {% trans "تومان" %}</span>
             </div>
             {% endif %}
             
             <div class="total-row grand-total">
-                <span>جمع کل:</span>
-                <span>{{ total|price_comma }} تومان</span>
+                <span>{% trans "جمع کل:" %}</span>
+                <span>{{ total|price_comma }} {% trans "تومان" %}</span>
             </div>
             
             {% if paid > 0 %}
             <div class="total-row">
-                <span>پرداخت شده:</span>
-                <span style="color:green;">{{ paid|price_comma }} تومان</span>
+                <span>{% trans "پرداخت شده:" %}</span>
+                <span style="color:green;">{{ paid|price_comma }} {% trans "تومان" %}</span>
             </div>
             {% endif %}
             
             {% if remaining > 0 %}
             <div class="total-row">
-                <span>مانده:</span>
-                <span style="color:red;">{{ remaining|price_comma }} تومان</span>
+                <span>{% trans "مانده:" %}</span>
+                <span style="color:red;">{{ remaining|price_comma }} {% trans "تومان" %}</span>
             </div>
             {% endif %}
         </div>
         
         {# شرایط و ضوابط #}
         <div class="terms">
-            <h4>شرایط و ضوابط:</h4>
+            <h4>{% trans "شرایط و ضوابط:" %}</h4>
             <ul>
                 {% if order.payment_method == 'online_full' %}
-                <li>پرداخت: نقدی آنلاین کامل</li>
+                <li>{% trans "پرداخت: نقدی آنلاین کامل" %}</li>
                 {% if shipping_cost == 0 %}
-                <li>ارسال رایگان تا نزدیکترین باربری</li>
+                <li>{% trans "ارسال رایگان تا نزدیکترین باربری" %}</li>
                 {% endif %}
                 
                 {% elif order.payment_method == 'deposit_on_delivery' %}
-                <li>روش پرداخت: بیعانه 10% + پرداخت موقع تحویل</li>
-                <li>بیعانه پرداخت شده: {{ paid|price_comma }} تومان</li>
-                <li>قیمت روز در زمان تحویل اعمال می‌شود (بیعانه ثابت)</li>
-                <li>هزینه ارسال با مشتری</li>
-                <li>در صورت انصراف: 50% بیعانه + هزینه ایاب و ذهاب</li>
+                <li>{% trans "روش پرداخت: بیعانه 10% + پرداخت موقع تحویل" %}</li>
+                <li>{% trans "بیعانه پرداخت شده:" %} {{ paid|price_comma }} {% trans "تومان" %}</li>
+                <li>{% trans "قیمت روز در زمان تحویل اعمال می‌شود (بیعانه ثابت)" %}</li>
+                <li>{% trans "هزینه ارسال با مشتری" %}</li>
+                <li>{% trans "در صورت انصراف: 50% بیعانه + هزینه ایاب و ذهاب" %}</li>
                 
                 {% elif order.payment_method == 'installment_check' %}
-                <li>روش پرداخت: اقساط چکی ({{ order.installment_plan.num_installments }} ماه)</li>
-                <li>مبلغ هر قسط: {{ order.installment_plan.installment_amount|price_comma }} تومان</li>
+                <li>{% trans "روش پرداخت: اقساط چکی (" %}{{ order.installment_plan.num_installments }} {% trans "ماه)" %}</li>
+                <li>{% trans "مبلغ هر قسط:" %} {{ order.installment_plan.installment_amount|price_comma }} {% trans "تومان" %}</li>
                 
                 {% elif order.payment_method == 'installment_beta' %}
-                <li>روش پرداخت: طرح بتا بانک رفاه ({{ order.installment_plan.num_installments }} ماه)</li>
-                <li>مبلغ هر قسط: {{ order.installment_plan.installment_amount|price_comma }} تومان</li>
+                <li>{% trans "روش پرداخت: طرح بتا بانک رفاه (" %}{{ order.installment_plan.num_installments }} {% trans "ماه)" %}</li>
+                <li>{% trans "مبلغ هر قسط:" %} {{ order.installment_plan.installment_amount|price_comma }} {% trans "تومان" %}</li>
                 {% endif %}
                 
-                <li>کالا تحویل شده قابل تعویض و استرداد نیست (مگر در صورت نقص تولیدی)</li>
-                <li>ضمانت اصالت کالا از شرکت تولیدی</li>
+                <li>{% trans "کالا تحویل شده قابل تعویض و استرداد نیست (مگر در صورت نقص تولیدی)" %}</li>
+                <li>{% trans "ضمانت اصالت کالا از شرکت تولیدی" %}</li>
             </ul>
         </div>
         
         {# امضا #}
         <div class="signature">
             <div class="signature-box">
-                امضا و مهر فروشنده
+                {% trans "امضا و مهر فروشنده" %}
             </div>
             <div class="signature-box">
-                امضا خریدار
+                {% trans "امضا خریدار" %}
             </div>
         </div>
         
         {# فوتر #}
         <div class="footer">
-            <p>این فاکتور به صورت سیستمی از {{ ss.site_title }} تولید شده است.</p>
+            <p>{% trans "این فاکتور به صورت سیستمی از" %} {{ ss.site_title }} {% trans "تولید شده است." %}</p>
             <p>{{ ss.website }} | {{ ss.phone }}</p>
         </div>
     </div>
@@ -351,7 +352,7 @@
     {# دکمه چاپ #}
     <div class="no-print" style="text-align:center;margin-top:20px;">
         <button onclick="window.print()" style="padding:10px 30px;background:#C62828;color:white;border:none;border-radius:5px;cursor:pointer;font-size:16px;">
-            چاپ فاکتور
+            {% trans "چاپ فاکتور" %}
         </button>
     </div>
 </body>

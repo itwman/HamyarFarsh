@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load static %}
 
 {% block meta_title %}{{ post.get_effective_seo_title }}{% endblock %}
@@ -29,11 +30,11 @@
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb" itemscope itemtype="https://schema.org/BreadcrumbList">
             <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-                <a href="/" itemprop="item"><span itemprop="name">خانه</span></a>
+                <a href="/" itemprop="item"><span itemprop="name">{% trans "خانه" %}</span></a>
                 <meta itemprop="position" content="1">
             </li>
             <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-                <a href="{% url 'pages:blog_list' %}" itemprop="item"><span itemprop="name">بلاگ</span></a>
+                <a href="{% url 'pages:blog_list' %}" itemprop="item"><span itemprop="name">{% trans "بلاگ" %}</span></a>
                 <meta itemprop="position" content="2">
             </li>
             {% if post.category %}
@@ -69,7 +70,7 @@
                     {% if post.author %}
                     <span><i class="bi bi-person"></i> {{ post.author.get_full_name|default:"همیار فرش" }}</span>
                     {% endif %}
-                    <span><i class="bi bi-eye"></i> {{ post.view_count }} بازدید</span>
+                    <span><i class="bi bi-eye"></i> {{ post.view_count }} {% trans "بازدید" %}</span>
                 </div>
 
                 {% if post.featured_image %}
@@ -83,7 +84,7 @@
 
                 <!-- اشتراک‌گذاری -->
                 <div class="border-top pt-3 mt-4">
-                    <strong class="me-2"><i class="bi bi-share"></i> اشتراک‌گذاری:</strong>
+                    <strong class="me-2"><i class="bi bi-share"></i> {% trans "اشتراک‌گذاری:" %}</strong>
                     <a href="https://t.me/share/url?url={{ request.build_absolute_uri|urlencode }}&text={{ post.title|urlencode }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-telegram"></i></a>
                     <a href="https://api.whatsapp.com/send?text={{ post.title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-whatsapp"></i></a>
                     <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri|urlencode }}&text={{ post.title|urlencode }}" target="_blank" class="btn btn-sm btn-outline-info"><i class="bi bi-twitter-x"></i></a>
@@ -93,7 +94,7 @@
             <!-- مقالات مرتبط -->
             {% if related %}
             <div class="hf-card p-4">
-                <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-journal-richtext"></i> مقالات مرتبط</h5>
+                <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-journal-richtext"></i> {% trans "مقالات مرتبط" %}</h5>
                 <div class="row g-3">
                     {% for rp in related %}
                     <div class="col-md-6">
@@ -118,7 +119,7 @@
             <div class="hf-card p-3 mb-3">
                 <form method="get" action="{% url 'pages:blog_list' %}">
                     <div class="input-group">
-                        <input type="text" name="q" class="form-control" placeholder="جستجو...">
+                        <input type="text" name="q" class="form-control" placeholder="{% trans 'جستجو...' %}">
                         <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>

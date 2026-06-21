@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load humanize %}
 {% load price_tags %}
 
@@ -10,7 +11,7 @@
         <div class="col-lg-10">
             <div class="hf-card p-4">
                 <h3 class="mb-4" style="color:var(--hf-primary);">
-                    <i class="bi bi-calculator"></i> محاسبه‌گر اقساط
+                    <i class="bi bi-calculator"></i> {% trans "محاسبه‌گر اقساط" %}
                 </h3>
                 
                 <form method="post" id="installmentForm">
@@ -19,7 +20,7 @@
                     <div class="row g-3">
                         {# مبلغ کل #}
                         <div class="col-md-6">
-                            <label class="form-label">مبلغ کل فاکتور (تومان)</label>
+                            <label class="form-label">{% trans "مبلغ کل فاکتور (تومان)" %}</label>
                             {{ form.total_amount }}
                             {% if form.total_amount.errors %}
                             <div class="text-danger small">{{ form.total_amount.errors.0 }}</div>
@@ -28,17 +29,17 @@
                         
                         {# پیش‌پرداخت #}
                         <div class="col-md-6">
-                            <label class="form-label">پیش‌پرداخت (تومان)</label>
+                            <label class="form-label">{% trans "پیش‌پرداخت (تومان)" %}</label>
                             {{ form.down_payment }}
                             {% if form.down_payment.errors %}
                             <div class="text-danger small">{{ form.down_payment.errors.0 }}</div>
                             {% endif %}
-                            <small class="text-muted d-block">اختیاری - مبلغ صفر یعنی بدون پیش‌پرداخت</small>
+                            <small class="text-muted d-block">{% trans "اختیاری - مبلغ صفر یعنی بدون پیش‌پرداخت" %}</small>
                         </div>
                         
                         {# نوع طرح #}
                         <div class="col-12">
-                            <label class="form-label d-block">نوع طرح اقساطی</label>
+                            <label class="form-label d-block">{% trans "نوع طرح اقساطی" %}</label>
                             <div class="d-flex gap-4">
                                 {% for value, label in form.plan_type.field.choices %}
                                 <div class="form-check">
@@ -48,9 +49,9 @@
                                     <label class="form-check-label" for="plan_{{ value }}">
                                         {{ label }}
                                         {% if value == 'check' %}
-                                        <small class="text-muted">(حداکثر 12 ماه)</small>
+                                        <small class="text-muted">{% trans "(حداکثر 12 ماه)" %}</small>
                                         {% else %}
-                                        <small class="text-muted">(حداکثر 18 ماه)</small>
+                                        <small class="text-muted">{% trans "(حداکثر 18 ماه)" %}</small>
                                         {% endif %}
                                     </label>
                                 </div>
@@ -60,7 +61,7 @@
                         
                         {# تعداد اقساط #}
                         <div class="col-md-6">
-                            <label class="form-label">تعداد اقساط</label>
+                            <label class="form-label">{% trans "تعداد اقساط" %}</label>
                             {{ form.num_installments }}
                             {% if form.num_installments.errors %}
                             <div class="text-danger small">{{ form.num_installments.errors.0 }}</div>
@@ -69,7 +70,7 @@
                         
                         {# دوره پرداخت #}
                         <div class="col-md-6">
-                            <label class="form-label d-block">دوره پرداخت</label>
+                            <label class="form-label d-block">{% trans "دوره پرداخت" %}</label>
                             <div class="d-flex gap-4">
                                 {% for value, label in form.period.field.choices %}
                                 <div class="form-check">
@@ -87,7 +88,7 @@
                         {# دکمه محاسبه #}
                         <div class="col-12">
                             <button type="submit" class="btn btn-hf-primary">
-                                <i class="bi bi-calculator"></i> محاسبه اقساط
+                                <i class="bi bi-calculator"></i> {% trans "محاسبه اقساط" %}
                             </button>
                         </div>
                         
@@ -106,36 +107,36 @@
                 {% if result %}
                 <div class="mt-4 p-4 rounded" style="background:var(--hf-primary-bg);border:2px solid var(--hf-primary);">
                     <h5 class="mb-3" style="color:var(--hf-primary);">
-                        <i class="bi bi-check-circle-fill"></i> نتیجه محاسبات
+                        <i class="bi bi-check-circle-fill"></i> {% trans "نتیجه محاسبات" %}
                     </h5>
                     
                     <div class="row g-3">
                         <div class="col-md-4">
                             <div class="p-3 rounded bg-white">
-                                <small class="text-muted d-block">مبلغ قابل اقساط</small>
-                                <h5 class="mb-0">{{ result.financed_amount|price_comma }} <small>تومان</small></h5>
+                                <small class="text-muted d-block">{% trans "مبلغ قابل اقساط" %}</small>
+                                <h5 class="mb-0">{{ result.financed_amount|price_comma }} <small>{% trans "تومان" %}</small></h5>
                             </div>
                         </div>
                         
                         <div class="col-md-4">
                             <div class="p-3 rounded bg-white">
-                                <small class="text-muted d-block">مجموع سود ({{ result.interest_rate }}% × {{ result.months }} ماه)</small>
-                                <h5 class="mb-0 text-warning">{{ result.total_interest|price_comma }} <small>تومان</small></h5>
+                                <small class="text-muted d-block">{% trans "مجموع سود (" %}{{ result.interest_rate }}% × {{ result.months }} {% trans "ماه)" %}</small>
+                                <h5 class="mb-0 text-warning">{{ result.total_interest|price_comma }} <small>{% trans "تومان" %}</small></h5>
                             </div>
                         </div>
                         
                         <div class="col-md-4">
                             <div class="p-3 rounded bg-white">
-                                <small class="text-muted d-block">مبلغ کل با سود</small>
-                                <h5 class="mb-0 text-danger">{{ result.total_with_interest|price_comma }} <small>تومان</small></h5>
+                                <small class="text-muted d-block">{% trans "مبلغ کل با سود" %}</small>
+                                <h5 class="mb-0 text-danger">{{ result.total_with_interest|price_comma }} <small>{% trans "تومان" %}</small></h5>
                             </div>
                         </div>
                         
                         <div class="col-12">
                             <div class="p-4 rounded text-center" style="background:#fff;">
-                                <small class="text-muted d-block mb-2">مبلغ هر قسط ({{ result.num_installments }} قسط {{ result.period_label }})</small>
+                                <small class="text-muted d-block mb-2">{% trans "مبلغ هر قسط (" %}{{ result.num_installments }} {% trans "قسط" %} {{ result.period_label }})</small>
                                 <h3 class="mb-0" style="color:var(--hf-primary);">
-                                    {{ result.installment_amount|price_comma }} <small>تومان</small>
+                                    {{ result.installment_amount|price_comma }} <small>{% trans "تومان" %}</small>
                                 </h3>
                             </div>
                         </div>
@@ -143,26 +144,26 @@
                     
                     {# جدول اقساط #}
                     <div class="mt-4">
-                        <h6 class="mb-3">جدول اقساط تفصیلی:</h6>
+                        <h6 class="mb-3">{% trans "جدول اقساط تفصیلی:" %}</h6>
                         <div class="table-responsive">
                             <table class="table table-sm table-hover">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>شماره قسط</th>
-                                        <th>مبلغ قسط</th>
-                                        <th>تاریخ سررسید تقریبی</th>
+                                        <th>{% trans "شماره قسط" %}</th>
+                                        <th>{% trans "مبلغ قسط" %}</th>
+                                        <th>{% trans "تاریخ سررسید تقریبی" %}</th>
                                     </tr>
                                 </thead>
                                 <tbody>
                                     {% for i in result.installment_range %}
                                     <tr>
                                         <td>{{ i }}</td>
-                                        <td>{{ result.installment_amount|price_comma }} تومان</td>
+                                        <td>{{ result.installment_amount|price_comma }} {% trans "تومان" %}</td>
                                         <td>
                                             {% if result.period == 'monthly' %}
-                                            ماه {{ i }}
+                                            {% blocktrans with n=i %}ماه {{ n }}{% endblocktrans %}
                                             {% else %}
-                                            ماه {{ forloop.counter|add:forloop.counter|add:"-1" }}
+                                            {% blocktrans with n=forloop.counter|add:forloop.counter|add:"-1" %}ماه {{ n }}{% endblocktrans %}
                                             {% endif %}
                                         </td>
                                     </tr>
@@ -174,13 +175,13 @@
                     
                     {# توضیحات #}
                     <div class="alert alert-info mt-3 mb-0">
-                        <h6><i class="bi bi-info-circle"></i> توضیحات مهم:</h6>
+                        <h6><i class="bi bi-info-circle"></i> {% trans "توضیحات مهم:" %}</h6>
                         <ul class="mb-0 small">
-                            <li>سقف خرید اقساطی: {{ result.installment_max|price_comma }} تومان</li>
-                            <li>مبلغ بالاتر از سقف باید به صورت نقدی پرداخت شود</li>
-                            <li>چک‌های صیادی باید به نام شرکت باشد</li>
-                            <li>طرح بتا فقط برای بازنشستگان بانک رفاه</li>
-                            <li>نرخ سود ممکن است متغیر باشد</li>
+                            <li>{% trans "سقف خرید اقساطی:" %} {{ result.installment_max|price_comma }} {% trans "تومان" %}</li>
+                            <li>{% trans "مبلغ بالاتر از سقف باید به صورت نقدی پرداخت شود" %}</li>
+                            <li>{% trans "چک‌های صیادی باید به نام شرکت باشد" %}</li>
+                            <li>{% trans "طرح بتا فقط برای بازنشستگان بانک رفاه" %}</li>
+                            <li>{% trans "نرخ سود ممکن است متغیر باشد" %}</li>
                         </ul>
                     </div>
                 </div>

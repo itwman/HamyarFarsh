@@ -1,17 +1,18 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load humanize %}
 {% load price_tags %}
 
-{% block meta_title %}جزئیات سفارش #{{ order.id }}{% endblock %}
+{% block meta_title %}{% blocktrans with id=order.id %}جزئیات سفارش #{{ id }}{% endblocktrans %}{% endblock %}
 
 {% block content %}
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 style="color:var(--hf-primary);">
-            <i class="bi bi-receipt"></i> جزئیات سفارش #{{ order.id }}
+            <i class="bi bi-receipt"></i> {% trans "جزئیات سفارش" %} #{{ order.id }}
         </h2>
         <a href="{% url 'customer_panel:orders_history' %}" class="btn btn-outline-secondary">
-            <i class="bi bi-arrow-right"></i> بازگشت
+            <i class="bi bi-arrow-right"></i> {% trans "بازگشت" %}
         </a>
     </div>
 
@@ -20,17 +21,17 @@
         <div class="col-md-8">
             <div class="hf-card p-4 mb-4">
                 <h5 class="mb-3">
-                    <i class="bi bi-info-circle"></i> اطلاعات سفارش
+                    <i class="bi bi-info-circle"></i> {% trans "اطلاعات سفارش" %}
                 </h5>
                 <div class="row">
                     <div class="col-md-6 mb-2">
-                        <strong>تاریخ ثبت:</strong> {{ order.created_at|date:"Y/m/d H:i" }}
+                        <strong>{% trans "تاریخ ثبت:" %}</strong> {{ order.created_at|date:"Y/m/d H:i" }}
                     </div>
                     <div class="col-md-6 mb-2">
-                        <strong>روش پرداخت:</strong> {{ order.get_payment_method_display }}
+                        <strong>{% trans "روش پرداخت:" %}</strong> {{ order.get_payment_method_display }}
                     </div>
                     <div class="col-md-6 mb-2">
-                        <strong>وضعیت:</strong>
+                        <strong>{% trans "وضعیت:" %}</strong>
                         {% if order.status == 'delivered' %}
                         <span class="badge bg-success">{{ order.get_status_display }}</span>
                         {% elif order.status == 'cancelled' %}
@@ -40,7 +41,7 @@
                         {% endif %}
                     </div>
                     <div class="col-md-6 mb-2">
-                        <strong>مبلغ کل:</strong> {{ order.total_amount|price_comma }} تومان
+                        <strong>{% trans "مبلغ کل:" %}</strong> {{ order.total_amount|price_comma }} {% trans "تومان" %}
                     </div>
                 </div>
             </div>
@@ -48,17 +49,17 @@
             {# آیتم‌های سفارش #}
             <div class="hf-card p-4">
                 <h5 class="mb-3">
-                    <i class="bi bi-basket"></i> محصولات سفارش
+                    <i class="bi bi-basket"></i> {% trans "محصولات سفارش" %}
                 </h5>
                 <div class="table-responsive">
                     <table class="table align-middle">
                         <thead>
                             <tr>
-                                <th>محصول</th>
-                                <th>سایز</th>
-                                <th>تعداد</th>
-                                <th>قیمت واحد</th>
-                                <th>جمع</th>
+                                <th>{% trans "محصول" %}</th>
+                                <th>{% trans "سایز" %}</th>
+                                <th>{% trans "تعداد" %}</th>
+                                <th>{% trans "قیمت واحد" %}</th>
+                                <th>{% trans "جمع" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -87,8 +88,8 @@
                         </tbody>
                         <tfoot>
                             <tr class="table-light">
-                                <td colspan="4" class="text-end"><strong>جمع کل:</strong></td>
-                                <td><strong style="color:var(--hf-primary);">{{ order.total_amount|price_comma }} تومان</strong></td>
+                                <td colspan="4" class="text-end"><strong>{% trans "جمع کل:" %}</strong></td>
+                                <td><strong style="color:var(--hf-primary);">{{ order.total_amount|price_comma }} {% trans "تومان" %}</strong></td>
                             </tr>
                         </tfoot>
                     </table>
@@ -102,12 +103,12 @@
             {% if order.shipping_address %}
             <div class="hf-card p-3 mb-3">
                 <h6 class="mb-3">
-                    <i class="bi bi-geo-alt"></i> آدرس ارسال
+                    <i class="bi bi-geo-alt"></i> {% trans "آدرس ارسال" %}
                 </h6>
                 <p class="mb-1"><strong>{{ order.shipping_address.province }}، {{ order.shipping_address.city }}</strong></p>
                 <p class="mb-2">{{ order.shipping_address.full_address }}</p>
                 {% if order.shipping_address.postal_code %}
-                <p class="mb-1"><small>کد پستی: {{ order.shipping_address.postal_code }}</small></p>
+                <p class="mb-1"><small>{% trans "کد پستی:" %} {{ order.shipping_address.postal_code }}</small></p>
                 {% endif %}
                 {% if order.shipping_address.phone %}
                 <p class="mb-0"><small><i class="bi bi-telephone"></i> {{ order.shipping_address.phone }}</small></p>
@@ -118,13 +119,13 @@
             {# پیگیری سفارش #}
             <div class="hf-card p-3">
                 <h6 class="mb-3">
-                    <i class="bi bi-clock-history"></i> پیگیری سفارش
+                    <i class="bi bi-clock-history"></i> {% trans "پیگیری سفارش" %}
                 </h6>
                 <div class="timeline">
                     <div class="timeline-item">
                         <i class="bi bi-check-circle-fill text-success"></i>
                         <div>
-                            <strong>ثبت سفارش</strong><br>
+                            <strong>{% trans "ثبت سفارش" %}</strong><br>
                             <small>{{ order.created_at|date:"Y/m/d H:i" }}</small>
                         </div>
                     </div>
@@ -132,7 +133,7 @@
                     <div class="timeline-item">
                         <i class="bi bi-check-circle-fill text-success"></i>
                         <div>
-                            <strong>تأیید سفارش</strong><br>
+                            <strong>{% trans "تأیید سفارش" %}</strong><br>
                             <small>{{ order.confirmed_at|date:"Y/m/d H:i" }}</small>
                         </div>
                     </div>
@@ -141,7 +142,7 @@
                     <div class="timeline-item">
                         <i class="bi bi-check-circle-fill text-success"></i>
                         <div>
-                            <strong>ارسال شده</strong><br>
+                            <strong>{% trans "ارسال شده" %}</strong><br>
                             <small>{{ order.shipped_at|date:"Y/m/d H:i" }}</small>
                         </div>
                     </div>
@@ -150,7 +151,7 @@
                     <div class="timeline-item">
                         <i class="bi bi-check-circle-fill text-success"></i>
                         <div>
-                            <strong>تحویل داده شده</strong><br>
+                            <strong>{% trans "تحویل داده شده" %}</strong><br>
                             <small>{{ order.delivered_at|date:"Y/m/d H:i" }}</small>
                         </div>
                     </div>

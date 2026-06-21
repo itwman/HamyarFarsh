@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
 {% load price_tags %}
 
@@ -6,14 +7,14 @@
 
 {% block content %}
 <div class="container my-5">
-    <h1 class="mb-4"><i class="bi bi-check-circle"></i> تکمیل سفارش</h1>
+    <h1 class="mb-4"><i class="bi bi-check-circle"></i> {% trans "تکمیل سفارش" %}</h1>
 
     {% if not addresses %}
     <div class="alert alert-warning">
         <i class="bi bi-exclamation-triangle"></i>
-        هنوز آدرسی ثبت نکرده‌اید.
+        {% trans "هنوز آدرسی ثبت نکرده‌اید." %}
         <a href="{% url 'customer_panel:address_add' %}" class="alert-link">
-            ابتدا آدرس خود را ثبت کنید.
+            {% trans "ابتدا آدرس خود را ثبت کنید." %}
         </a>
     </div>
     {% else %}
@@ -26,7 +27,7 @@
                 {# انتخاب آدرس #}
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="bi bi-geo-alt"></i> انتخاب آدرس ارسال</h5>
+                        <h5 class="mb-0"><i class="bi bi-geo-alt"></i> {% trans "انتخاب آدرس ارسال" %}</h5>
                     </div>
                     <div class="card-body">
                         {% for address in addresses %}
@@ -44,7 +45,7 @@
                         {% endfor %}
                         
                         <a href="{% url 'customer_panel:address_add' %}" class="btn btn-sm btn-outline-primary">
-                            <i class="bi bi-plus"></i> افزودن آدرس جدید
+                            <i class="bi bi-plus"></i> {% trans "افزودن آدرس جدید" %}
                         </a>
                     </div>
                 </div>
@@ -52,7 +53,7 @@
                 {# روش پرداخت #}
                 <div class="card mb-4">
                     <div class="card-header bg-primary text-white">
-                        <h5 class="mb-0"><i class="bi bi-credit-card"></i> روش پرداخت</h5>
+                        <h5 class="mb-0"><i class="bi bi-credit-card"></i> {% trans "روش پرداخت" %}</h5>
                     </div>
                     <div class="card-body">
                         {# نقدی آنلاین #}
@@ -60,8 +61,8 @@
                             <input class="form-check-input" type="radio" name="payment_method" 
                                    value="online_full" id="pm1" checked onchange="updatePaymentMethod()">
                             <label class="form-check-label w-100" for="pm1">
-                                <strong>💳 پرداخت آنلاین کامل</strong><br>
-                                <small class="text-muted">پرداخت کامل از طریق درگاه بانکی</small>
+                                <strong>{% trans "💳 پرداخت آنلاین کامل" %}</strong><br>
+                                <small class="text-muted">{% trans "پرداخت کامل از طریق درگاه بانکی" %}</small>
                             </label>
                         </div>
                         
@@ -70,8 +71,8 @@
                             <input class="form-check-input" type="radio" name="payment_method" 
                                    value="deposit_on_delivery" id="pm2" onchange="updatePaymentMethod()">
                             <label class="form-check-label w-100" for="pm2">
-                                <strong>💰 بیعانه {{ site_settings.deposit_percent }}% + پرداخت موقع تحویل</strong><br>
-                                <small class="text-muted">پرداخت {{ site_settings.deposit_percent }}% الان، مابقی موقع تحویل (قیمت روز)</small>
+                                <strong>{% trans "💰 بیعانه" %} {{ site_settings.deposit_percent }}{% trans "% + پرداخت موقع تحویل" %}</strong><br>
+                                <small class="text-muted">{% trans "پرداخت" %} {{ site_settings.deposit_percent }}{% trans "% الان، مابقی موقع تحویل (قیمت روز)" %}</small>
                             </label>
                         </div>
                         
@@ -80,8 +81,8 @@
                             <input class="form-check-input" type="radio" name="payment_method" 
                                    value="installment_check" id="pm3" onchange="updatePaymentMethod()">
                             <label class="form-check-label w-100" for="pm3">
-                                <strong>📋 خرید اقساطی - چک صیادی</strong><br>
-                                <small class="text-muted">حداکثر {{ site_settings.check_max_months }} ماه - سود {{ site_settings.check_monthly_interest_rate }}% ماهانه</small>
+                                <strong>{% trans "📋 خرید اقساطی - چک صیادی" %}</strong><br>
+                                <small class="text-muted">{% trans "حداکثر" %} {{ site_settings.check_max_months }} {% trans "ماه - سود" %} {{ site_settings.check_monthly_interest_rate }}{% trans "% ماهانه" %}</small>
                             </label>
                         </div>
                         
@@ -90,59 +91,59 @@
                             <input class="form-check-input" type="radio" name="payment_method" 
                                    value="installment_beta" id="pm4" onchange="updatePaymentMethod()">
                             <label class="form-check-label w-100" for="pm4">
-                                <strong>🏦 خرید اقساطی - طرح بتا (بازنشستگان رفاه)</strong><br>
-                                <small class="text-muted">حداکثر {{ site_settings.beta_max_months }} ماه - سود {{ site_settings.beta_monthly_interest_rate }}% ماهانه</small>
+                                <strong>{% trans "🏦 خرید اقساطی - طرح بتا (بازنشستگان رفاه)" %}</strong><br>
+                                <small class="text-muted">{% trans "حداکثر" %} {{ site_settings.beta_max_months }} {% trans "ماه - سود" %} {{ site_settings.beta_monthly_interest_rate }}{% trans "% ماهانه" %}</small>
                             </label>
                         </div>
                         
                         {# محاسبه‌گر اقساط #}
                         <div id="installmentCalculator" style="display:none;" class="mt-3 p-3 border rounded bg-light">
-                            <h6 class="mb-3"><i class="bi bi-calculator"></i> محاسبه‌گر اقساط</h6>
+                            <h6 class="mb-3"><i class="bi bi-calculator"></i> {% trans "محاسبه‌گر اقساط" %}</h6>
                             
                             <div class="row mb-3">
                                 <div class="col-md-6">
-                                    <label class="form-label">تعداد اقساط (ماه)</label>
+                                    <label class="form-label">{% trans "تعداد اقساط (ماه)" %}</label>
                                     <select class="form-select" id="installmentMonths" onchange="calculateInstallment()">
-                                        <option value="3">3 ماهه</option>
-                                        <option value="6" selected>6 ماهه</option>
-                                        <option value="9">9 ماهه</option>
-                                        <option value="12">12 ماهه</option>
-                                        <option value="15" class="beta-only" style="display:none;">15 ماهه</option>
-                                        <option value="18" class="beta-only" style="display:none;">18 ماهه</option>
+                                        <option value="3">{% trans "3 ماهه" %}</option>
+                                        <option value="6" selected>{% trans "6 ماهه" %}</option>
+                                        <option value="9">{% trans "9 ماهه" %}</option>
+                                        <option value="12">{% trans "12 ماهه" %}</option>
+                                        <option value="15" class="beta-only" style="display:none;">{% trans "15 ماهه" %}</option>
+                                        <option value="18" class="beta-only" style="display:none;">{% trans "18 ماهه" %}</option>
                                     </select>
                                 </div>
                                 
                                 <div class="col-md-6">
-                                    <label class="form-label">پیش‌پرداخت (تومان) - اختیاری</label>
+                                    <label class="form-label">{% trans "پیش‌پرداخت (تومان) - اختیاری" %}</label>
                                     <input type="number" class="form-control" id="downPayment" 
                                            value="0" min="0" step="100000" onchange="calculateInstallment()">
                                 </div>
                             </div>
                             
                             <div class="alert alert-info">
-                                <h6 class="mb-2">محاسبه اقساط:</h6>
+                                <h6 class="mb-2">{% trans "محاسبه اقساط:" %}</h6>
                                 <div class="row">
                                     <div class="col-6">
-                                        <small>مبلغ اصل:</small><br>
+                                        <small>{% trans "مبلغ اصل:" %}</small><br>
                                         <strong id="principalAmount">-</strong>
                                     </div>
                                     <div class="col-6">
-                                        <small>سود کل:</small><br>
+                                        <small>{% trans "سود کل:" %}</small><br>
                                         <strong id="totalInterest">-</strong>
                                     </div>
                                     <div class="col-6 mt-2">
-                                        <small>مبلغ هر قسط:</small><br>
+                                        <small>{% trans "مبلغ هر قسط:" %}</small><br>
                                         <strong class="text-primary" id="monthlyPayment">-</strong>
                                     </div>
                                     <div class="col-6 mt-2">
-                                        <small>مبلغ نهایی:</small><br>
+                                        <small>{% trans "مبلغ نهایی:" %}</small><br>
                                         <strong class="text-danger" id="totalPayment">-</strong>
                                     </div>
                                 </div>
                             </div>
                             
                             <div class="alert alert-warning small mb-0">
-                                <strong>توجه:</strong> سقف خرید اقساطی {{ site_settings.installment_max|price_comma }} تومان است.
+                                <strong>{% trans "توجه:" %}</strong> {% trans "سقف خرید اقساطی" %} {{ site_settings.installment_max|price_comma }} {% trans "تومان است." %}
                             </div>
                         </div>
                     </div>
@@ -151,16 +152,16 @@
                 {# یادداشت #}
                 <div class="card mb-4">
                     <div class="card-header">
-                        <h6 class="mb-0"><i class="bi bi-chat-text"></i> یادداشت (اختیاری)</h6>
+                        <h6 class="mb-0"><i class="bi bi-chat-text"></i> {% trans "یادداشت (اختیاری)" %}</h6>
                     </div>
                     <div class="card-body">
                         <textarea name="notes" class="form-control" rows="3" 
-                                  placeholder="توضیحات تکمیلی سفارش خود را وارد کنید..."></textarea>
+                                  placeholder="{% trans 'توضیحات تکمیلی سفارش خود را وارد کنید...' %}"></textarea>
                     </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-lg w-100">
-                    <i class="bi bi-check-circle"></i> ثبت نهایی سفارش
+                    <i class="bi bi-check-circle"></i> {% trans "ثبت نهایی سفارش" %}
                 </button>
             </form>
         </div>
@@ -169,27 +170,27 @@
         <div class="col-lg-4">
             <div class="card sticky-top" style="top:20px;">
                 <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">خلاصه سفارش</h5>
+                    <h5 class="mb-0">{% trans "خلاصه سفارش" %}</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
-                        <span>جمع محصولات:</span>
-                        <strong>{{ total_price|price_comma }} تومان</strong>
+                        <span>{% trans "جمع محصولات:" %}</span>
+                        <strong>{{ total_price|price_comma }} {% trans "تومان" %}</strong>
                     </div>
                     <div class="d-flex justify-content-between mb-2">
-                        <span>هزینه ارسال:</span>
+                        <span>{% trans "هزینه ارسال:" %}</span>
                         <strong id="shippingCost">
                             {% if free_shipping %}
-                                <span class="text-success">رایگان</span>
+                                <span class="text-success">{% trans "رایگان" %}</span>
                             {% else %}
-                                {{ shipping_cost|price_comma }} تومان
+                                {{ shipping_cost|price_comma }} {% trans "تومان" %}
                             {% endif %}
                         </strong>
                     </div>
                     <hr>
                     <div class="d-flex justify-content-between">
-                        <strong>جمع کل:</strong>
-                        <strong class="text-danger fs-5">{{ total_with_shipping|price_comma }} تومان</strong>
+                        <strong>{% trans "جمع کل:" %}</strong>
+                        <strong class="text-danger fs-5">{{ total_with_shipping|price_comma }} {% trans "تومان" %}</strong>
                     </div>
                 </div>
             </div>

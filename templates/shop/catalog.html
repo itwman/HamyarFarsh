@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load humanize %}
 {% load price_tags %}
 {% load jalali_tags %}
@@ -12,19 +13,19 @@
     {# فیلتر سایدبار - دسکتاپ #}
     <div class="col-lg-3 d-none d-lg-block">
         <div class="hf-card p-3 sticky-top" style="top:80px;">
-            <h6 class="fw-bold mb-3" style="color:var(--hf-primary);"><i class="bi bi-funnel"></i> فیلتر محصولات</h6>
+            <h6 class="fw-bold mb-3" style="color:var(--hf-primary);"><i class="bi bi-funnel"></i> {% trans "فیلتر محصولات" %}</h6>
 
             <form method="get" action="{% url 'shop:catalog' %}" id="filterForm">
                 {# جستجو #}
                 <div class="mb-3">
-                    <input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="جستجوی نام، شرکت...">
+                    <input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="{% trans 'جستجوی نام، شرکت...' %}">
                 </div>
 
                 {# شرکت #}
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">شرکت</label>
+                    <label class="form-label small fw-bold">{% trans "شرکت" %}</label>
                     <select name="manufacturer" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="">همه شرکت‌ها</option>
+                        <option value="">{% trans "همه شرکت‌ها" %}</option>
                         {% for m in manufacturers %}
                         <option value="{{ m.pk }}" {% if sel_manufacturer == m.pk|stringformat:"d" %}selected{% endif %}>{{ m.name }}</option>
                         {% endfor %}
@@ -33,9 +34,9 @@
 
                 {# شانه #}
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">شانه</label>
+                    <label class="form-label small fw-bold">{% trans "شانه" %}</label>
                     <select name="comb" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="">همه</option>
+                        <option value="">{% trans "همه" %}</option>
                         {% for val, label in comb_choices %}
                         <option value="{{ val }}" {% if sel_comb == val|stringformat:"d" %}selected{% endif %}>{{ label }}</option>
                         {% endfor %}
@@ -44,7 +45,7 @@
 
                 {# رنگ زمینه #}
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">رنگ زمینه</label>
+                    <label class="form-label small fw-bold">{% trans "رنگ زمینه" %}</label>
                     <div class="d-flex flex-wrap gap-1">
                         {% for c in colors %}
                         <a href="?color={{ c.pk }}&q={{ query }}&manufacturer={{ sel_manufacturer }}&comb={{ sel_comb }}&design={{ sel_design }}"
@@ -57,9 +58,9 @@
 
                 {# نوع طرح #}
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">نوع طرح</label>
+                    <label class="form-label small fw-bold">{% trans "نوع طرح" %}</label>
                     <select name="design" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="">همه</option>
+                        <option value="">{% trans "همه" %}</option>
                         {% for d in designs %}
                         <option value="{{ d.pk }}" {% if sel_design == d.pk|stringformat:"d" %}selected{% endif %}>{{ d.name }}</option>
                         {% endfor %}
@@ -68,9 +69,9 @@
 
                 {# نوع بافت #}
                 <div class="mb-3">
-                    <label class="form-label small fw-bold">نوع بافت</label>
+                    <label class="form-label small fw-bold">{% trans "نوع بافت" %}</label>
                     <select name="weave" class="form-select form-select-sm" onchange="this.form.submit()">
-                        <option value="">همه</option>
+                        <option value="">{% trans "همه" %}</option>
                         {% for w in weaves %}
                         <option value="{{ w.pk }}" {% if sel_weave == w.pk|stringformat:"d" %}selected{% endif %}>{{ w.name }}</option>
                         {% endfor %}
@@ -78,8 +79,8 @@
                 </div>
 
                 <input type="hidden" name="sort" value="{{ current_sort }}">
-                <button type="submit" class="btn btn-hf-primary btn-sm w-100"><i class="bi bi-search"></i> اعمال فیلتر</button>
-                <a href="{% url 'shop:catalog' %}" class="btn btn-hf-outline btn-sm w-100 mt-2">حذف فیلترها</a>
+                <button type="submit" class="btn btn-hf-primary btn-sm w-100"><i class="bi bi-search"></i> {% trans "اعمال فیلتر" %}</button>
+                <a href="{% url 'shop:catalog' %}" class="btn btn-hf-outline btn-sm w-100 mt-2">{% trans "حذف فیلترها" %}</a>
             </form>
         </div>
     </div>
@@ -90,18 +91,18 @@
         {# فیلتر موبایل #}
         <div class="d-lg-none mb-3">
             <button class="btn btn-hf-outline btn-sm w-100" data-bs-toggle="collapse" data-bs-target="#mobileFilter">
-                <i class="bi bi-funnel"></i> فیلتر ({{ total }} محصول)
+                <i class="bi bi-funnel"></i> {% trans "فیلتر" %} ({{ total }} {% trans "محصول" %})
             </button>
             <div class="collapse mt-2" id="mobileFilter">
                 <div class="hf-card p-3">
                     <form method="get" action="{% url 'shop:catalog' %}">
                         <div class="row g-2">
                             <div class="col-12">
-                                <input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="جستجو...">
+                                <input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="{% trans 'جستجو...' %}">
                             </div>
                             <div class="col-6">
                                 <select name="comb" class="form-select form-select-sm">
-                                    <option value="">شانه</option>
+                                    <option value="">{% trans "شانه" %}</option>
                                     {% for val, label in comb_choices %}
                                     <option value="{{ val }}" {% if sel_comb == val|stringformat:"d" %}selected{% endif %}>{{ label }}</option>
                                     {% endfor %}
@@ -109,14 +110,14 @@
                             </div>
                             <div class="col-6">
                                 <select name="design" class="form-select form-select-sm">
-                                    <option value="">طرح</option>
+                                    <option value="">{% trans "طرح" %}</option>
                                     {% for d in designs %}
                                     <option value="{{ d.pk }}" {% if sel_design == d.pk|stringformat:"d" %}selected{% endif %}>{{ d.name }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
                             <div class="col-12">
-                                <button type="submit" class="btn btn-hf-primary btn-sm w-100">جستجو</button>
+                                <button type="submit" class="btn btn-hf-primary btn-sm w-100">{% trans "جستجو" %}</button>
                             </div>
                         </div>
                     </form>
@@ -128,16 +129,16 @@
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h5 class="mb-0">
                 <i class="bi bi-grid-3x3-gap" style="color:var(--hf-primary);"></i>
-                فرش‌ها <span class="badge bg-secondary">{{ total }}</span>
+                {% trans "فرش‌ها" %} <span class="badge bg-secondary">{{ total }}</span>
             </h5>
             <div class="d-flex gap-2 align-items-center">
-                <small class="text-muted d-none d-md-inline">مرتب‌سازی:</small>
+                <small class="text-muted d-none d-md-inline">{% trans "مرتب‌سازی:" %}</small>
                 <select class="form-select form-select-sm" style="width:auto;" onchange="location.href='?sort='+this.value+'&q={{ query }}&manufacturer={{ sel_manufacturer }}&comb={{ sel_comb }}&color={{ sel_color }}&design={{ sel_design }}'">
-                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
-                    <option value="cheapest" {% if current_sort == 'cheapest' %}selected{% endif %}>ارزان‌ترین</option>
-                    <option value="expensive" {% if current_sort == 'expensive' %}selected{% endif %}>گران‌ترین</option>
-                    <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>پربازدیدترین</option>
-                    <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>بالاترین امتیاز</option>
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>{% trans "جدیدترین" %}</option>
+                    <option value="cheapest" {% if current_sort == 'cheapest' %}selected{% endif %}>{% trans "ارزان‌ترین" %}</option>
+                    <option value="expensive" {% if current_sort == 'expensive' %}selected{% endif %}>{% trans "گران‌ترین" %}</option>
+                    <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>{% trans "پربازدیدترین" %}</option>
+                    <option value="rating" {% if current_sort == 'rating' %}selected{% endif %}>{% trans "بالاترین امتیاز" %}</option>
                 </select>
             </div>
         </div>
@@ -146,11 +147,11 @@
         <nav aria-label="breadcrumb" class="mb-3">
             <ol class="breadcrumb small" itemscope itemtype="https://schema.org/BreadcrumbList">
                 <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-                    <a href="{% url 'home' %}" itemprop="item"><span itemprop="name">خانه</span></a>
+                    <a href="{% url 'home' %}" itemprop="item"><span itemprop="name">{% trans "خانه" %}</span></a>
                     <meta itemprop="position" content="1">
                 </li>
                 <li class="breadcrumb-item active" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-                    <span itemprop="name">فروشگاه فرش</span>
+                    <span itemprop="name">{% trans "فروشگاه فرش" %}</span>
                     <meta itemprop="position" content="2">
                 </li>
             </ol>
@@ -165,12 +166,12 @@
                     <div class="position-absolute top-0 start-0 m-2 d-flex flex-column gap-1" style="z-index:2;">
                         <button class="btn btn-sm p-1 wishlist-btn" data-id="{{ product.id }}"
                                 style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.9);border:1px solid #eee;"
-                                onclick="event.stopPropagation();toggleWishlistCard({{ product.id }},this)" title="علاقه‌مندی">
+                                onclick="event.stopPropagation();toggleWishlistCard({{ product.id }},this)" title="{% trans 'علاقه‌مندی' %}">
                             <i class="bi bi-heart" style="font-size:.75rem;"></i>
                         </button>
                         <button class="btn btn-sm p-1 compare-btn" data-id="{{ product.id }}"
                                 style="width:30px;height:30px;border-radius:50%;background:rgba(255,255,255,.9);border:1px solid #eee;"
-                                onclick="event.stopPropagation();toggleCompareCard({{ product.id }},this)" title="مقایسه">
+                                onclick="event.stopPropagation();toggleCompareCard({{ product.id }},this)" title="{% trans 'مقایسه' %}">
                             <i class="bi bi-arrow-left-right" style="font-size:.75rem;"></i>
                         </button>
                     </div>
@@ -201,7 +202,7 @@
                         <div class="card-body p-2 p-md-3">
                             <h6 class="card-title mb-1" style="font-size:0.85rem;">{{ product.display_title }}</h6>
                             <p class="text-muted mb-1" style="font-size:0.75rem;">
-                                {{ product.manufacturer.name }} | آلبوم {{ product.album.name }}
+                                {{ product.manufacturer.name }} | {% trans "آلبوم" %} {{ product.album.name }}
                             </p>
 
                             {# امتیاز #}
@@ -222,7 +223,7 @@
                             {% with price=product.get_sell_price_12m %}
                             {% if price %}
                             <div class="hf-price" style="font-size:0.95rem;">{{ price|price_comma }}</div>
-                            <small class="text-muted">تومان (۱۲ متری)</small>
+                            <small class="text-muted">{% trans "تومان (۱۲ متری)" %}</small>
                             {% endif %}
                             {% endwith %}
                         </div>
@@ -232,8 +233,8 @@
             {% empty %}
             <div class="col-12 text-center py-5">
                 <i class="bi bi-search" style="font-size:3rem;color:var(--hf-gray);"></i>
-                <p class="mt-3 text-muted">محصولی با این فیلتر یافت نشد.</p>
-                <a href="{% url 'shop:catalog' %}" class="btn btn-hf-outline">مشاهده همه محصولات</a>
+                <p class="mt-3 text-muted">{% trans "محصولی با این فیلتر یافت نشد." %}</p>
+                <a href="{% url 'shop:catalog' %}" class="btn btn-hf-outline">{% trans "مشاهده همه محصولات" %}</a>
             </div>
             {% endfor %}
         </div>

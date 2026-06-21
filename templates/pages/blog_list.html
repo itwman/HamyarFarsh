@@ -1,7 +1,8 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load static %}
 
-{% block meta_title %}{% if category %}مقالات {{ category.name }}{% else %}بلاگ همیار فرش{% endif %} | همیار فرش{% endblock %}
+{% block meta_title %}{% if category %}{% blocktrans with c=category.name %}مقالات {{ c }}{% endblocktrans %}{% else %}{% trans "بلاگ همیار فرش" %}{% endif %} | همیار فرش{% endblock %}
 {% block meta_description %}{% if category %}{{ category.seo_description|default:category.description }}{% else %}مقالات آموزشی و راهنمای خرید فرش ماشینی، نکات نگهداری و دکوراسیون{% endif %}{% endblock %}
 
 {% block content %}
@@ -9,8 +10,8 @@
     <!-- Breadcrumb -->
     <nav aria-label="breadcrumb" class="mb-4">
         <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">خانه</a></li>
-            <li class="breadcrumb-item {% if not category %}active{% endif %}"><a href="{% url 'pages:blog_list' %}">بلاگ</a></li>
+            <li class="breadcrumb-item"><a href="/">{% trans "خانه" %}</a></li>
+            <li class="breadcrumb-item {% if not category %}active{% endif %}"><a href="{% url 'pages:blog_list' %}">{% trans "بلاگ" %}</a></li>
             {% if category %}
             <li class="breadcrumb-item active">{{ category.name }}</li>
             {% endif %}
@@ -23,7 +24,7 @@
             <h1 class="h3 mb-4" style="color:var(--hf-primary);">
                 <i class="bi bi-journal-richtext"></i>
                 {% if category %}مقالات {{ category.name }}{% else %}بلاگ همیار فرش{% endif %}
-                <small class="text-muted fs-6">({{ total }} مقاله)</small>
+                <small class="text-muted fs-6">({{ total }} {% trans "مقاله)" %}</small>
             </h1>
 
             {% if posts %}
@@ -84,7 +85,7 @@
             {% else %}
             <div class="text-center text-muted py-5">
                 <i class="bi bi-journal-x" style="font-size:4rem;"></i>
-                <p class="mt-3">مقاله‌ای یافت نشد.</p>
+                <p class="mt-3">{% trans "مقاله‌ای یافت نشد." %}</p>
             </div>
             {% endif %}
         </div>
@@ -95,7 +96,7 @@
             <div class="hf-card p-3 mb-3">
                 <form method="get" action="{% url 'pages:blog_list' %}">
                     <div class="input-group">
-                        <input type="text" name="q" class="form-control" placeholder="جستجو..." value="{{ query }}">
+                        <input type="text" name="q" class="form-control" placeholder="{% trans 'جستجو...' %}" value="{{ query }}">
                         <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
                     </div>
                 </form>
@@ -103,9 +104,9 @@
 
             <!-- دسته‌بندی‌ها -->
             <div class="hf-card p-3 mb-3">
-                <h6 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-tags"></i> دسته‌بندی‌ها</h6>
+                <h6 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-tags"></i> {% trans "دسته‌بندی‌ها" %}</h6>
                 <a href="{% url 'pages:blog_list' %}" class="d-block py-1 text-decoration-none {% if not current_category %}fw-bold{% endif %}">
-                    همه مقالات
+                    {% trans "همه مقالات" %}
                 </a>
                 {% for cat in categories %}
                 <a href="{% url 'pages:blog_by_category' cat.slug %}" class="d-block py-1 text-decoration-none {% if current_category == cat.slug %}fw-bold{% endif %}">

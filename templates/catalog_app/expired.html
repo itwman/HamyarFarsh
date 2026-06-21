@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block meta_title %}کاتالوگ منقضی شده{% endblock %}
 
@@ -12,20 +13,20 @@
                 </div>
                 
                 <h2 class="mb-3" style="color:var(--hf-primary);">
-                    کاتالوگ منقضی شده
+                    {% trans "کاتالوگ منقضی شده" %}
                 </h2>
                 
                 <p class="lead mb-4">
-                    متأسفانه این کاتالوگ در تاریخ <strong>{{ catalog.expires_at|date:"Y/m/d" }}</strong> منقضی شده است.
+                    {% trans "متأسفانه این کاتالوگ در تاریخ" %} <strong>{{ catalog.expires_at|date:"Y/m/d" }}</strong> {% trans "منقضی شده است." %}
                 </p>
 
                 <p class="text-muted mb-4">
                     <strong>{{ catalog.title }}</strong><br>
-                    کد: <code>{{ catalog.unique_code }}</code>
+                    {% trans "کد:" %} <code>{{ catalog.unique_code }}</code>
                 </p>
 
                 <a href="{% url 'home' %}" class="btn btn-hf-primary">
-                    <i class="bi bi-house"></i> بازگشت به خانه
+                    <i class="bi bi-house"></i> {% trans "بازگشت به خانه" %}
                 </a>
             </div>
         </div>

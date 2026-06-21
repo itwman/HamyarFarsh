@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load humanize %}
 {% load price_tags %}
 {% load jalali_tags %}
@@ -13,22 +14,21 @@
                 <div class="d-flex justify-content-between align-items-start mb-4">
                     <div>
                         <h3 style="color:var(--hf-primary);">
-                            <i class="bi bi-receipt"></i> فاکتور فروش
+                            <i class="bi bi-receipt"></i> {% trans "فاکتور فروش" %}
                         </h3>
-                        <p class="text-muted mb-0">شماره سفارش: #{{ order.id }}</p>
+                        <p class="text-muted mb-0">{% trans "شماره سفارش: #" %}{{ order.id }}</p>
                     </div>
                     <div class="text-end">
-                        <img src="/static/images/logo.png" alt="لوگو" style="max-height:60px;" class="mb-2">
+                        <img src="/static/images/logo.png" alt="{% trans 'لوگو' %}" style="max-height:60px;" class="mb-2">
                         <div class="small text-muted">{{ order.created_at|jalali }}</div>
                     </div>
                 </div>
                 
                 {% if has_price_change and order.payment_method == 'deposit_on_delivery' %}
                 <div class="alert alert-warning mb-4">
-                    <h6><i class="bi bi-exclamation-triangle"></i> تغییر قیمت</h6>
+                    <h6><i class="bi bi-exclamation-triangle"></i> {% trans "تغییر قیمت" %}</h6>
                     <p class="mb-0 small">
-                        قیمت برخی محصولات از زمان ثبت سفارش تغییر کرده است. 
-                        مبلغ بیعانه پرداختی شما ثابت است و فقط مانده بر اساس قیمت روز محاسبه می‌شود.
+                        {% trans "قیمت برخی محصولات از زمان ثبت سفارش تغییر کرده است. مبلغ بیعانه پرداختی شما ثابت است و فقط مانده بر اساس قیمت روز محاسبه می‌شود." %}
                     </p>
                 </div>
                 {% endif %}
@@ -36,11 +36,11 @@
                 <div class="row g-3 mb-4">
                     <div class="col-md-6">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <h6 class="mb-2">مشتری:</h6>
+                            <h6 class="mb-2">{% trans "مشتری:" %}</h6>
                             <div class="small">
-                                <div><strong>نام:</strong> {{ order.user.get_full_name }}</div>
+                                <div><strong>{% trans "نام:" %}</strong> {{ order.user.get_full_name }}</div>
                                 {% if order.user.phone_number %}
-                                <div><strong>تلفن:</strong> {{ order.user.phone_number }}</div>
+                                <div><strong>{% trans "تلفن:" %}</strong> {{ order.user.phone_number }}</div>
                                 {% endif %}
                             </div>
                         </div>
@@ -48,12 +48,12 @@
                     
                     <div class="col-md-6">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <h6 class="mb-2">آدرس ارسال:</h6>
+                            <h6 class="mb-2">{% trans "آدرس ارسال:" %}</h6>
                             <div class="small">
                                 {% if order.shipping_address %}
                                 {{ order.shipping_address.full_address }}
                                 {% else %}
-                                <span class="text-muted">ثبت نشده</span>
+                                <span class="text-muted">{% trans "ثبت نشده" %}</span>
                                 {% endif %}
                             </div>
                         </div>
@@ -64,14 +64,14 @@
                     <table class="table table-hover align-middle">
                         <thead style="background:var(--hf-primary);color:#fff;">
                             <tr>
-                                <th>ردیف</th>
-                                <th>محصول</th>
-                                <th>سایز</th>
-                                <th>قیمت واحد</th>
-                                <th>تعداد</th>
-                                <th>مبلغ</th>
+                                <th>{% trans "ردیف" %}</th>
+                                <th>{% trans "محصول" %}</th>
+                                <th>{% trans "سایز" %}</th>
+                                <th>{% trans "قیمت واحد" %}</th>
+                                <th>{% trans "تعداد" %}</th>
+                                <th>{% trans "مبلغ" %}</th>
                                 {% if has_price_change %}
-                                <th>قیمت روز</th>
+                                <th>{% trans "قیمت روز" %}</th>
                                 {% endif %}
                             </tr>
                         </thead>
@@ -84,9 +84,9 @@
                                     <small class="text-muted">{{ item.product.manufacturer.name }}</small>
                                 </td>
                                 <td>{{ item.size.name }}</td>
-                                <td>{{ item.unit_price|price_comma }} تومان</td>
+                                <td>{{ item.unit_price|price_comma }} {% trans "تومان" %}</td>
                                 <td>{{ item.quantity }}</td>
-                                <td><strong>{{ item.total_price|price_comma }} تومان</strong></td>
+                                <td><strong>{{ item.total_price|price_comma }} {% trans "تومان" %}</strong></td>
                                 {% if has_price_change %}
                                 <td>
                                     {% if item.id in current_prices %}
@@ -98,7 +98,7 @@
                                             </small>
                                         </span>
                                         {% else %}
-                                        <span class="text-muted">بدون تغییر</span>
+                                        <span class="text-muted">{% trans "بدون تغییر" %}</span>
                                         {% endif %}
                                     {% endif %}
                                 </td>
@@ -108,36 +108,36 @@
                         </tbody>
                         <tfoot style="background:var(--hf-gray-light);">
                             <tr>
-                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>جمع کل:</strong></td>
-                                <td><strong>{{ order.total_amount|price_comma }} تومان</strong></td>
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>{% trans "جمع کل:" %}</strong></td>
+                                <td><strong>{{ order.total_amount|price_comma }} {% trans "تومان" %}</strong></td>
                             </tr>
                             {% if order.discount_amount > 0 %}
                             <tr>
-                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end">تخفیف:</td>
-                                <td class="text-success">{{ order.discount_amount|price_comma }} تومان</td>
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end">{% trans "تخفیف:" %}</td>
+                                <td class="text-success">{{ order.discount_amount|price_comma }} {% trans "تومان" %}</td>
                             </tr>
                             {% endif %}
                             <tr>
-                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>مبلغ قابل پرداخت:</strong></td>
-                                <td><strong>{{ order.total_amount|price_comma }} تومان</strong></td>
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>{% trans "مبلغ قابل پرداخت:" %}</strong></td>
+                                <td><strong>{{ order.total_amount|price_comma }} {% trans "تومان" %}</strong></td>
                             </tr>
                             <tr class="table-success">
-                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>پرداخت شده:</strong></td>
-                                <td><strong class="text-success">{{ order.paid_amount|price_comma }} تومان</strong></td>
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>{% trans "پرداخت شده:" %}</strong></td>
+                                <td><strong class="text-success">{{ order.paid_amount|price_comma }} {% trans "تومان" %}</strong></td>
                             </tr>
                             {% if has_price_change and new_total != order.total_amount %}
                             <tr class="table-warning">
-                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>جمع با قیمت روز:</strong></td>
-                                <td><strong class="text-warning">{{ new_total|price_comma }} تومان</strong></td>
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>{% trans "جمع با قیمت روز:" %}</strong></td>
+                                <td><strong class="text-warning">{{ new_total|price_comma }} {% trans "تومان" %}</strong></td>
                             </tr>
                             <tr class="table-warning">
-                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>مانده (قیمت روز):</strong></td>
-                                <td><strong class="text-danger">{{ new_remaining|price_comma }} تومان</strong></td>
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>{% trans "مانده (قیمت روز):" %}</strong></td>
+                                <td><strong class="text-danger">{{ new_remaining|price_comma }} {% trans "تومان" %}</strong></td>
                             </tr>
                             {% else %}
                             <tr class="table-danger">
-                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>مانده:</strong></td>
-                                <td><strong class="text-danger">{{ order.remaining_amount|price_comma }} تومان</strong></td>
+                                <td colspan="{% if has_price_change %}6{% else %}5{% endif %}" class="text-end"><strong>{% trans "مانده:" %}</strong></td>
+                                <td><strong class="text-danger">{{ order.remaining_amount|price_comma }} {% trans "تومان" %}</strong></td>
                             </tr>
                             {% endif %}
                         </tfoot>
@@ -147,19 +147,19 @@
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <small class="text-muted d-block">روش پرداخت</small>
+                            <small class="text-muted d-block">{% trans "روش پرداخت" %}</small>
                             <strong>{{ order.get_payment_method_display }}</strong>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <small class="text-muted d-block">وضعیت پرداخت</small>
+                            <small class="text-muted d-block">{% trans "وضعیت پرداخت" %}</small>
                             <strong>{{ order.get_payment_status_display }}</strong>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <small class="text-muted d-block">وضعیت سفارش</small>
+                            <small class="text-muted d-block">{% trans "وضعیت سفارش" %}</small>
                             <strong>{{ order.get_status_display }}</strong>
                         </div>
                     </div>
@@ -167,12 +167,12 @@
                 
                 {% if order.payment_method == 'deposit_on_delivery' %}
                 <div class="alert alert-info">
-                    <h6><i class="bi bi-info-circle"></i> توجه</h6>
+                    <h6><i class="bi bi-info-circle"></i> {% trans "توجه" %}</h6>
                     <ul class="small mb-0">
-                        <li>بیعانه پرداختی شما: <strong>{{ order.paid_amount|price_comma }} تومان</strong></li>
-                        <li>در صورت تغییر قیمت، مانده بر اساس قیمت روز محاسبه می‌شود</li>
-                        <li>بیعانه شما شامل افزایش قیمت نمی‌شود و ثابت می‌ماند</li>
-                        <li>در صورت انصراف، 50% بیعانه + هزینه ایاب‌ذهاب کسر می‌شود</li>
+                        <li>{% trans "بیعانه پرداختی شما:" %} <strong>{{ order.paid_amount|price_comma }} {% trans "تومان" %}</strong></li>
+                        <li>{% trans "در صورت تغییر قیمت، مانده بر اساس قیمت روز محاسبه می‌شود" %}</li>
+                        <li>{% trans "بیعانه شما شامل افزایش قیمت نمی‌شود و ثابت می‌ماند" %}</li>
+                        <li>{% trans "در صورت انصراف، 50% بیعانه + هزینه ایاب‌ذهاب کسر می‌شود" %}</li>
                     </ul>
                 </div>
                 {% endif %}
@@ -180,17 +180,17 @@
                 <div class="d-flex gap-2 justify-content-between mt-4">
                     <div>
                         <a href="{% url 'orders:detail' order.id %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-arrow-right"></i> بازگشت به سفارش
+                            <i class="bi bi-arrow-right"></i> {% trans "بازگشت به سفارش" %}
                         </a>
                     </div>
                     <div class="d-flex gap-2">
                         {% if user.is_staff and has_price_change %}
                         <a href="{% url 'payments:apply_current_prices' order.id %}" class="btn btn-warning">
-                            <i class="bi bi-arrow-clockwise"></i> اعمال قیمت روز
+                            <i class="bi bi-arrow-clockwise"></i> {% trans "اعمال قیمت روز" %}
                         </a>
                         {% endif %}
                         <button onclick="window.print()" class="btn btn-hf-primary">
-                            <i class="bi bi-printer"></i> چاپ فاکتور
+                            <i class="bi bi-printer"></i> {% trans "چاپ فاکتور" %}
                         </button>
                     </div>
                 </div>

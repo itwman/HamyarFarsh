@@ -1,3 +1,4 @@
+{% load i18n %}
 {# تمپلیت دکمه‌های اشتراک‌گذاری - استفاده: {% include 'share_buttons.html' with url=product_url title=product.name %} #}
 {% load static %}
 
@@ -7,31 +8,31 @@
         <a href="https://t.me/share/url?url={{ url }}&text={{ title|urlencode }}" 
            target="_blank" 
            class="btn btn-sm btn-info"
-           title="اشتراک در تلگرام">
-            <i class="bi bi-telegram"></i> تلگرام
+           title="{% trans 'اشتراک در تلگرام' %}">
+            <i class="bi bi-telegram"></i> {% trans "تلگرام" %}
         </a>
         
         {# واتساپ #}
         <a href="https://wa.me/?text={{ title|urlencode }} {{ url }}" 
            target="_blank" 
            class="btn btn-sm btn-success"
-           title="اشتراک در واتساپ">
-            <i class="bi bi-whatsapp"></i> واتساپ
+           title="{% trans 'اشتراک در واتساپ' %}">
+            <i class="bi bi-whatsapp"></i> {% trans "واتساپ" %}
         </a>
         
         {# ایتا #}
         <a href="https://eitaa.com/share/url?url={{ url }}" 
            target="_blank" 
            class="btn btn-sm btn-primary"
-           title="اشتراک در ایتا">
-            <i class="bi bi-share"></i> ایتا
+           title="{% trans 'اشتراک در ایتا' %}">
+            <i class="bi bi-share"></i> {% trans "ایتا" %}
         </a>
         
         {# کپی لینک #}
         <button onclick="copyShareUrl('{{ url }}')" 
                 class="btn btn-sm btn-secondary"
-                title="کپی لینک">
-            <i class="bi bi-clipboard"></i> کپی لینک
+                title="{% trans 'کپی لینک' %}">
+            <i class="bi bi-clipboard"></i> {% trans "کپی لینک" %}
         </button>
     </div>
 </div>

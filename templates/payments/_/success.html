@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load humanize %}
 {% load price_tags %}
 {% load jalali_tags %}
@@ -14,28 +15,28 @@
                     <i class="bi bi-check-circle-fill text-success" style="font-size:5rem;"></i>
                 </div>
                 
-                <h2 class="mb-3" style="color:var(--hf-dark);">پرداخت با موفقیت انجام شد!</h2>
+                <h2 class="mb-3" style="color:var(--hf-dark);">{% trans "پرداخت با موفقیت انجام شد!" %}</h2>
                 
                 <p class="text-muted mb-4">
-                    تراکنش شما با موفقیت ثبت شد و سفارش شما در حال بررسی است.
+                    {% trans "تراکنش شما با موفقیت ثبت شد و سفارش شما در حال بررسی است." %}
                 </p>
                 
                 <div class="p-4 rounded mb-4" style="background:var(--hf-gray-light);">
                     <div class="row g-3 text-start">
                         <div class="col-6">
-                            <small class="text-muted d-block">کد پیگیری:</small>
+                            <small class="text-muted d-block">{% trans "کد پیگیری:" %}</small>
                             <strong>{{ transaction.tracking_code }}</strong>
                         </div>
                         <div class="col-6">
-                            <small class="text-muted d-block">شماره مرجع:</small>
+                            <small class="text-muted d-block">{% trans "شماره مرجع:" %}</small>
                             <strong>{{ transaction.reference_number }}</strong>
                         </div>
                         <div class="col-6">
-                            <small class="text-muted d-block">مبلغ پرداختی:</small>
-                            <strong class="text-success">{{ transaction.amount|price_comma }} تومان</strong>
+                            <small class="text-muted d-block">{% trans "مبلغ پرداختی:" %}</small>
+                            <strong class="text-success">{{ transaction.amount|price_comma }} {% trans "تومان" %}</strong>
                         </div>
                         <div class="col-6">
-                            <small class="text-muted d-block">تاریخ پرداخت:</small>
+                            <small class="text-muted d-block">{% trans "تاریخ پرداخت:" %}</small>
                             <strong>{{ transaction.paid_at|jalali }}</strong>
                         </div>
                     </div>
@@ -43,10 +44,10 @@
                 
                 <div class="d-flex gap-2 justify-content-center">
                     <a href="{% url 'orders:detail' order.id %}" class="btn btn-hf-primary">
-                        <i class="bi bi-box-seam"></i> مشاهده سفارش
+                        <i class="bi bi-box-seam"></i> {% trans "مشاهده سفارش" %}
                     </a>
                     <a href="{% url 'shop:catalog' %}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-right"></i> بازگشت به فروشگاه
+                        <i class="bi bi-arrow-right"></i> {% trans "بازگشت به فروشگاه" %}
                     </a>
                 </div>
             </div>

@@ -1,0 +1,23 @@
+{% load i18n %}
+{% comment %}
+سوییچر زبان - بر اساس ساب‌دامین لینک می‌سازد.
+برای استفاده در هدر:  {% include "includes/language_switcher.html" %}
+دامنه‌ی پایه از طریق context قابل تنظیم است؛ پیش‌فرض hamyarfarsh.ir
+{% endcomment %}
+{% get_current_language as CURRENT_LANG %}
+{% get_available_languages as AVAILABLE_LANGS %}
+{% with base_domain="hamyarfarsh.ir" %}
+<div class="lang-switcher" dir="ltr">
+  <ul class="lang-switcher__list">
+    {% for code, name in AVAILABLE_LANGS %}
+      <li class="lang-switcher__item {% if code == CURRENT_LANG %}is-active{% endif %}">
+        {% if code == "fa" %}
+          <a href="//{{ base_domain }}{{ request.get_full_path }}" hreflang="fa" lang="fa">{{ name }}</a>
+        {% else %}
+          <a href="//{{ code }}.{{ base_domain }}{{ request.get_full_path }}" hreflang="{{ code }}" lang="{{ code }}">{{ name }}</a>
+        {% endif %}
+      </li>
+    {% endfor %}
+  </ul>
+</div>
+{% endwith %}

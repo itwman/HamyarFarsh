@@ -1,0 +1,1796 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: hamyarfarsh 1.0\n"
+"POT-Creation-Date: 2026-06-21 00:00+0000\n"
+"PO-Revision-Date: 2026-06-21 00:00+0000\n"
+"Last-Translator: machine-translation\n"
+"Language: en\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "% + پرداخت موقع تحویل"
+msgstr "% + pay on delivery"
+
+msgid "% الان، مابقی موقع تحویل (قیمت روز)"
+msgstr "% now, the rest on delivery (daily price)"
+
+msgid "% ماهانه"
+msgstr "% monthly"
+
+msgid "&laquo; قبلی"
+msgstr "&laquo; Previous"
+
+msgid "(بالاترین)"
+msgstr "(highest)"
+
+msgid "(بدون بیعانه یا اقساط)"
+msgstr "(no deposit or installments)"
+
+msgid "(حداکثر 12 ماه)"
+msgstr "(up to 12 months)"
+
+msgid "(حداکثر 18 ماه)"
+msgstr "(up to 18 months)"
+
+msgid "(موبایل)"
+msgstr "(mobile)"
+
+msgid "12 ماهه"
+msgstr "12 months"
+
+msgid "15 ماهه"
+msgstr "15 months"
+
+msgid "18 ماهه"
+msgstr "18 months"
+
+msgid "2 عدد"
+msgstr "2 pcs"
+
+msgid "3 ماهه"
+msgstr "3 months"
+
+msgid "50% بیعانه:"
+msgstr "50% deposit:"
+
+msgid "6 ماهه"
+msgstr "6 months"
+
+msgid "9 ماهه"
+msgstr "9 months"
+
+msgid "» یافت نشد."
+msgstr "»."
+
+msgid "آخرین سفارشات"
+msgstr "Recent orders"
+
+msgid "آدرس ارسال"
+msgstr "Shipping address"
+
+msgid "آدرس ارسال:"
+msgstr "Shipping address:"
+
+msgid "آدرس کامل"
+msgstr "Full address"
+
+msgid "آدرس:"
+msgstr "Address:"
+
+msgid "آدرس‌ها"
+msgstr "Addresses"
+
+msgid "آدرس‌های من"
+msgstr "My addresses"
+
+msgid "آلبوم"
+msgstr "Album"
+
+msgid "آیا از لغو سفارش اطمینان دارید؟"
+msgstr "Are you sure you want to cancel the order?"
+
+msgid "آیا مطمئن هستید که می‌خواهید این آدرس را حذف کنید؟"
+msgstr "Are you sure you want to delete this address?"
+
+msgid "ابتدا آدرس خود را ثبت کنید."
+msgstr "Please add your address first."
+
+msgid "ابعاد اصلی"
+msgstr "Original dimensions"
+
+msgid "اتصال به اینترنت قطع شده"
+msgstr "Internet connection lost"
+
+msgid "اختیاری - مبلغ صفر یعنی بدون پیش‌پرداخت"
+msgstr "Optional - zero means no down payment"
+
+msgid "اختیاری..."
+msgstr "Optional..."
+
+msgid "ادامه خرید"
+msgstr "Continue shopping"
+
+msgid "ارتباط با ما"
+msgstr "Contact Us"
+
+msgid "ارزان‌ترین"
+msgstr "Cheapest"
+
+msgid "ارسال"
+msgstr "Shipping"
+
+msgid "ارسال به تلگرام"
+msgstr "Send to Telegram"
+
+msgid "ارسال به واتساپ"
+msgstr "Send to WhatsApp"
+
+msgid "ارسال تیکت"
+msgstr "Submit ticket"
+
+msgid "ارسال رایگان"
+msgstr "Free shipping"
+
+msgid "ارسال رایگان تا نزدیکترین باربری"
+msgstr "Free shipping to the nearest freight terminal"
+
+msgid "ارسال شده"
+msgstr "Shipped"
+
+msgid "ارسال مستقیم:"
+msgstr "Direct shipping:"
+
+msgid "از کاتالوگ محصولات ما دیدن کنید و اولین سفارش خود را ثبت کنید."
+msgstr "Browse our product catalog and place your first order."
+
+msgid "استان"
+msgstr "Province"
+
+msgid "اشتراک در ایتا"
+msgstr "Share on Eitaa"
+
+msgid "اشتراک در تلگرام"
+msgstr "Share on Telegram"
+
+msgid "اشتراک در واتساپ"
+msgstr "Share on WhatsApp"
+
+msgid "اشتراک‌گذاری"
+msgstr "Share"
+
+msgid "اشتراک‌گذاری محصول"
+msgstr "Share product"
+
+msgid "اشتراک‌گذاری:"
+msgstr "Share:"
+
+msgid "اصلی"
+msgstr "Main"
+
+msgid "اطلاعات سفارش"
+msgstr "Order information"
+
+msgid "اطلاعات سفارش:"
+msgstr "Order information:"
+
+msgid "اطلاعات فاکتور"
+msgstr "Invoice information"
+
+msgid "اطلاعات فنی ویدیو"
+msgstr "Video technical info"
+
+msgid "اطلاع‌رسانی‌ای وجود ندارد"
+msgstr "There are no notifications"
+
+msgid "اطلاع‌رسانی‌ها"
+msgstr "Notifications"
+
+msgid "اعمال فیلتر"
+msgstr "Apply filter"
+
+msgid "اعمال قیمت روز"
+msgstr "Apply daily price"
+
+msgid "افزودن"
+msgstr "Add"
+
+msgid "افزودن آدرس"
+msgstr "Add address"
+
+msgid "افزودن آدرس جدید"
+msgstr "Add new address"
+
+msgid "افزودن اولین آدرس"
+msgstr "Add your first address"
+
+msgid "اقساط به صورت خودکار با فاصله 30 روز (ماهانه) یا 60 روز (دوماهانه) ایجاد می‌شوند"
+msgstr "Installments are created automatically every 30 days (monthly) or 60 days (bimonthly)"
+
+msgid "امتیاز"
+msgstr "Rating"
+
+msgid "امتیاز شباهت"
+msgstr "Similarity score"
+
+msgid "امضا خریدار"
+msgstr "Buyer's signature"
+
+msgid "امضا و مهر فروشنده"
+msgstr "Seller's signature and stamp"
+
+msgid "انتخاب آدرس ارسال"
+msgstr "Select shipping address"
+
+msgid "انتقال به درگاه پرداخت"
+msgstr "Go to payment gateway"
+
+msgid "انصراف"
+msgstr "Cancel"
+
+msgid "انصراف و بازگشت"
+msgstr "Cancel and go back"
+
+msgid "انقضا"
+msgstr "Expiry"
+
+msgid "اولویت"
+msgstr "Priority"
+
+msgid "ایتا"
+msgstr "Eitaa"
+
+msgid "ایجاد"
+msgstr "Create"
+
+msgid "ایجاد تیکت"
+msgstr "Create ticket"
+
+msgid "ایجاد طرح اقساط"
+msgstr "Create installment plan"
+
+msgid "ایجاد طرح اقساط برای سفارش #"
+msgstr "Create installment plan for order #"
+
+msgid "ایمیل"
+msgstr "Email"
+
+msgid "ایمیل:"
+msgstr "Email:"
+
+msgid "این تیکت بسته شده است."
+msgstr "This ticket is closed."
+
+msgid "این طرح اقساط هنوز تأیید نشده است."
+msgstr "This installment plan has not been confirmed yet."
+
+msgid "این عملیات قابل بازگشت نیست."
+msgstr "This action cannot be undone."
+
+msgid "این فاکتور به صورت سیستمی از"
+msgstr "This invoice was systematically generated from"
+
+msgid "این کاتالوگ خالی است."
+msgstr "This catalog is empty."
+
+msgid "اینستاگرام"
+msgstr "Instagram"
+
+msgid "با استفاده از این ماشین‌حساب می‌توانید مبلغ هر قسط خرید اقساطی خود را محاسبه کنید."
+msgstr "With this calculator you can compute the amount of each installment of your purchase."
+
+msgid "با این ابزار می‌توانید مبلغ اقساط ماهانه خود را محاسبه کنید."
+msgstr "With this tool you can calculate your monthly installment amount."
+
+msgid "بازدید"
+msgstr "Views"
+
+msgid "بازگشت"
+msgstr "Back"
+
+msgid "بازگشت به جزئیات سفارش"
+msgstr "Back to order details"
+
+msgid "بازگشت به خانه"
+msgstr "Back to home"
+
+msgid "بازگشت به سایت"
+msgstr "Back to site"
+
+msgid "بازگشت به سفارش"
+msgstr "Back to order"
+
+msgid "بازگشت به صفحه اصلی"
+msgstr "Back to homepage"
+
+msgid "بازگشت به فروشگاه"
+msgstr "Back to shop"
+
+msgid "بازگشت به محصول"
+msgstr "Back to product"
+
+msgid "بافت"
+msgstr "Weave"
+
+msgid "بالاترین امتیاز"
+msgstr "Highest rated"
+
+msgid "بخش"
+msgstr "Section"
+
+msgid "بدون تغییر"
+msgstr "No change"
+
+msgid "بر اساس رنگ، طرح، شانه و ویژگی‌های مشترک"
+msgstr "Based on shared color, design, reed count and features"
+
+msgid "برای ارسال رایگان، خرید نقدی آنلاین بالای"
+msgstr "For free shipping, online cash purchase above"
+
+msgid "برای ارسال سفارشات، لطفاً آدرس خود را اضافه کنید."
+msgstr "To ship orders, please add your address."
+
+msgid "برای ثبت نظر"
+msgstr "To write a review"
+
+msgid "برای مقایسه، از صفحه محصولات دکمه"
+msgstr "To compare, from the products page press the button"
+
+msgid "برنامه پرداخت اقساط"
+msgstr "Installment payment schedule"
+
+msgid "بعد از ثبت درخواست، کارشناسان ما در اسرع وقت با شما تماس گرفته و قیمت نهایی را اعلام می‌کنند."
+msgstr "After you submit your request, our experts will contact you as soon as possible and announce the final price."
+
+msgid "بعدی"
+msgstr "Next"
+
+msgid "بعدی &raquo;"
+msgstr "Next &raquo;"
+
+msgid "بلاگ"
+msgstr "Blog"
+
+msgid "بلاگ همیار فرش"
+msgstr "Hamyar Farsh Blog"
+
+msgid "بله، حذف شود"
+msgstr "Yes, delete"
+
+msgid "بیعانه شما شامل افزایش قیمت نمی‌شود و ثابت می‌ماند"
+msgstr "Your deposit is not affected by price increases and stays fixed"
+
+msgid "بیعانه پرداخت شده:"
+msgstr "Deposit paid:"
+
+msgid "بیعانه پرداختی شما:"
+msgstr "Your paid deposit:"
+
+msgid "بیعانه:"
+msgstr "Deposit:"
+
+msgid "ت"
+msgstr "T"
+
+msgid "تأیید سفارش"
+msgstr "Confirmed"
+
+msgid "تأیید شده"
+msgstr "Confirmed"
+
+msgid "تأیید طرح اقساط"
+msgstr "Confirm installment plan"
+
+msgid "تأیید لغو سفارش"
+msgstr "Confirm order cancellation"
+
+msgid "تا ۱۸ ماه"
+msgstr "Up to 18 months"
+
+msgid "تاریخ"
+msgstr "Date"
+
+msgid "تاریخ ثبت:"
+msgstr "Date placed:"
+
+msgid "تاریخ سررسید"
+msgstr "Due date"
+
+msgid "تاریخ سررسید تقریبی"
+msgstr "Approximate due date"
+
+msgid "تاریخ سفارش:"
+msgstr "Order date:"
+
+msgid "تاریخ صدور:"
+msgstr "Issue date:"
+
+msgid "تاریخ پرداخت"
+msgstr "Payment date"
+
+msgid "تاریخ پرداخت:"
+msgstr "Payment date:"
+
+msgid "تاریخچه تغییرات"
+msgstr "Change history"
+
+msgid "تاریخچه سفارشات"
+msgstr "Order history"
+
+msgid "تحویل داده شده"
+msgstr "Delivered"
+
+msgid "تخفیف:"
+msgstr "Discount:"
+
+msgid "تراکم"
+msgstr "Density"
+
+msgid "تراکنش شما با موفقیت ثبت شد و سفارش شما در حال بررسی است."
+msgstr "Your transaction was recorded successfully and your order is being reviewed."
+
+msgid "تسویه شده"
+msgstr "Settled"
+
+msgid "تصاویر"
+msgstr "Images"
+
+msgid "تصویر"
+msgstr "Image"
+
+msgid "تصویر از فرش‌های ماشینی"
+msgstr "Image of machine-made carpets"
+
+msgid "تصویری یافت نشد"
+msgstr "No image found"
+
+msgid "تعداد"
+msgstr "Quantity"
+
+msgid "تعداد (زوج الزامی) *"
+msgstr "Quantity (even required) *"
+
+msgid "تعداد اقساط"
+msgstr "Number of installments"
+
+msgid "تعداد اقساط (ماه)"
+msgstr "Number of installments (months)"
+
+msgid "تعداد اقساط:"
+msgstr "Number of installments:"
+
+msgid "تعداد محصولات:"
+msgstr "Number of products:"
+
+msgid "تعداد و سفارش"
+msgstr "Quantity & Order"
+
+msgid "تغییر رمز عبور (اختیاری)"
+msgstr "Change password (optional)"
+
+msgid "تغییر قیمت"
+msgstr "Price change"
+
+msgid "تلاش مجدد"
+msgstr "Try again"
+
+msgid "تلفن:"
+msgstr "Phone:"
+
+msgid "تلگرام"
+msgstr "Telegram"
+
+msgid "تلگرام، واتساپ"
+msgstr "Telegram, WhatsApp"
+
+msgid "تماس با ما"
+msgstr "Contact us"
+
+msgid "تمامی حقوق محفوظ است"
+msgstr "All rights reserved"
+
+msgid "تنظیم به عنوان آدرس پیش‌فرض"
+msgstr "Set as default address"
+
+msgid "تنظیمات سایت"
+msgstr "Site Settings"
+
+msgid "توجه"
+msgstr "Note"
+
+msgid "توجه:"
+msgstr "Note:"
+
+msgid "توضیحات"
+msgstr "Description"
+
+msgid "توضیحات تکمیلی (اختیاری)"
+msgstr "Additional notes (optional)"
+
+msgid "توضیحات تکمیلی سفارش خود را وارد کنید..."
+msgstr "Enter additional notes for your order..."
+
+msgid "توضیحات مهم:"
+msgstr "Important notes:"
+
+msgid "توضیحات:"
+msgstr "Description:"
+
+msgid "تولید شده است."
+msgstr "was generated."
+
+msgid "تومان"
+msgstr "Toman"
+
+msgid "تومان (۱۲ متری)"
+msgstr "Toman (12 m²)"
+
+msgid "تومان است."
+msgstr "Toman."
+
+msgid "تومان لازم است."
+msgstr "Toman is required."
+
+msgid "تکمیل سفارش"
+msgstr "Complete order"
+
+msgid "تکمیل شده"
+msgstr "Completed"
+
+msgid "تیکت جدید"
+msgstr "New ticket"
+
+msgid "تیکت پشتیبانی"
+msgstr "Support ticket"
+
+msgid "تیکتی وجود ندارد"
+msgstr "There are no tickets"
+
+msgid "تیکت‌های پشتیبانی"
+msgstr "Support tickets"
+
+msgid "ثبت امتیاز"
+msgstr "Submit rating"
+
+msgid "ثبت درخواست"
+msgstr "Submit request"
+
+msgid "ثبت سفارش"
+msgstr "Place order"
+
+msgid "ثبت نشده"
+msgstr "Not registered"
+
+msgid "ثبت نهایی سفارش"
+msgstr "Finalize order"
+
+msgid "ثبت‌نام"
+msgstr "Sign Up"
+
+msgid "ثبت‌نام کنید"
+msgstr "Sign up"
+
+msgid "جدول اقساط تفصیلی:"
+msgstr "Detailed installment table:"
+
+msgid "جدول قیمت سایزها"
+msgstr "Size price table"
+
+msgid "جدیدترین"
+msgstr "Newest"
+
+msgid "جریمه انصراف:"
+msgstr "Cancellation penalty:"
+
+msgid "جزئیات"
+msgstr "Details"
+
+msgid "جزئیات سفارش"
+msgstr "Order details"
+
+msgid "جزئیات سفارش #%(id)s"
+msgstr "Order details #%(id)s"
+
+msgid "جستجو"
+msgstr "Search"
+
+msgid "جستجو..."
+msgstr "Search..."
+
+msgid "جستجو:"
+msgstr "Search:"
+
+msgid "جستجوی نام، شرکت..."
+msgstr "Search name, company..."
+
+msgid "جستجوی نام، شرکت، رنگ..."
+msgstr "Search name, company, color..."
+
+msgid "جمع"
+msgstr "Subtotal"
+
+msgid "جمع با سود"
+msgstr "Total with interest"
+
+msgid "جمع با قیمت روز:"
+msgstr "Total at daily price:"
+
+msgid "جمع جریمه:"
+msgstr "Total penalty:"
+
+msgid "جمع فاکتور:"
+msgstr "Invoice total:"
+
+msgid "جمع محصولات:"
+msgstr "Products subtotal:"
+
+msgid "جمع کل محصولات:"
+msgstr "Grand total of products:"
+
+msgid "جمع کل:"
+msgstr "Grand total:"
+
+msgid "جنس نخ"
+msgstr "Yarn type"
+
+msgid "حجم 480p"
+msgstr "480p size"
+
+msgid "حجم 720p"
+msgstr "720p size"
+
+msgid "حجم اصلی"
+msgstr "Original size"
+
+msgid "حداقل %(d)s درصد بیعانه. قیمت روز در زمان تحویل. هزینه ارسال با مشتری."
+msgstr "Minimum %(d)s percent deposit. Price at delivery date. Shipping paid by the customer."
+
+msgid "حداقل 2 عدد"
+msgstr "Minimum 2 pcs"
+
+msgid "حداقل 8 کاراکتر"
+msgstr "Minimum 8 characters"
+
+msgid "حداقل سفارش:"
+msgstr "Minimum order:"
+
+msgid "حداکثر"
+msgstr "Maximum"
+
+msgid "حداکثر 12 ماه"
+msgstr "Up to 12 months"
+
+msgid "حداکثر مبلغ قابل اقساط: 75 میلیون تومان"
+msgstr "Maximum installment amount: 75 million Toman"
+
+msgid "حذف"
+msgstr "Delete"
+
+msgid "حذف آدرس"
+msgstr "Delete address"
+
+msgid "حذف از علاقه‌مندی‌ها"
+msgstr "Remove from wishlist"
+
+msgid "حذف فیلتر"
+msgstr "Clear filter"
+
+msgid "حذف فیلترها"
+msgstr "Remove filters"
+
+msgid "حذف همه فیلترها"
+msgstr "Clear all filters"
+
+msgid "حساب کاربری ندارید؟"
+msgstr "Don't have an account?"
+
+msgid "خالی کردن سبد"
+msgstr "Empty cart"
+
+msgid "خانه"
+msgstr "Home"
+
+msgid "خروج"
+msgstr "Logout"
+
+msgid "خرید"
+msgstr "Buy"
+
+msgid "خرید اقساطی"
+msgstr "Installment purchase"
+
+msgid "خرید محصولات"
+msgstr "Shop products"
+
+msgid "خرید نقدی"
+msgstr "Cash purchase"
+
+msgid "خرید نقدی بالای ۲۵ میلیون"
+msgstr "Cash purchase above 25 million"
+
+msgid "خلاصه سفارش"
+msgstr "Order summary"
+
+msgid "خلاصه مالی"
+msgstr "Financial summary"
+
+msgid "داشبورد"
+msgstr "Dashboard"
+
+msgid "در انتظار"
+msgstr "Pending"
+
+msgid "در انتظار تأیید"
+msgstr "Awaiting confirmation"
+
+msgid "در صورت انصراف: 50% بیعانه + هزینه ایاب و ذهاب"
+msgstr "In case of cancellation: 50% of deposit + transport cost"
+
+msgid "در صورت انصراف، 50% بیعانه + هزینه ایاب‌ذهاب کسر می‌شود"
+msgstr "If cancelled, 50% of the deposit + transport cost will be deducted"
+
+msgid "در صورت تغییر رمز عبور، باید دوباره وارد شوید."
+msgstr "If you change your password, you must log in again."
+
+msgid "در صورت تغییر قیمت، مانده بر اساس قیمت روز محاسبه می‌شود"
+msgstr "If the price changes, the balance is calculated based on the daily price"
+
+msgid "در صورت تمایل به تغییر رمز عبور وارد کنید"
+msgstr "Enter it if you wish to change your password"
+
+msgid "در صورت موفقیت‌آمیز بودن پرداخت، به صفحه تأیید هدایت می‌شوید."
+msgstr "If the payment is successful, you will be redirected to the confirmation page."
+
+msgid "در صورت نیاز به طراحی خاص، هزینه طراحی به قیمت اضافه می‌شود"
+msgstr "If a custom design is needed, the design cost is added to the price"
+
+msgid "درباره %(name)s"
+msgstr "About %(name)s"
+
+msgid "درگاه پرداخت در فاز 8 فعال خواهد شد"
+msgstr "The payment gateway will be activated in phase 8"
+
+msgid "دسترسی سریع"
+msgstr "Quick Links"
+
+msgid "دسته‌بندی‌ها"
+msgstr "Categories"
+
+msgid "دوره پرداخت"
+msgstr "Payment period"
+
+msgid "دوره پرداخت:"
+msgstr "Payment period:"
+
+msgid "دوماهانه"
+msgstr "Bimonthly"
+
+msgid "ذخیره"
+msgstr "Save"
+
+msgid "ذخیره تغییرات"
+msgstr "Save changes"
+
+msgid "را بزنید."
+msgstr "press it."
+
+msgid "رایگان"
+msgstr "Free"
+
+msgid "ردیف"
+msgstr "Row"
+
+msgid "رمز عبور جدید"
+msgstr "New password"
+
+msgid "رنگ زمینه"
+msgstr "Background color"
+
+msgid "روش پرداخت"
+msgstr "Payment method"
+
+msgid "روش پرداخت:"
+msgstr "Payment method:"
+
+msgid "روش پرداخت: اقساط چکی ("
+msgstr "Payment method: cheque installments ("
+
+msgid "روش پرداخت: بیعانه 10% + پرداخت موقع تحویل"
+msgstr "Payment method: 10% deposit + pay on delivery"
+
+msgid "روش پرداخت: طرح بتا بانک رفاه ("
+msgstr "Payment method: Refah Bank Beta plan ("
+
+msgid "زمان تولید: 10 تا 15 روز کاری"
+msgstr "Production time: 10 to 15 business days"
+
+msgid "زوجی"
+msgstr "In pairs"
+
+msgid "سایز"
+msgstr "Size"
+
+msgid "سایز انتخاب نشده"
+msgstr "No size selected"
+
+msgid "سایز خاص نیاز دارید؟"
+msgstr "Need a custom size?"
+
+msgid "سایز سفارشی"
+msgstr "Custom size"
+
+msgid "سایزهای سفارشی ممکن است هزینه اضافی پرتی داشته باشند"
+msgstr "Custom sizes may incur additional waste costs"
+
+msgid "سبد خرید"
+msgstr "Shopping cart"
+
+msgid "سبد خرید شما خالی است"
+msgstr "Your cart is empty"
+
+msgid "سررسید گذشته"
+msgstr "Overdue"
+
+msgid "سفارش #"
+msgstr "Order #"
+
+msgid "سفارش زوجی"
+msgstr "Pair order"
+
+msgid "سفارش سایز خاص فقط با تسویه کامل امکان‌پذیر است. توصیه می‌شود سایزهای خاص به صورت جفتی سفارش داده شود. هزینه پرتی و طراحی به مبلغ سفارش اضافه می‌شود."
+msgstr "Custom-size orders are only possible with full payment. Custom sizes are recommended to be ordered in pairs. Waste and design costs are added to the order amount."
+
+msgid "سفارش سایز سفارشی"
+msgstr "Custom size order"
+
+msgid "سفارش شماره #"
+msgstr "Order number #"
+
+msgid "سفارش مرتبط (اختیاری)"
+msgstr "Related order (optional)"
+
+msgid "سفارشات من"
+msgstr "My orders"
+
+msgid "سفارشی"
+msgstr "Custom"
+
+msgid "سفارشی یافت نشد"
+msgstr "No orders found"
+
+msgid "سقف خرید اقساطی"
+msgstr "Installment purchase limit"
+
+msgid "سقف خرید اقساطی:"
+msgstr "Installment purchase limit:"
+
+msgid "سود کل ("
+msgstr "Total interest ("
+
+msgid "سود کل:"
+msgstr "Total interest:"
+
+msgid "سیستم جامع مدیریت و فروش فرش ماشینی با امکان خرید آنلاین، اقساطی و ارسال به سراسر ایران."
+msgstr "A comprehensive platform for managing and selling machine-made carpets, with online and installment purchasing and delivery across Iran."
+
+msgid "شانه"
+msgstr "Reed count"
+
+msgid "شرایط خرید"
+msgstr "Purchase terms"
+
+msgid "شرایط سفارش سایز سفارشی:"
+msgstr "Custom size order terms:"
+
+msgid "شرایط و ضوابط:"
+msgstr "Terms and conditions:"
+
+msgid "شرح کالا"
+msgstr "Item description"
+
+msgid "شروع خرید"
+msgstr "Start shopping"
+
+msgid "شرکت"
+msgstr "Company"
+
+msgid "شما هنوز آدرسی ثبت نکرده‌اید"
+msgstr "You haven't added any address yet"
+
+msgid "شما هنوز سفارشی ثبت نکرده‌اید."
+msgstr "You haven't placed any orders yet."
+
+msgid "شماره"
+msgstr "Number"
+
+msgid "شماره تماس"
+msgstr "Contact number"
+
+msgid "شماره تماس *"
+msgstr "Contact number *"
+
+msgid "شماره سفارش:"
+msgstr "Order number:"
+
+msgid "شماره سفارش: #"
+msgstr "Order number: #"
+
+msgid "شماره شما از لیست خبرنامه حذف شد و دیگر پیامکی دریافت نخواهید کرد."
+msgstr "Your number has been removed from the newsletter list and you will no longer receive SMS."
+
+msgid "شماره فاکتور:"
+msgstr "Invoice number:"
+
+msgid "شماره قسط"
+msgstr "Installment number"
+
+msgid "شماره مرجع:"
+msgstr "Reference number:"
+
+msgid "شماره موبایل"
+msgstr "Mobile number"
+
+msgid "شماره موبایل قابل تغییر نیست."
+msgstr "The mobile number cannot be changed."
+
+msgid "شماره موبایل یا رمز عبور اشتباه است."
+msgstr "Incorrect mobile number or password."
+
+msgid "شهر"
+msgstr "City"
+
+msgid "صفحات مرتبط"
+msgstr "Related pages"
+
+msgid "صفحه %(cur)s از %(total)s"
+msgstr "Page %(cur)s of %(total)s"
+
+msgid "صفحه اصلی"
+msgstr "Home"
+
+msgid "صفحه‌بندی"
+msgstr "Pagination"
+
+msgid "ضمانت اصالت"
+msgstr "Authenticity guarantee"
+
+msgid "ضمانت اصالت کالا از شرکت تولیدی"
+msgstr "Authenticity guarantee from the manufacturer"
+
+msgid "طبق قوانین فروشگاه، در صورت لغو سفارش مبلغ زیر از بیعانه شما کسر می‌شود:"
+msgstr "According to store policy, if the order is cancelled the following amount will be deducted from your deposit:"
+
+msgid "طرح"
+msgstr "Design"
+
+msgid "طرح اقساط سفارش #"
+msgstr "Installment plan for order #"
+
+msgid "طرح بتا (بانک رفاه): حداکثر 18 قسط ماهانه یا دوماهانه"
+msgstr "Beta plan (Refah Bank): up to 18 monthly or bimonthly installments"
+
+msgid "طرح بتا بانک رفاه (حداکثر 18 ماه)"
+msgstr "Refah Bank Beta plan (up to 18 months)"
+
+msgid "طرح بتا تا %(m)s ماه"
+msgstr "Beta plan up to %(m)s months"
+
+msgid "طرح بتا فقط برای بازنشستگان بانک رفاه"
+msgstr "Beta plan only for Refah Bank retirees"
+
+msgid "طرح بتا: حداکثر 18 قسط"
+msgstr "Beta plan: up to 18 installments"
+
+msgid "طول (متر)"
+msgstr "Length (m)"
+
+msgid "طول (متر) *"
+msgstr "Length (m) *"
+
+msgid "عبارت مورد نظر خود را جستجو کنید."
+msgstr "Search for your desired term."
+
+msgid "عرض (متر)"
+msgstr "Width (m)"
+
+msgid "عرض (متر) *"
+msgstr "Width (m) *"
+
+msgid "عضویت شما لغو شد"
+msgstr "Your subscription has been cancelled"
+
+msgid "علاقه‌مندی"
+msgstr "Wishlist"
+
+msgid "علاقه‌مندی‌ها"
+msgstr "Wishlist"
+
+msgid "عملیات"
+msgstr "Actions"
+
+msgid "عملیات مدیریتی"
+msgstr "Admin actions"
+
+msgid "عنوان"
+msgstr "Title"
+
+msgid "عنوان کاتالوگ"
+msgstr "Catalog title"
+
+msgid "فاکتور شماره"
+msgstr "Invoice number"
+
+msgid "فاکتور فروش"
+msgstr "Sales invoice"
+
+msgid "فرش‌ها"
+msgstr "Carpets"
+
+msgid "فرش‌های مشابه"
+msgstr "Similar carpets"
+
+msgid "فروشگاه فرش"
+msgstr "Carpet Shop"
+
+msgid "فقط به تعداد زوج"
+msgstr "Even quantities only"
+
+msgid "فقط تسویه کامل"
+msgstr "Full payment only"
+
+msgid "فقط زوج"
+msgstr "Even only"
+
+msgid "فیلتر"
+msgstr "Filter"
+
+msgid "فیلتر بر اساس وضعیت:"
+msgstr "Filter by status:"
+
+msgid "فیلتر تصاویر"
+msgstr "Filter images"
+
+msgid "فیلتر محصولات"
+msgstr "Filter products"
+
+msgid "فیلتر نتایج"
+msgstr "Filter results"
+
+msgid "فیلتر ویدیوها"
+msgstr "Filter videos"
+
+msgid "فیلترهای خود را تغییر دهید یا بعداً دوباره تلاش کنید."
+msgstr "Change your filters or try again later."
+
+msgid "قابل سفارش است"
+msgstr "Available to order"
+
+msgid "قبلاً ثبت‌نام کرده‌اید؟"
+msgstr "Already registered?"
+
+msgid "قبلی"
+msgstr "Previous"
+
+msgid "قدیمی‌ترین"
+msgstr "Oldest"
+
+msgid "قسط"
+msgstr "Installment"
+
+msgid "قسط ×"
+msgstr "Installment ×"
+
+msgid "قیمت (تومان)"
+msgstr "Price (Toman)"
+
+msgid "قیمت برخی محصولات از زمان ثبت سفارش تغییر کرده است. مبلغ بیعانه پرداختی شما ثابت است و فقط مانده بر اساس قیمت روز محاسبه می‌شود."
+msgstr "The price of some products has changed since the order was placed. Your paid deposit is fixed and only the balance is calculated based on the daily price."
+
+msgid "قیمت روز"
+msgstr "Daily price"
+
+msgid "قیمت روز در زمان تحویل اعمال می‌شود (بیعانه ثابت)"
+msgstr "The daily price applies at delivery (fixed deposit)"
+
+msgid "قیمت فرش ۱۲ متری:"
+msgstr "Price of 12 m² carpet:"
+
+msgid "قیمت نهایی این سفارش، قیمت روز تحویل است."
+msgstr "The final price of this order is the daily price at delivery."
+
+msgid "قیمت نهایی بر اساس مساحت و پیچیدگی کار محاسبه می‌شود"
+msgstr "The final price is calculated based on area and work complexity"
+
+msgid "قیمت نهایی بعد از بررسی کارشناسان اعلام می‌شود"
+msgstr "The final price will be announced after expert review"
+
+msgid "قیمت واحد"
+msgstr "Unit price"
+
+msgid "قیمت ۱۲ متری"
+msgstr "Price for 12 m²"
+
+msgid "قیمت ۱۲ متری:"
+msgstr "Price for 12 m²:"
+
+msgid "لطفاً اتصال اینترنت خود را بررسی کنید و دوباره تلاش کنید."
+msgstr "Please check your internet connection and try again."
+
+msgid "لطفاً خطاهای زیر را اصلاح کنید:"
+msgstr "Please correct the following errors:"
+
+msgid "لطفاً چک‌های صیادی را با مبالغ و تاریخ‌های مشخص شده آماده کنید."
+msgstr "Please prepare the Sayad cheques with the specified amounts and dates."
+
+msgid "لغو سفارش"
+msgstr "Cancel order"
+
+msgid "لوگو"
+msgstr "Logo"
+
+msgid "لیست"
+msgstr "List"
+
+msgid "لیست اقساط"
+msgstr "Installment list"
+
+msgid "لیست سفارشات"
+msgstr "Order list"
+
+msgid "لیست علاقه‌مندی شما خالی است"
+msgstr "Your wishlist is empty"
+
+msgid "لیست علاقه‌مندی‌ها"
+msgstr "Wishlist"
+
+msgid "لیست مقایسه خالی است"
+msgstr "The comparison list is empty"
+
+msgid "لینک محصول:"
+msgstr "Product link:"
+
+msgid "لینک کاتالوگ:"
+msgstr "Catalog link:"
+
+msgid "ماشین‌حساب اقساط"
+msgstr "Installment calculator"
+
+msgid "مانده (قیمت روز):"
+msgstr "Balance (daily price):"
+
+msgid "مانده:"
+msgstr "Balance:"
+
+msgid "ماه %(n)s"
+msgstr "Month %(n)s"
+
+msgid "ماه - سود"
+msgstr "Month - interest"
+
+msgid "ماه)"
+msgstr "months)"
+
+msgid "ماهانه"
+msgstr "Monthly"
+
+msgid "مبلغ"
+msgstr "Amount"
+
+msgid "مبلغ (تومان)"
+msgstr "Amount (Toman)"
+
+msgid "مبلغ اصل:"
+msgstr "Principal amount:"
+
+msgid "مبلغ اقساط"
+msgstr "Installment amount"
+
+msgid "مبلغ بالاتر از سقف باید به صورت نقدی پرداخت شود"
+msgstr "Amounts above the limit must be paid in cash"
+
+msgid "مبلغ قابل اقساط"
+msgstr "Installment-eligible amount"
+
+msgid "مبلغ قابل اقساط:"
+msgstr "Installment-eligible amount:"
+
+msgid "مبلغ قابل پرداخت"
+msgstr "Amount payable"
+
+msgid "مبلغ قابل پرداخت:"
+msgstr "Amount payable:"
+
+msgid "مبلغ قسط"
+msgstr "Installment amount"
+
+msgid "مبلغ نهایی:"
+msgstr "Final amount:"
+
+msgid "مبلغ هر قسط"
+msgstr "Amount per installment"
+
+msgid "مبلغ هر قسط ("
+msgstr "Amount per installment ("
+
+msgid "مبلغ هر قسط:"
+msgstr "Amount per installment:"
+
+msgid "مبلغ پرداختی:"
+msgstr "Amount paid:"
+
+msgid "مبلغ کل"
+msgstr "Total amount"
+
+msgid "مبلغ کل با سود"
+msgstr "Total amount with interest"
+
+msgid "مبلغ کل با سود:"
+msgstr "Total amount with interest:"
+
+msgid "مبلغ کل فاکتور"
+msgstr "Invoice total amount"
+
+msgid "مبلغ کل فاکتور (تومان)"
+msgstr "Invoice total amount (Toman)"
+
+msgid "مبلغ کل:"
+msgstr "Total amount:"
+
+msgid "مبلغ:"
+msgstr "Amount:"
+
+msgid "متأسفانه این کاتالوگ در تاریخ"
+msgstr "Unfortunately this catalog on"
+
+msgid "متأسفانه محصولی با عبارت «"
+msgstr "Unfortunately, no product was found for «"
+
+msgid "متر"
+msgstr "m"
+
+msgid "متن پیام"
+msgstr "Message text"
+
+msgid "مثال: 09121234567"
+msgstr "Example: 09121234567"
+
+msgid "مثال: 1234567890"
+msgstr "Example: 1234567890"
+
+msgid "مثال: کاتالوگ ویژه آقای احمدی"
+msgstr "Example: Special catalog for Mr. Ahmadi"
+
+msgid "مجموع سود"
+msgstr "Total interest"
+
+msgid "مجموع سود ("
+msgstr "Total interest ("
+
+msgid "مجموع سود:"
+msgstr "Total interest:"
+
+msgid "محاسبه"
+msgstr "Calculate"
+
+msgid "محاسبه اقساط"
+msgstr "Calculate installments"
+
+msgid "محاسبه اقساط:"
+msgstr "Calculate installments:"
+
+msgid "محاسبه‌گر اقساط"
+msgstr "Installment calculator"
+
+msgid "محبوب‌ترین"
+msgstr "Most popular"
+
+msgid "محصول"
+msgstr "products"
+
+msgid "محصول |"
+msgstr "Product |"
+
+msgid "محصول انتخاب شده"
+msgstr "Selected product"
+
+msgid "محصول دیگر..."
+msgstr "more products..."
+
+msgid "محصول یافت شد"
+msgstr "products found"
+
+msgid "محصول)"
+msgstr "products)"
+
+msgid "محصولات"
+msgstr "Products"
+
+msgid "محصولات اصل"
+msgstr "Genuine products"
+
+msgid "محصولات سفارش"
+msgstr "Order items"
+
+msgid "محصولات مشابه"
+msgstr "Similar products"
+
+msgid "محصولات:"
+msgstr "Products:"
+
+msgid "محصولی با این فیلتر یافت نشد."
+msgstr "No products found with this filter."
+
+msgid "محصولی برای نمایش وجود ندارد."
+msgstr "There are no products to display."
+
+msgid "محصولی یافت نشد."
+msgstr "No products found."
+
+msgid "مدیریت"
+msgstr "Management"
+
+msgid "مدیریت صفحه اصلی"
+msgstr "Manage homepage"
+
+msgid "مرتب‌سازی"
+msgstr "Sort"
+
+msgid "مرتب‌سازی:"
+msgstr "Sort:"
+
+msgid "مرورگر شما از پخش ویدیو پشتیبانی نمی‌کند."
+msgstr "Your browser does not support video playback."
+
+msgid "مشاهده"
+msgstr "View"
+
+msgid "مشاهده بیشتر"
+msgstr "View more"
+
+msgid "مشاهده جزئیات"
+msgstr "View details"
+
+msgid "مشاهده سفارش"
+msgstr "View order"
+
+msgid "مشاهده قیمت %(n)s سایز دیگر"
+msgstr "View prices of %(n)s other sizes"
+
+msgid "مشاهده محصولات"
+msgstr "View products"
+
+msgid "مشاهده همه"
+msgstr "View all"
+
+msgid "مشاهده همه محصولات"
+msgstr "View all products"
+
+msgid "مشاهده همه ویدیوها"
+msgstr "View all videos"
+
+msgid "مشاهده و خرید"
+msgstr "View and buy"
+
+msgid "مشاهده و خرید محصول"
+msgstr "View and buy product"
+
+msgid "مشاوره رایگان"
+msgstr "Free consultation"
+
+msgid "مشتری:"
+msgstr "Customer:"
+
+msgid "مشخصات خریدار"
+msgstr "Buyer details"
+
+msgid "مشخصات محصول"
+msgstr "Product specifications"
+
+msgid "معرفی محصول"
+msgstr "Product overview"
+
+msgid "مقالات %(c)s"
+msgstr "%(c)s articles"
+
+msgid "مقالات مرتبط"
+msgstr "Related articles"
+
+msgid "مقاله)"
+msgstr "articles)"
+
+msgid "مقاله‌ای یافت نشد."
+msgstr "No articles found."
+
+msgid "مقایسه"
+msgstr "Compare"
+
+msgid "مقایسه محصولات"
+msgstr "Compare products"
+
+msgid "منقضی"
+msgstr "Expired"
+
+msgid "منقضی شده است."
+msgstr "has expired."
+
+msgid "موبایل:"
+msgstr "Mobile:"
+
+msgid "موضوع"
+msgstr "Subject"
+
+msgid "نام"
+msgstr "First name"
+
+msgid "نام خانوادگی"
+msgstr "Last name"
+
+msgid "نام نقشه"
+msgstr "Design name"
+
+msgid "نام نقشه، شرکت، رنگ..."
+msgstr "Design name, company, color..."
+
+msgid "نام:"
+msgstr "Name:"
+
+msgid "نام، شرکت..."
+msgstr "Name, company..."
+
+msgid "نتایج جستجو برای"
+msgstr "Search results for"
+
+msgid "نتایج محاسبه"
+msgstr "Calculation results"
+
+msgid "نتیجه محاسبات"
+msgstr "Calculation result"
+
+msgid "نتیجه محاسبات:"
+msgstr "Calculation result:"
+
+msgid "نرخ سود"
+msgstr "Interest rate"
+
+msgid "نرخ سود از تنظیمات سیستم"
+msgstr "Interest rate from system settings"
+
+msgid "نرخ سود ماهانه (%)"
+msgstr "Monthly interest rate (%)"
+
+msgid "نرخ سود ماهانه است و بر اساس تعداد ماه‌ها محاسبه می‌شود"
+msgstr "The interest rate is monthly and is calculated based on the number of months"
+
+msgid "نرخ سود ممکن است متغیر باشد"
+msgstr "The interest rate may vary"
+
+msgid "نظر"
+msgstr "reviews"
+
+msgid "نظر شما (اختیاری)..."
+msgstr "Your review (optional)..."
+
+msgid "نظر)"
+msgstr "reviews)"
+
+msgid "نظرات و امتیازها"
+msgstr "Reviews & ratings"
+
+msgid "نوع بافت"
+msgstr "Weave type"
+
+msgid "نوع طرح"
+msgstr "Design type"
+
+msgid "نوع طرح اقساطی"
+msgstr "Installment plan type"
+
+msgid "نوع طرح:"
+msgstr "Plan type:"
+
+msgid "نکات مهم"
+msgstr "Important notes"
+
+msgid "نکات مهم:"
+msgstr "Important notes:"
+
+msgid "هزینه ارسال با مشتری"
+msgstr "Shipping paid by customer"
+
+msgid "هزینه ارسال:"
+msgstr "Shipping cost:"
+
+msgid "هزینه ایاب‌ذهاب:"
+msgstr "Transport cost:"
+
+msgid "هشدار!"
+msgstr "Warning!"
+
+msgid "همه"
+msgstr "All"
+
+msgid "همه رنگ‌ها"
+msgstr "All colors"
+
+msgid "همه سفارشات"
+msgstr "All orders"
+
+msgid "همه شانه‌ها"
+msgstr "All reed counts"
+
+msgid "همه شرکت‌ها"
+msgstr "All companies"
+
+msgid "همه طرح‌ها"
+msgstr "All designs"
+
+msgid "همه مقالات"
+msgstr "All articles"
+
+msgid "هنوز آدرسی ثبت نکرده‌اید."
+msgstr "You haven't added any address yet."
+
+msgid "هنوز سفارشی ثبت نکرده‌اید"
+msgstr "You haven't placed any orders yet"
+
+msgid "هنوز نظری ثبت نشده. اولین نفر باشید!"
+msgstr "No reviews yet. Be the first!"
+
+msgid "هنوز هیچ محصولی به سبد خرید اضافه نکرده‌اید."
+msgstr "You haven't added any products to the cart yet."
+
+msgid "هیچ"
+msgstr "None"
+
+msgid "هیچ سفارشی با این وضعیت وجود ندارد."
+msgstr "There are no orders with this status."
+
+msgid "هیچ کاتالوگی یافت نشد."
+msgstr "No catalog found."
+
+msgid "و"
+msgstr "and"
+
+msgid "واتساپ"
+msgstr "WhatsApp"
+
+msgid "وارد شوید"
+msgstr "Log in"
+
+msgid "ورود"
+msgstr "Login"
+
+msgid "ورود به حساب کاربری"
+msgstr "Log in to your account"
+
+msgid "وزن"
+msgstr "Weight"
+
+msgid "وضعیت"
+msgstr "Status"
+
+msgid "وضعیت سفارش"
+msgstr "Order status"
+
+msgid "وضعیت سفارش:"
+msgstr "Order status:"
+
+msgid "وضعیت فعلی:"
+msgstr "Current status:"
+
+msgid "وضعیت پرداخت"
+msgstr "Payment status"
+
+msgid "وضعیت:"
+msgstr "Status:"
+
+msgid "ویدیو"
+msgstr "Video"
+
+msgid "ویدیو از فرش‌های ماشینی"
+msgstr "Video of machine-made carpets"
+
+msgid "ویدیوهای مشابه"
+msgstr "Similar videos"
+
+msgid "ویدیویی یافت نشد"
+msgstr "No video found"
+
+msgid "ویرایش"
+msgstr "Edit"
+
+msgid "ویرایش آدرس"
+msgstr "Edit address"
+
+msgid "ویرایش پروفایل"
+msgstr "Edit profile"
+
+msgid "ویژگی"
+msgstr "Feature"
+
+msgid "پاسخ شما"
+msgstr "Your reply"
+
+msgid "پاک کردن فیلترها"
+msgstr "Clear filters"
+
+msgid "پاک کردن لیست"
+msgstr "Clear list"
+
+msgid "پربازدیدترین"
+msgstr "Most viewed"
+
+msgid "پرداخت"
+msgstr "Payment"
+
+msgid "پرداخت از طریق درگاه امن بانکی"
+msgstr "Payment via secure bank gateway"
+
+msgid "پرداخت با موفقیت انجام شد!"
+msgstr "Payment completed successfully!"
+
+msgid "پرداخت سفارش"
+msgstr "Order payment"
+
+msgid "پرداخت شده"
+msgstr "Paid"
+
+msgid "پرداخت شده:"
+msgstr "Paid:"
+
+msgid "پرداخت موقع تحویل"
+msgstr "Pay on delivery"
+
+msgid "پرداخت ناموفق بود"
+msgstr "Payment failed"
+
+msgid "پرداخت نشده"
+msgstr "Unpaid"
+
+msgid "پرداخت کامل از طریق درگاه بانکی"
+msgstr "Full payment via bank gateway"
+
+msgid "پرداخت:"
+msgstr "Payment:"
+
+msgid "پرداخت: نقدی آنلاین کامل"
+msgstr "Payment: full online cash"
+
+msgid "پروفایل"
+msgstr "Profile"
+
+msgid "پس از تأیید قیمت، امکان تغییر سایز وجود ندارد"
+msgstr "After price confirmation, size cannot be changed"
+
+msgid "پشتیبانی"
+msgstr "Support"
+
+msgid "پنل ادمین"
+msgstr "Admin Panel"
+
+msgid "پنل کاربری"
+msgstr "User panel"
+
+msgid "پیشنهاد: از کلمات دیگری استفاده کنید یا فیلترها را تغییر دهید."
+msgstr "Tip: try other words or change the filters."
+
+msgid "پیش‌فرض"
+msgstr "Default"
+
+msgid "پیش‌پرداخت"
+msgstr "Down payment"
+
+msgid "پیش‌پرداخت (تومان)"
+msgstr "Down payment (Toman)"
+
+msgid "پیش‌پرداخت (تومان) - اختیاری"
+msgstr "Down payment (Toman) - optional"
+
+msgid "پیش‌پرداخت اختیاری است ولی باعث کاهش سود می‌شود"
+msgstr "Down payment is optional but reduces interest"
+
+msgid "پیوست"
+msgstr "Attachment"
+
+msgid "پیگیری سفارش"
+msgstr "Track order"
+
+msgid "چاپ فاکتور"
+msgstr "Print invoice"
+
+msgid "چک صیادی (حداکثر 12 ماه)"
+msgstr "Sayad cheque (up to 12 months)"
+
+msgid "چک صیادی تا %(m)s ماه"
+msgstr "Sayad cheque up to %(m)s months"
+
+msgid "چک صیادی: حداکثر 12 قسط"
+msgstr "Sayad cheque: up to 12 installments"
+
+msgid "چک صیادی: حداکثر 12 قسط ماهانه یا دوماهانه"
+msgstr "Sayad cheque: up to 12 monthly or bimonthly installments"
+
+msgid "چک‌های صیادی باید به نام شرکت باشد"
+msgstr "Sayad cheques must be in the company's name"
+
+msgid "کاتالوگ"
+msgstr "Catalog"
+
+msgid "کاتالوگ جدید"
+msgstr "New catalog"
+
+msgid "کاتالوگ منقضی شده"
+msgstr "Expired catalog"
+
+msgid "کالا تحویل شده قابل تعویض و استرداد نیست (مگر در صورت نقص تولیدی)"
+msgstr "Delivered goods are non-exchangeable and non-refundable (except for manufacturing defects)"
+
+msgid "کاهش حجم"
+msgstr "Reduce size"
+
+msgid "کد"
+msgstr "Code"
+
+msgid "کد محصول:"
+msgstr "Product code:"
+
+msgid "کد پستی"
+msgstr "Postal code"
+
+msgid "کد پستی:"
+msgstr "Postal code:"
+
+msgid "کد پیگیری:"
+msgstr "Tracking code:"
+
+msgid "کد:"
+msgstr "Code:"
+
+msgid "کل خرید (تومان)"
+msgstr "Total purchases (Toman)"
+
+msgid "کل سفارش‌ها"
+msgstr "Total orders"
+
+msgid "کپی"
+msgstr "Copy"
+
+msgid "کپی لینک"
+msgstr "Copy link"
+
+msgid "کیفیت"
+msgstr "Quality"
+
+msgid "گالری تصاویر"
+msgstr "Image gallery"
+
+msgid "گالری ویدیو"
+msgstr "Video gallery"
+
+msgid "گران‌ترین"
+msgstr "Most expensive"
+
+msgid "یادداشت (اختیاری)"
+msgstr "Note (optional)"
+
+msgid "یادداشت شما"
+msgstr "Your note"
+
+msgid "← بکشید برای تصاویر مشابه →"
+msgstr "← Swipe for similar images →"
+
+msgid "← بکشید برای ورق زدن →"
+msgstr "← Swipe to flip through →"
+
+msgid "🏦 خرید اقساطی - طرح بتا (بازنشستگان رفاه)"
+msgstr "🏦 Installment purchase - Beta plan (Refah retirees)"
+
+msgid "💰 بیعانه"
+msgstr "💰 Deposit"
+
+msgid "💳 پرداخت آنلاین کامل"
+msgstr "💳 Full online payment"
+
+msgid "📋 خرید اقساطی - چک صیادی"
+msgstr "📋 Installment purchase - Sayad cheque"

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
 {% load price_tags %}
 
@@ -11,7 +12,7 @@
         <div class="col-12">
             <h1 class="mb-4">
                 <i class="bi bi-cart3"></i>
-                سبد خرید
+                {% trans "سبد خرید" %}
             </h1>
         </div>
     </div>
@@ -25,11 +26,11 @@
                     <table class="table table-hover align-middle">
                         <thead class="table-light">
                             <tr>
-                                <th>محصول</th>
-                                <th>سایز</th>
-                                <th>قیمت واحد</th>
-                                <th>تعداد</th>
-                                <th>جمع</th>
+                                <th>{% trans "محصول" %}</th>
+                                <th>{% trans "سایز" %}</th>
+                                <th>{% trans "قیمت واحد" %}</th>
+                                <th>{% trans "تعداد" %}</th>
+                                <th>{% trans "جمع" %}</th>
                                 <th></th>
                             </tr>
                         </thead>
@@ -52,11 +53,11 @@
                                             <br>
                                             <small class="text-muted">
                                                 {{ item.product.album.manufacturer.name }} - 
-                                                {{ item.product.album.comb }} شانه
+                                                {{ item.product.album.comb }} {% trans "شانه" %}
                                             </small>
                                             {% if item.is_pair %}
                                             <br>
-                                            <span class="badge bg-info">سفارش زوجی</span>
+                                            <span class="badge bg-info">{% trans "سفارش زوجی" %}</span>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -65,11 +66,11 @@
                                     {% if item.size %}
                                         <strong>{{ item.size.name }}</strong>
                                     {% else %}
-                                        <span class="text-muted">سایز انتخاب نشده</span>
+                                        <span class="text-muted">{% trans "سایز انتخاب نشده" %}</span>
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <strong>{{ item.unit_price|price_comma }}</strong> تومان
+                                    <strong>{{ item.unit_price|price_comma }}</strong> {% trans "تومان" %}
                                 </td>
                                 <td>
                                     <div class="input-group" style="width: 120px;">
@@ -93,7 +94,7 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <strong class="text-primary">{{ item.total_price|price_comma }}</strong> تومان
+                                    <strong class="text-primary">{{ item.total_price|price_comma }}</strong> {% trans "تومان" %}
                                 </td>
                                 <td>
                                     <form method="post" action="{% url 'orders:cart_remove' %}" 
@@ -116,7 +117,7 @@
                            class="btn btn-outline-danger"
                            onclick="return confirm('آیا از خالی کردن سبد خرید اطمینان دارید؟');">
                             <i class="bi bi-trash"></i>
-                            خالی کردن سبد
+                            {% trans "خالی کردن سبد" %}
                         </a>
                     </div>
                 </div>
@@ -127,21 +128,21 @@
         <div class="col-lg-4">
             <div class="card shadow-sm sticky-top" style="top: 20px;">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">خلاصه سفارش</h5>
+                    <h5 class="mb-0">{% trans "خلاصه سفارش" %}</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-3">
-                        <span>جمع کل محصولات:</span>
-                        <strong id="total-price">{{ total_price|price_comma }} تومان</strong>
+                        <span>{% trans "جمع کل محصولات:" %}</span>
+                        <strong id="total-price">{{ total_price|price_comma }} {% trans "تومان" %}</strong>
                     </div>
                     
                     <div class="d-flex justify-content-between mb-3">
-                        <span>هزینه ارسال:</span>
+                        <span>{% trans "هزینه ارسال:" %}</span>
                         <strong id="shipping-cost">
                             {% if free_shipping %}
-                                <span class="text-success">رایگان</span>
+                                <span class="text-success">{% trans "رایگان" %}</span>
                             {% else %}
-                                {{ shipping_cost|price_comma }} تومان
+                                {{ shipping_cost|price_comma }} {% trans "تومان" %}
                             {% endif %}
                         </strong>
                     </div>
@@ -149,27 +150,27 @@
                     {% if not free_shipping %}
                     <div class="alert alert-info small">
                         <i class="bi bi-info-circle"></i>
-                        برای ارسال رایگان، خرید نقدی آنلاین بالای {{ min_free_shipping|price_comma }} تومان لازم است.
+                        {% trans "برای ارسال رایگان، خرید نقدی آنلاین بالای" %} {{ min_free_shipping|price_comma }} {% trans "تومان لازم است." %}
                     </div>
                     {% endif %}
                     
                     <hr>
                     
                     <div class="d-flex justify-content-between mb-4">
-                        <strong>مبلغ قابل پرداخت:</strong>
+                        <strong>{% trans "مبلغ قابل پرداخت:" %}</strong>
                         <strong class="text-danger fs-5" id="total-with-shipping">
-                            {{ total_with_shipping|price_comma }} تومان
+                            {{ total_with_shipping|price_comma }} {% trans "تومان" %}
                         </strong>
                     </div>
                     
                     <a href="{% url 'orders:checkout' %}" class="btn btn-primary w-100 btn-lg mb-2">
                         <i class="bi bi-check-circle"></i>
-                        تکمیل سفارش
+                        {% trans "تکمیل سفارش" %}
                     </a>
                     
                     <a href="{% url 'shop:catalog' %}" class="btn btn-outline-secondary w-100">
                         <i class="bi bi-arrow-right"></i>
-                        ادامه خرید
+                        {% trans "ادامه خرید" %}
                     </a>
                 </div>
             </div>
@@ -183,11 +184,11 @@
             <div class="card shadow-sm text-center py-5">
                 <div class="card-body">
                     <i class="bi bi-cart-x display-1 text-muted"></i>
-                    <h3 class="mt-4 mb-3">سبد خرید شما خالی است</h3>
-                    <p class="text-muted mb-4">هنوز هیچ محصولی به سبد خرید اضافه نکرده‌اید.</p>
+                    <h3 class="mt-4 mb-3">{% trans "سبد خرید شما خالی است" %}</h3>
+                    <p class="text-muted mb-4">{% trans "هنوز هیچ محصولی به سبد خرید اضافه نکرده‌اید." %}</p>
                     <a href="{% url 'shop:catalog' %}" class="btn btn-primary btn-lg">
                         <i class="bi bi-arrow-right"></i>
-                        مشاهده محصولات
+                        {% trans "مشاهده محصولات" %}
                     </a>
                 </div>
             </div>

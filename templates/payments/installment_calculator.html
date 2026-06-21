@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load humanize %}
 {% load price_tags %}
 
@@ -10,11 +11,11 @@
         <div class="col-lg-10">
             <div class="hf-card p-4">
                 <h3 class="mb-4" style="color:var(--hf-primary);">
-                    <i class="bi bi-calculator"></i> محاسبه‌گر اقساط
+                    <i class="bi bi-calculator"></i> {% trans "محاسبه‌گر اقساط" %}
                 </h3>
                 
                 <p class="text-muted mb-4">
-                    با استفاده از این ماشین‌حساب می‌توانید مبلغ هر قسط خرید اقساطی خود را محاسبه کنید.
+                    {% trans "با استفاده از این ماشین‌حساب می‌توانید مبلغ هر قسط خرید اقساطی خود را محاسبه کنید." %}
                 </p>
                 
                 <form method="post" id="calculatorForm">
@@ -54,7 +55,7 @@
                     </div>
                     
                     <button type="submit" class="btn btn-hf-primary btn-lg w-100">
-                        <i class="bi bi-calculator-fill"></i> محاسبه اقساط
+                        <i class="bi bi-calculator-fill"></i> {% trans "محاسبه اقساط" %}
                     </button>
                 </form>
                 
@@ -66,50 +67,50 @@
                     </div>
                     {% else %}
                     <div class="p-4 rounded" style="background:var(--hf-primary-bg);border:2px solid var(--hf-primary);">
-                        <h5 class="mb-3" style="color:var(--hf-primary);">نتیجه محاسبات:</h5>
+                        <h5 class="mb-3" style="color:var(--hf-primary);">{% trans "نتیجه محاسبات:" %}</h5>
                         
                         <div class="row g-3 mb-4">
                             <div class="col-md-6">
                                 <div class="p-3 rounded" style="background:#fff;">
-                                    <small class="text-muted d-block">مبلغ کل فاکتور</small>
-                                    <strong class="fs-5">{{ result.total_amount|price_comma }} تومان</strong>
+                                    <small class="text-muted d-block">{% trans "مبلغ کل فاکتور" %}</small>
+                                    <strong class="fs-5">{{ result.total_amount|price_comma }} {% trans "تومان" %}</strong>
                                 </div>
                             </div>
                             
                             <div class="col-md-6">
                                 <div class="p-3 rounded" style="background:#fff;">
-                                    <small class="text-muted d-block">پیش‌پرداخت</small>
-                                    <strong class="fs-5">{{ result.down_payment|price_comma }} تومان</strong>
+                                    <small class="text-muted d-block">{% trans "پیش‌پرداخت" %}</small>
+                                    <strong class="fs-5">{{ result.down_payment|price_comma }} {% trans "تومان" %}</strong>
                                 </div>
                             </div>
                             
                             <div class="col-md-6">
                                 <div class="p-3 rounded" style="background:#fff;">
-                                    <small class="text-muted d-block">مبلغ قابل اقساط</small>
-                                    <strong class="fs-5 text-primary">{{ result.financed_amount|price_comma }} تومان</strong>
+                                    <small class="text-muted d-block">{% trans "مبلغ قابل اقساط" %}</small>
+                                    <strong class="fs-5 text-primary">{{ result.financed_amount|price_comma }} {% trans "تومان" %}</strong>
                                 </div>
                             </div>
                             
                             <div class="col-md-6">
                                 <div class="p-3 rounded" style="background:#fff;">
-                                    <small class="text-muted d-block">سود کل ({{ result.interest_rate }}% × {{ result.months }} ماه)</small>
-                                    <strong class="fs-5 text-warning">{{ result.total_interest|price_comma }} تومان</strong>
+                                    <small class="text-muted d-block">{% trans "سود کل (" %}{{ result.interest_rate }}% × {{ result.months }} {% trans "ماه)" %}</small>
+                                    <strong class="fs-5 text-warning">{{ result.total_interest|price_comma }} {% trans "تومان" %}</strong>
                                 </div>
                             </div>
                         </div>
                         
                         <div class="p-4 rounded text-center" style="background:var(--hf-primary);color:#fff;">
-                            <h6 class="mb-2">مبلغ هر قسط ({{ result.period_display }})</h6>
-                            <div class="fs-2 fw-bold">{{ result.installment_amount|price_comma }} تومان</div>
-                            <small class="opacity-75">{{ result.num_installments }} قسط × {{ result.installment_amount|price_comma }} = {{ result.total_with_interest|price_comma }} تومان</small>
+                            <h6 class="mb-2">{% trans "مبلغ هر قسط (" %}{{ result.period_display }})</h6>
+                            <div class="fs-2 fw-bold">{{ result.installment_amount|price_comma }} {% trans "تومان" %}</div>
+                            <small class="opacity-75">{{ result.num_installments }} {% trans "قسط ×" %} {{ result.installment_amount|price_comma }} = {{ result.total_with_interest|price_comma }} {% trans "تومان" %}</small>
                         </div>
                         
                         <div class="mt-3 p-3 rounded" style="background:#fff8e1;">
                             <small class="text-muted">
                                 <i class="bi bi-info-circle"></i>
-                                <strong>نوع طرح:</strong> {{ result.plan_type_display }} |
-                                <strong>دوره پرداخت:</strong> {{ result.period_display }} |
-                                <strong>تعداد اقساط:</strong> {{ result.num_installments }}
+                                <strong>{% trans "نوع طرح:" %}</strong> {{ result.plan_type_display }} |
+                                <strong>{% trans "دوره پرداخت:" %}</strong> {{ result.period_display }} |
+                                <strong>{% trans "تعداد اقساط:" %}</strong> {{ result.num_installments }}
                             </small>
                         </div>
                     </div>
@@ -118,13 +119,13 @@
                 {% endif %}
                 
                 <div class="mt-4 p-3 rounded" style="background:var(--hf-gray-light);">
-                    <h6><i class="bi bi-lightbulb"></i> توضیحات:</h6>
+                    <h6><i class="bi bi-lightbulb"></i> {% trans "توضیحات:" %}</h6>
                     <ul class="small mb-0">
-                        <li>حداکثر مبلغ قابل اقساط: 75 میلیون تومان</li>
-                        <li>چک صیادی: حداکثر 12 قسط ماهانه یا دوماهانه</li>
-                        <li>طرح بتا (بانک رفاه): حداکثر 18 قسط ماهانه یا دوماهانه</li>
-                        <li>پیش‌پرداخت اختیاری است ولی باعث کاهش سود می‌شود</li>
-                        <li>نرخ سود ماهانه است و بر اساس تعداد ماه‌ها محاسبه می‌شود</li>
+                        <li>{% trans "حداکثر مبلغ قابل اقساط: 75 میلیون تومان" %}</li>
+                        <li>{% trans "چک صیادی: حداکثر 12 قسط ماهانه یا دوماهانه" %}</li>
+                        <li>{% trans "طرح بتا (بانک رفاه): حداکثر 18 قسط ماهانه یا دوماهانه" %}</li>
+                        <li>{% trans "پیش‌پرداخت اختیاری است ولی باعث کاهش سود می‌شود" %}</li>
+                        <li>{% trans "نرخ سود ماهانه است و بر اساس تعداد ماه‌ها محاسبه می‌شود" %}</li>
                     </ul>
                 </div>
             </div>

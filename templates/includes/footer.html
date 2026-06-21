@@ -1,27 +1,28 @@
+{% load i18n %}
 {# Footer - همیار فرش #}
 <footer class="hf-footer">
     <div class="container">
         <div class="row">
             {# ستون 1: درباره ما #}
             <div class="col-lg-4 col-md-6 mb-4">
-                <h6><i class="bi bi-info-circle me-1"></i> درباره {{ site_settings.site_name|default:'همیار فرش' }}</h6>
+                <h6><i class="bi bi-info-circle me-1"></i> {% blocktrans with name=site_settings.site_name|default:'همیار فرش' %}درباره {{ name }}{% endblocktrans %}</h6>
                 <p class="small" style="line-height: 2;">
-                    سیستم جامع مدیریت و فروش فرش ماشینی با امکان خرید آنلاین، اقساطی و ارسال به سراسر ایران.
+                    {% trans "سیستم جامع مدیریت و فروش فرش ماشینی با امکان خرید آنلاین، اقساطی و ارسال به سراسر ایران." %}
                 </p>
             </div>
 
             {# ستون 2: دسترسی سریع #}
             <div class="col-lg-4 col-md-6 mb-4">
-                <h6><i class="bi bi-link-45deg me-1"></i> دسترسی سریع</h6>
+                <h6><i class="bi bi-link-45deg me-1"></i> {% trans "دسترسی سریع" %}</h6>
                 <ul class="list-unstyled small">
-                    <li class="mb-2"><a href="{% url 'home' %}"><i class="bi bi-chevron-left me-1"></i>صفحه اصلی</a></li>
+                    <li class="mb-2"><a href="{% url 'home' %}"><i class="bi bi-chevron-left me-1"></i>{% trans "صفحه اصلی" %}</a></li>
                     {# لینک‌های بیشتر در فازهای بعدی #}
                 </ul>
             </div>
 
             {# ستون 3: ارتباط با ما #}
             <div class="col-lg-4 col-md-12 mb-4">
-                <h6><i class="bi bi-telephone me-1"></i> ارتباط با ما</h6>
+                <h6><i class="bi bi-telephone me-1"></i> {% trans "ارتباط با ما" %}</h6>
                 <ul class="list-unstyled small">
                     {% if site_settings.mobile %}
                     <li class="mb-2"><i class="bi bi-phone me-2"></i><a href="tel:{{ site_settings.mobile }}" dir="ltr">{{ site_settings.mobile }}</a></li>
@@ -37,13 +38,13 @@
                 {# شبکه‌های اجتماعی #}
                 <div class="social-icons mt-3">
                     {% if site_settings.telegram_id %}
-                    <a href="https://t.me/{{ site_settings.telegram_id }}" target="_blank" title="تلگرام"><i class="bi bi-telegram"></i></a>
+                    <a href="https://t.me/{{ site_settings.telegram_id }}" target="_blank" title="{% trans 'تلگرام' %}"><i class="bi bi-telegram"></i></a>
                     {% endif %}
                     {% if site_settings.whatsapp %}
-                    <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" title="واتساپ"><i class="bi bi-whatsapp"></i></a>
+                    <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" title="{% trans 'واتساپ' %}"><i class="bi bi-whatsapp"></i></a>
                     {% endif %}
                     {% if site_settings.instagram_id %}
-                    <a href="https://instagram.com/{{ site_settings.instagram_id }}" target="_blank" title="اینستاگرام"><i class="bi bi-instagram"></i></a>
+                    <a href="https://instagram.com/{{ site_settings.instagram_id }}" target="_blank" title="{% trans 'اینستاگرام' %}"><i class="bi bi-instagram"></i></a>
                     {% endif %}
                 </div>
             </div>
@@ -52,8 +53,8 @@
         {# کپی‌رایت #}
         <div class="hf-footer-bottom">
             <p class="mb-0">
-                تمامی حقوق محفوظ است &copy; {{ site_settings.site_name|default:'همیار فرش' }}
-                | طراحی و توسعه:
+                {% trans "تمامی حقوق محفوظ است" %} &copy; {{ site_settings.site_name|default:'همیار فرش' }}
+                | {% trans "طراحی و توسعه:" %}
                 <a href="https://icsd.ir" target="_blank">ICSD</a>
             </p>
         </div>

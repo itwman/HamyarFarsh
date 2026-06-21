@@ -1,15 +1,16 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block meta_title %}ورود | {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
 <div class="hf-auth-card">
-    <h2><i class="bi bi-box-arrow-in-left"></i> ورود به حساب کاربری</h2>
+    <h2><i class="bi bi-box-arrow-in-left"></i> {% trans "ورود به حساب کاربری" %}</h2>
 
     {% if form.errors %}
     <div class="alert alert-danger">
         <i class="bi bi-exclamation-triangle"></i>
-        شماره موبایل یا رمز عبور اشتباه است.
+        {% trans "شماره موبایل یا رمز عبور اشتباه است." %}
     </div>
     {% endif %}
 
@@ -24,13 +25,13 @@
             {{ form.password }}
         </div>
         <button type="submit" class="btn btn-hf-primary w-100 mb-3">
-            <i class="bi bi-box-arrow-in-left"></i> ورود
+            <i class="bi bi-box-arrow-in-left"></i> {% trans "ورود" %}
         </button>
     </form>
 
     <div class="text-center">
-        <span class="text-muted">حساب کاربری ندارید؟</span>
-        <a href="{% url 'accounts:register' %}" class="fw-bold">ثبت‌نام کنید</a>
+        <span class="text-muted">{% trans "حساب کاربری ندارید؟" %}</span>
+        <a href="{% url 'accounts:register' %}" class="fw-bold">{% trans "ثبت‌نام کنید" %}</a>
     </div>
 </div>
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load humanize %}
 {% load price_tags %}
 
@@ -25,12 +26,12 @@
 <div class="container py-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h1 class="h4 mb-0" style="color:var(--hf-primary);">
-            <i class="bi bi-arrow-left-right"></i> مقایسه محصولات
-            <small class="text-muted">({{ count }} محصول)</small>
+            <i class="bi bi-arrow-left-right"></i> {% trans "مقایسه محصولات" %}
+            <small class="text-muted">({{ count }} {% trans "محصول)" %}</small>
         </h1>
         {% if products %}
         <button class="btn btn-outline-danger btn-sm" onclick="clearCompare()">
-            <i class="bi bi-trash"></i> پاک کردن لیست
+            <i class="bi bi-trash"></i> {% trans "پاک کردن لیست" %}
         </button>
         {% endif %}
     </div>
@@ -41,7 +42,7 @@
             <table class="compare-table">
                 <!-- تصویر -->
                 <tr>
-                    <th><i class="bi bi-image"></i> تصویر</th>
+                    <th><i class="bi bi-image"></i> {% trans "تصویر" %}</th>
                     {% for p in products %}
                     <td class="position-relative">
                         <button class="btn btn-sm btn-outline-danger compare-remove" onclick="removeFromCompare({{ p.pk }})">
@@ -57,61 +58,61 @@
                 </tr>
                 <!-- نام -->
                 <tr>
-                    <th><i class="bi bi-tag"></i> نام</th>
+                    <th><i class="bi bi-tag"></i> {% trans "نام" %}</th>
                     {% for p in products %}
                     <td><a href="/farsh/{{ p.slug }}/" class="product-name text-decoration-none">{{ p.display_title }}</a></td>
                     {% endfor %}
                 </tr>
                 <!-- قیمت -->
                 <tr>
-                    <th><i class="bi bi-cash"></i> قیمت ۱۲ متری</th>
+                    <th><i class="bi bi-cash"></i> {% trans "قیمت ۱۲ متری" %}</th>
                     {% for p in products %}
-                    <td class="product-price">{% if p.get_sell_price_12m %}{{ p.get_sell_price_12m|intcomma }} <small>تومان</small>{% else %}-{% endif %}</td>
+                    <td class="product-price">{% if p.get_sell_price_12m %}{{ p.get_sell_price_12m|intcomma }} <small>{% trans "تومان" %}</small>{% else %}-{% endif %}</td>
                     {% endfor %}
                 </tr>
                 <!-- شانه -->
                 <tr>
-                    <th>شانه</th>
+                    <th>{% trans "شانه" %}</th>
                     {% for p in products %}<td>{{ p.album.comb }}</td>{% endfor %}
                 </tr>
                 <!-- تراکم -->
                 <tr>
-                    <th>تراکم</th>
+                    <th>{% trans "تراکم" %}</th>
                     {% for p in products %}<td>{{ p.album.density|default:"-" }}</td>{% endfor %}
                 </tr>
                 <!-- جنس نخ -->
                 <tr>
-                    <th>جنس نخ</th>
+                    <th>{% trans "جنس نخ" %}</th>
                     {% for p in products %}<td>{{ p.album.get_yarn_type_display|default:"-" }}</td>{% endfor %}
                 </tr>
                 <!-- رنگ زمینه -->
                 <tr>
-                    <th>رنگ زمینه</th>
+                    <th>{% trans "رنگ زمینه" %}</th>
                     {% for p in products %}<td>{{ p.background_color.name|default:"-" }}</td>{% endfor %}
                 </tr>
                 <!-- نوع طرح -->
                 <tr>
-                    <th>نوع طرح</th>
+                    <th>{% trans "نوع طرح" %}</th>
                     {% for p in products %}<td>{{ p.design_type_display|default:"-" }}</td>{% endfor %}
                 </tr>
                 <!-- نوع بافت -->
                 <tr>
-                    <th>نوع بافت</th>
+                    <th>{% trans "نوع بافت" %}</th>
                     {% for p in products %}<td>{{ p.weave_type.name|default:"-" }}</td>{% endfor %}
                 </tr>
                 <!-- ویژگی -->
                 <tr>
-                    <th>ویژگی</th>
+                    <th>{% trans "ویژگی" %}</th>
                     {% for p in products %}<td>{{ p.feature.name|default:"-" }}</td>{% endfor %}
                 </tr>
                 <!-- شرکت -->
                 <tr>
-                    <th>شرکت</th>
+                    <th>{% trans "شرکت" %}</th>
                     {% for p in products %}<td>{{ p.album.manufacturer.name }}</td>{% endfor %}
                 </tr>
                 <!-- امتیاز -->
                 <tr>
-                    <th>امتیاز</th>
+                    <th>{% trans "امتیاز" %}</th>
                     {% for p in products %}
                     <td>
                         {% if p.avg_rating %}
@@ -120,7 +121,7 @@
                                 <i class="bi bi-star{% if forloop.counter <= p.avg_rating %}-fill{% endif %}"></i>
                             {% endfor %}
                         </span>
-                        <br><small class="text-muted">({{ p.rating_count }} نظر)</small>
+                        <br><small class="text-muted">({{ p.rating_count }} {% trans "نظر)" %}</small>
                         {% else %}-{% endif %}
                     </td>
                     {% endfor %}
@@ -130,7 +131,7 @@
                     <th></th>
                     {% for p in products %}
                     <td>
-                        <a href="/farsh/{{ p.slug }}/" class="btn btn-sm btn-hf-primary w-100"><i class="bi bi-cart-plus"></i> مشاهده و خرید</a>
+                        <a href="/farsh/{{ p.slug }}/" class="btn btn-sm btn-hf-primary w-100"><i class="bi bi-cart-plus"></i> {% trans "مشاهده و خرید" %}</a>
                     </td>
                     {% endfor %}
                 </tr>
@@ -140,9 +141,9 @@
     {% else %}
     <div class="text-center py-5">
         <i class="bi bi-arrow-left-right" style="font-size:4rem;color:#ddd;"></i>
-        <h5 class="mt-3 text-muted">لیست مقایسه خالی است</h5>
-        <p class="text-muted">برای مقایسه، از صفحه محصولات دکمه <i class="bi bi-arrow-left-right"></i> را بزنید.</p>
-        <a href="/farsh/" class="btn btn-hf-primary mt-2"><i class="bi bi-shop"></i> مشاهده محصولات</a>
+        <h5 class="mt-3 text-muted">{% trans "لیست مقایسه خالی است" %}</h5>
+        <p class="text-muted">{% trans "برای مقایسه، از صفحه محصولات دکمه" %} <i class="bi bi-arrow-left-right"></i> {% trans "را بزنید." %}</p>
+        <a href="/farsh/" class="btn btn-hf-primary mt-2"><i class="bi bi-shop"></i> {% trans "مشاهده محصولات" %}</a>
     </div>
     {% endif %}
 </div>

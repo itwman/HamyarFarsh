@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block meta_title %}اطلاع‌رسانی‌ها | همیار فرش{% endblock %}
 
 {% block content %}
 <div class="container py-4">
-    <h1 class="h4 mb-4" style="color:var(--hf-primary);"><i class="bi bi-bell"></i> اطلاع‌رسانی‌ها</h1>
+    <h1 class="h4 mb-4" style="color:var(--hf-primary);"><i class="bi bi-bell"></i> {% trans "اطلاع‌رسانی‌ها" %}</h1>
 
     {% if notifications %}
     <div class="list-group">
@@ -24,7 +25,7 @@
     {% else %}
     <div class="text-center py-5">
         <i class="bi bi-bell-slash" style="font-size:4rem;color:#ddd;"></i>
-        <h5 class="mt-3 text-muted">اطلاع‌رسانی‌ای وجود ندارد</h5>
+        <h5 class="mt-3 text-muted">{% trans "اطلاع‌رسانی‌ای وجود ندارد" %}</h5>
     </div>
     {% endif %}
 </div>

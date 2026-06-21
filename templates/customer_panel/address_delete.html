@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block meta_title %}حذف آدرس{% endblock %}
 
@@ -8,19 +9,19 @@
         <div class="col-md-6">
             <div class="hf-card p-4">
                 <h3 class="mb-4 text-danger">
-                    <i class="bi bi-exclamation-triangle"></i> حذف آدرس
+                    <i class="bi bi-exclamation-triangle"></i> {% trans "حذف آدرس" %}
                 </h3>
 
                 <div class="alert alert-danger">
-                    <strong>هشدار!</strong><br>
-                    آیا مطمئن هستید که می‌خواهید این آدرس را حذف کنید؟
+                    <strong>{% trans "هشدار!" %}</strong><br>
+                    {% trans "آیا مطمئن هستید که می‌خواهید این آدرس را حذف کنید؟" %}
                 </div>
 
                 <div class="p-3 rounded mb-4" style="background:var(--hf-gray-light);">
                     <h5>{{ address.province }}، {{ address.city }}</h5>
                     <p class="mb-0">{{ address.full_address }}</p>
                     {% if address.postal_code %}
-                    <small>کد پستی: {{ address.postal_code }}</small>
+                    <small>{% trans "کد پستی:" %} {{ address.postal_code }}</small>
                     {% endif %}
                 </div>
 
@@ -28,10 +29,10 @@
                     {% csrf_token %}
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-danger">
-                            <i class="bi bi-trash"></i> بله، حذف شود
+                            <i class="bi bi-trash"></i> {% trans "بله، حذف شود" %}
                         </button>
                         <a href="{% url 'customer_panel:addresses_list' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle"></i> انصراف
+                            <i class="bi bi-x-circle"></i> {% trans "انصراف" %}
                         </a>
                     </div>
                 </form>

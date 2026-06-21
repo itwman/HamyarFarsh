@@ -1,4 +1,5 @@
 {% extends 'dashboard/base.html' %}
+{% load i18n %}
 {% load price_tags %}
 {% block title %}ایجاد کاتالوگ{% endblock %}
 {% block page_title %}ایجاد کاتالوگ جدید{% endblock %}
@@ -9,38 +10,38 @@
 <div class="card p-3 mb-3">
 <div class="row g-2 align-items-end">
 <div class="col-md-2">
-<label class="form-label small fw-bold">جستجو</label>
-<input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="نام، شرکت...">
+<label class="form-label small fw-bold">{% trans "جستجو" %}</label>
+<input type="text" name="q" value="{{ query }}" class="form-control form-control-sm" placeholder="{% trans 'نام، شرکت...' %}">
 </div>
 <div class="col-6 col-md-2">
-<label class="form-label small fw-bold">شرکت</label>
-<select name="manufacturer" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for m in manufacturers %}<option value="{{ m.pk }}" {% if sel_manufacturer == m.pk|stringformat:"d" %}selected{% endif %}>{{ m.name }}</option>{% endfor %}</select>
+<label class="form-label small fw-bold">{% trans "شرکت" %}</label>
+<select name="manufacturer" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">{% trans "همه" %}</option>{% for m in manufacturers %}<option value="{{ m.pk }}" {% if sel_manufacturer == m.pk|stringformat:"d" %}selected{% endif %}>{{ m.name }}</option>{% endfor %}</select>
 </div>
 <div class="col-6 col-md-1">
-<label class="form-label small fw-bold">شانه</label>
-<select name="comb" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for val, label in comb_choices %}<option value="{{ val }}" {% if sel_comb == val|stringformat:"d" %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
+<label class="form-label small fw-bold">{% trans "شانه" %}</label>
+<select name="comb" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">{% trans "همه" %}</option>{% for val, label in comb_choices %}<option value="{{ val }}" {% if sel_comb == val|stringformat:"d" %}selected{% endif %}>{{ label }}</option>{% endfor %}</select>
 </div>
 <div class="col-6 col-md-2">
-<label class="form-label small fw-bold">رنگ زمینه</label>
-<select name="color" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for c in colors %}<option value="{{ c.pk }}" {% if sel_color == c.pk|stringformat:"d" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
+<label class="form-label small fw-bold">{% trans "رنگ زمینه" %}</label>
+<select name="color" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">{% trans "همه" %}</option>{% for c in colors %}<option value="{{ c.pk }}" {% if sel_color == c.pk|stringformat:"d" %}selected{% endif %}>{{ c.name }}</option>{% endfor %}</select>
 </div>
 <div class="col-6 col-md-2">
-<label class="form-label small fw-bold">نوع طرح</label>
-<select name="design" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for d in designs %}<option value="{{ d.pk }}" {% if sel_design == d.pk|stringformat:"d" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select>
+<label class="form-label small fw-bold">{% trans "نوع طرح" %}</label>
+<select name="design" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">{% trans "همه" %}</option>{% for d in designs %}<option value="{{ d.pk }}" {% if sel_design == d.pk|stringformat:"d" %}selected{% endif %}>{{ d.name }}</option>{% endfor %}</select>
 </div>
 <div class="col-6 col-md-1">
-<label class="form-label small fw-bold">بافت</label>
-<select name="weave" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for w in weaves %}<option value="{{ w.pk }}" {% if sel_weave == w.pk|stringformat:"d" %}selected{% endif %}>{{ w.name }}</option>{% endfor %}</select>
+<label class="form-label small fw-bold">{% trans "بافت" %}</label>
+<select name="weave" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">{% trans "همه" %}</option>{% for w in weaves %}<option value="{{ w.pk }}" {% if sel_weave == w.pk|stringformat:"d" %}selected{% endif %}>{{ w.name }}</option>{% endfor %}</select>
 </div>
 <div class="col-6 col-md-1">
-<label class="form-label small fw-bold">ویژگی</label>
-<select name="feature" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">همه</option>{% for f in features %}<option value="{{ f.pk }}" {% if sel_feature == f.pk|stringformat:"d" %}selected{% endif %}>{{ f.name }}</option>{% endfor %}</select>
+<label class="form-label small fw-bold">{% trans "ویژگی" %}</label>
+<select name="feature" class="form-select form-select-sm" onchange="document.getElementById('filterForm').submit()"><option value="">{% trans "همه" %}</option>{% for f in features %}<option value="{{ f.pk }}" {% if sel_feature == f.pk|stringformat:"d" %}selected{% endif %}>{{ f.name }}</option>{% endfor %}</select>
 </div>
 <div class="col-6 col-md-1">
 <button type="submit" class="btn btn-sm btn-outline-primary w-100"><i class="bi bi-funnel"></i></button>
 </div>
 </div>
-<small class="text-muted mt-2 d-block">{{ total }} محصول یافت شد</small>
+<small class="text-muted mt-2 d-block">{{ total }} {% trans "محصول یافت شد" %}</small>
 </div>
 </form>
 
@@ -50,16 +51,16 @@
 <div class="card p-3 mb-3">
 <div class="row align-items-end g-3">
 <div class="col-md-6">
-<label class="form-label fw-bold">عنوان کاتالوگ</label>
-<input type="text" name="title" class="form-control" placeholder="مثال: کاتالوگ ویژه آقای احمدی" required>
+<label class="form-label fw-bold">{% trans "عنوان کاتالوگ" %}</label>
+<input type="text" name="title" class="form-control" placeholder="{% trans 'مثال: کاتالوگ ویژه آقای احمدی' %}" required>
 </div>
 <div class="col-md-3 text-center">
-<div class="p-2 rounded" style="background:var(--hf-primary,#C62828);color:#fff;"><strong id="selectedCount">0</strong> محصول انتخاب شده</div>
+<div class="p-2 rounded" style="background:var(--hf-primary,#C62828);color:#fff;"><strong id="selectedCount">0</strong> {% trans "محصول انتخاب شده" %}</div>
 </div>
 <div class="col-md-3 d-flex gap-2">
-<button type="submit" class="btn btn-danger btn-sm flex-grow-1"><i class="bi bi-check-circle"></i> ایجاد</button>
-<button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAll(true)">همه</button>
-<button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAll(false)">هیچ</button>
+<button type="submit" class="btn btn-danger btn-sm flex-grow-1"><i class="bi bi-check-circle"></i> {% trans "ایجاد" %}</button>
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAll(true)">{% trans "همه" %}</button>
+<button type="button" class="btn btn-outline-secondary btn-sm" onclick="toggleAll(false)">{% trans "هیچ" %}</button>
 </div>
 </div>
 </div>
@@ -75,14 +76,14 @@
 {% else %}<div style="aspect-ratio:1/1;background:#f0f0f0;display:flex;align-items:center;justify-content:center;"><i class="bi bi-image text-muted" style="font-size:1.5rem;"></i></div>{% endif %}{% endwith %}
 <div class="card-body p-2">
 <div class="fw-bold text-truncate" style="font-size:.7rem;">{{ product.name }}</div>
-<small class="text-muted" style="font-size:.6rem;">{{ product.manufacturer.name }} | {{ product.comb }} شانه</small>
+<small class="text-muted" style="font-size:.6rem;">{{ product.manufacturer.name }} | {{ product.comb }} {% trans "شانه" %}</small>
 {% if product.background_color %}<small class="d-block text-muted" style="font-size:.6rem;">{{ product.background_color.name }}</small>{% endif %}
 <div style="color:var(--hf-primary,#C62828);font-weight:700;font-size:.75rem;" class="mt-1">{{ product.get_sell_price_12m|price_comma }}</div>
 </div>
 </div>
 </div>
 {% empty %}
-<div class="col-12 text-center py-4"><i class="bi bi-inbox" style="font-size:2.5rem;color:#ccc;"></i><p class="text-muted mt-2 small">محصولی یافت نشد.</p></div>
+<div class="col-12 text-center py-4"><i class="bi bi-inbox" style="font-size:2.5rem;color:#ccc;"></i><p class="text-muted mt-2 small">{% trans "محصولی یافت نشد." %}</p></div>
 {% endfor %}
 </div>
 </form>

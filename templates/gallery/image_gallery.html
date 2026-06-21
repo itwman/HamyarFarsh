@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load static %}
 {% load gallery_tags %}
 
@@ -116,8 +117,8 @@
 <section class="gallery-hero">
     <div class="container">
         <div class="gallery-hero-content">
-            <h1><i class="bi bi-images"></i> گالری تصاویر</h1>
-            <p>{{ total }} تصویر از فرش‌های ماشینی</p>
+            <h1><i class="bi bi-images"></i> {% trans "گالری تصاویر" %}</h1>
+            <p>{{ total }} {% trans "تصویر از فرش‌های ماشینی" %}</p>
         </div>
     </div>
 </section>
@@ -134,14 +135,14 @@
         <!-- دکمه فیلتر موبایل -->
         <div class="gallery-mobile-filter-btn d-lg-none">
             <button class="btn btn-hf-primary" id="btnMobileFilter" type="button">
-                <i class="bi bi-funnel"></i> فیلتر
+                <i class="bi bi-funnel"></i> {% trans "فیلتر" %}
             </button>
             <div class="gallery-sort-mobile">
                 <select class="form-select form-select-sm" onchange="applySort(this.value)">
-                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
-                    <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>محبوب‌ترین</option>
-                    <option value="cheapest" {% if current_sort == 'cheapest' %}selected{% endif %}>ارزان‌ترین</option>
-                    <option value="expensive" {% if current_sort == 'expensive' %}selected{% endif %}>گران‌ترین</option>
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>{% trans "جدیدترین" %}</option>
+                    <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>{% trans "محبوب‌ترین" %}</option>
+                    <option value="cheapest" {% if current_sort == 'cheapest' %}selected{% endif %}>{% trans "ارزان‌ترین" %}</option>
+                    <option value="expensive" {% if current_sort == 'expensive' %}selected{% endif %}>{% trans "گران‌ترین" %}</option>
                 </select>
             </div>
         </div>
@@ -150,7 +151,7 @@
         <div class="gallery-drawer-overlay" id="drawerOverlay"></div>
         <div class="gallery-drawer" id="filterDrawer">
             <div class="gallery-drawer-header">
-                <h5><i class="bi bi-funnel"></i> فیلتر تصاویر</h5>
+                <h5><i class="bi bi-funnel"></i> {% trans "فیلتر تصاویر" %}</h5>
                 <button class="btn-close" id="btnCloseDrawer"></button>
             </div>
             <div class="gallery-drawer-body">
@@ -161,14 +162,14 @@
         <!-- محتوای اصلی -->
         <div class="col-lg-9">
             <div class="gallery-toolbar d-none d-lg-flex">
-                <span class="gallery-count">{{ total }} تصویر</span>
+                <span class="gallery-count">{{ total }} {% trans "تصویر" %}</span>
                 <div class="gallery-sort">
-                    <label>مرتب‌سازی:</label>
+                    <label>{% trans "مرتب‌سازی:" %}</label>
                     <select class="form-select form-select-sm" onchange="applySort(this.value)">
-                        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
-                        <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>محبوب‌ترین</option>
-                        <option value="cheapest" {% if current_sort == 'cheapest' %}selected{% endif %}>ارزان‌ترین</option>
-                        <option value="expensive" {% if current_sort == 'expensive' %}selected{% endif %}>گران‌ترین</option>
+                        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>{% trans "جدیدترین" %}</option>
+                        <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>{% trans "محبوب‌ترین" %}</option>
+                        <option value="cheapest" {% if current_sort == 'cheapest' %}selected{% endif %}>{% trans "ارزان‌ترین" %}</option>
+                        <option value="expensive" {% if current_sort == 'expensive' %}selected{% endif %}>{% trans "گران‌ترین" %}</option>
                     </select>
                 </div>
             </div>
@@ -219,8 +220,8 @@
             {% else %}
             <div class="gallery-empty">
                 <i class="bi bi-image"></i>
-                <h3>تصویری یافت نشد</h3>
-                <a href="{% url 'gallery:image_gallery' %}" class="btn btn-hf-primary"><i class="bi bi-arrow-counterclockwise"></i> مشاهده همه</a>
+                <h3>{% trans "تصویری یافت نشد" %}</h3>
+                <a href="{% url 'gallery:image_gallery' %}" class="btn btn-hf-primary"><i class="bi bi-arrow-counterclockwise"></i> {% trans "مشاهده همه" %}</a>
             </div>
             {% endif %}
         </div>
@@ -246,11 +247,11 @@
         <div class="lb-specs" id="lbSpecs"></div>
         <div>
             <span class="lb-price" id="lbPrice"></span>
-            <a class="lb-buy" id="lbBuy" href="#"><i class="bi bi-cart-plus"></i> مشاهده و خرید</a>
+            <a class="lb-buy" id="lbBuy" href="#"><i class="bi bi-cart-plus"></i> {% trans "مشاهده و خرید" %}</a>
         </div>
     </div>
 
-    <div class="lb-swipe-hint" id="lbHint">← بکشید برای تصاویر مشابه →</div>
+    <div class="lb-swipe-hint" id="lbHint">{% trans "← بکشید برای تصاویر مشابه →" %}</div>
 </div>
 {% endblock %}
 

@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block meta_title %}ثبت‌نام | {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
 <div class="hf-auth-card">
-    <h2><i class="bi bi-person-plus"></i> ثبت‌نام</h2>
+    <h2><i class="bi bi-person-plus"></i> {% trans "ثبت‌نام" %}</h2>
 
     <form method="post" novalidate>
         {% csrf_token %}
@@ -20,13 +21,13 @@
         </div>
         {% endfor %}
         <button type="submit" class="btn btn-hf-primary w-100 mb-3">
-            <i class="bi bi-person-plus"></i> ثبت‌نام
+            <i class="bi bi-person-plus"></i> {% trans "ثبت‌نام" %}
         </button>
     </form>
 
     <div class="text-center">
-        <span class="text-muted">قبلاً ثبت‌نام کرده‌اید؟</span>
-        <a href="{% url 'accounts:login' %}" class="fw-bold">ورود</a>
+        <span class="text-muted">{% trans "قبلاً ثبت‌نام کرده‌اید؟" %}</span>
+        <a href="{% url 'accounts:login' %}" class="fw-bold">{% trans "ورود" %}</a>
     </div>
 </div>
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load humanize %}
 {% load price_tags %}
 {% load jalali_tags %}
@@ -38,10 +39,10 @@
 <nav aria-label="breadcrumb" class="mb-3" itemscope itemtype="https://schema.org/BreadcrumbList">
     <ol class="breadcrumb small">
         <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <a href="{% url 'home' %}" itemprop="item"><span itemprop="name">خانه</span></a><meta itemprop="position" content="1">
+            <a href="{% url 'home' %}" itemprop="item"><span itemprop="name">{% trans "خانه" %}</span></a><meta itemprop="position" content="1">
         </li>
         <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
-            <a href="{% url 'shop:catalog' %}" itemprop="item"><span itemprop="name">فرش‌ها</span></a><meta itemprop="position" content="2">
+            <a href="{% url 'shop:catalog' %}" itemprop="item"><span itemprop="name">{% trans "فرش‌ها" %}</span></a><meta itemprop="position" content="2">
         </li>
         {% if product.first_design_type %}
         <li class="breadcrumb-item" itemprop="itemListElement" itemscope itemtype="https://schema.org/ListItem">
@@ -66,12 +67,12 @@
             <ul class="nav nav-pills nav-fill mb-3" style="background:var(--hf-gray-light);border-radius:8px;padding:4px;">
                 <li class="nav-item">
                     <button class="nav-link active media-tab-btn" data-target="images" style="font-size:.85rem;">
-                        <i class="bi bi-images"></i> تصاویر ({{ images.count }})
+                        <i class="bi bi-images"></i> {% trans "تصاویر" %} ({{ images.count }})
                     </button>
                 </li>
                 <li class="nav-item">
                     <button class="nav-link media-tab-btn" data-target="videos" style="font-size:.85rem;">
-                        <i class="bi bi-play-circle"></i> ویدیو ({{ ready_videos_count }})
+                        <i class="bi bi-play-circle"></i> {% trans "ویدیو" %} ({{ ready_videos_count }})
                     </button>
                 </li>
             </ul>
@@ -169,7 +170,7 @@
             <div class="d-flex justify-content-between align-items-start mb-3">
                 <div>
                     <h1 style="font-size:1.5rem;font-weight:700;color:var(--hf-dark);">{{ product.display_title }}</h1>
-                    <p class="text-muted mb-0">{{ product.manufacturer.name }} - آلبوم {{ product.album.name }}</p>
+                    <p class="text-muted mb-0">{{ product.manufacturer.name }} - {% trans "آلبوم" %} {{ product.album.name }}</p>
                 </div>
                 {% with badge=product.status_badge %}
                 <span class="badge bg-{{ badge.1 }} fs-6">{{ badge.0 }}</span>
@@ -185,35 +186,35 @@
                 <i class="bi bi-star text-muted"></i>
                 {% endif %}
                 {% endfor %}
-                <span class="text-muted small">({{ product.rating_count }} نظر)</span>
+                <span class="text-muted small">({{ product.rating_count }} {% trans "نظر" %})</span>
             </div>
 
             {# مشخصات فنی #}
             <div class="row g-2 mb-4">
                 <div class="col-6 col-md-4">
                     <div class="p-2 rounded" style="background:var(--hf-gray-light);">
-                        <small class="text-muted d-block">شانه</small>
+                        <small class="text-muted d-block">{% trans "شانه" %}</small>
                         <strong>{{ product.comb }}</strong>
                     </div>
                 </div>
                 {% if product.density %}
                 <div class="col-6 col-md-4">
                     <div class="p-2 rounded" style="background:var(--hf-gray-light);">
-                        <small class="text-muted d-block">تراکم</small>
+                        <small class="text-muted d-block">{% trans "تراکم" %}</small>
                         <strong>{{ product.density }}</strong>
                     </div>
                 </div>
                 {% endif %}
                 <div class="col-6 col-md-4">
                     <div class="p-2 rounded" style="background:var(--hf-gray-light);">
-                        <small class="text-muted d-block">جنس نخ</small>
+                        <small class="text-muted d-block">{% trans "جنس نخ" %}</small>
                         <strong>{{ product.yarn_type }}</strong>
                     </div>
                 </div>
                 {% if product.background_color %}
                 <div class="col-6 col-md-4">
                     <div class="p-2 rounded" style="background:var(--hf-gray-light);">
-                        <small class="text-muted d-block">رنگ زمینه</small>
+                        <small class="text-muted d-block">{% trans "رنگ زمینه" %}</small>
                         <span class="d-inline-block rounded-circle" style="width:14px;height:14px;background:{{ product.background_color.color_code }};border:1px solid #ccc;vertical-align:middle;"></span>
                         <strong>{{ product.background_color.name }}</strong>
                     </div>
@@ -222,14 +223,14 @@
                 {% if product.design_type_display %}
                 <div class="col-6 col-md-4">
                     <div class="p-2 rounded" style="background:var(--hf-gray-light);">
-                        <small class="text-muted d-block">نوع طرح</small>
+                        <small class="text-muted d-block">{% trans "نوع طرح" %}</small>
                         <strong>{{ product.design_type_display }}</strong>
                     </div>
                 </div>
                 {% endif %}
                 <div class="col-6 col-md-4">
                     <div class="p-2 rounded" style="background:var(--hf-gray-light);">
-                        <small class="text-muted d-block">وزن</small>
+                        <small class="text-muted d-block">{% trans "وزن" %}</small>
                         <strong>{{ product.weight_class }}</strong>
                     </div>
                 </div>
@@ -239,9 +240,9 @@
             {% if sell_price_12m %}
             <div class="p-3 rounded mb-4" style="background:var(--hf-primary-bg);border:1px solid var(--hf-primary);">
                 <div class="d-flex justify-content-between align-items-center">
-                    <span class="fw-bold">قیمت فرش ۱۲ متری:</span>
+                    <span class="fw-bold">{% trans "قیمت فرش ۱۲ متری:" %}</span>
                     <span style="font-size:1.4rem;font-weight:700;color:var(--hf-primary);">
-                        {{ sell_price_12m|price_comma }} <small>تومان</small>
+                        {{ sell_price_12m|price_comma }} <small>{% trans "تومان" %}</small>
                     </span>
                 </div>
             </div>
@@ -251,18 +252,18 @@
             <div class="d-flex gap-2 mb-3 flex-wrap">
                 {# علاقه‌مندی (فاز 18) #}
                 <button class="btn btn-sm btn-outline-danger" id="wishBtn" onclick="toggleWishlist({{ product.id }})">
-                    <i class="bi bi-heart" id="wishIcon"></i> <span id="wishText">علاقه‌مندی</span>
+                    <i class="bi bi-heart" id="wishIcon"></i> <span id="wishText">{% trans "علاقه‌مندی" %}</span>
                 </button>
                 {# مقایسه (فاز 18) #}
                 <button class="btn btn-sm btn-outline-info" id="compareBtn" onclick="toggleCompare({{ product.id }})">
-                    <i class="bi bi-arrow-left-right"></i> <span id="compareText">مقایسه</span>
+                    <i class="bi bi-arrow-left-right"></i> <span id="compareText">{% trans "مقایسه" %}</span>
                 </button>
                 {# اشتراک #}
                 {% if product.primary_image and product.primary_image.featured_image %}
-                <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-telegram"></i> تلگرام</a>
-                <a href="https://wa.me/?text={{ product.name }}%20{{ request.build_absolute_uri }}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-whatsapp"></i> واتساپ</a>
+                <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-sm btn-outline-primary"><i class="bi bi-telegram"></i> {% trans "تلگرام" %}</a>
+                <a href="https://wa.me/?text={{ product.name }}%20{{ request.build_absolute_uri }}" target="_blank" class="btn btn-sm btn-outline-success"><i class="bi bi-whatsapp"></i> {% trans "واتساپ" %}</a>
                 {% endif %}
-                <button onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}');alert('لینک کپی شد!')" class="btn btn-sm btn-outline-secondary"><i class="bi bi-link-45deg"></i> کپی لینک</button>
+                <button onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}');alert('لینک کپی شد!')" class="btn btn-sm btn-outline-secondary"><i class="bi bi-link-45deg"></i> {% trans "کپی لینک" %}</button>
             </div>
         </div>
     </div>
@@ -271,15 +272,15 @@
 {# جدول قیمت سایزها + دکمه افزودن به سبد خرید #}
 {% if size_prices %}
 <div class="hf-card p-4 mt-4">
-    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-table"></i> جدول قیمت سایزها</h5>
-    {% if product.sku %}<small class="text-muted d-block mb-2">کد محصول: <strong dir="ltr">{{ product.sku }}</strong></small>{% endif %}
+    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-table"></i> {% trans "جدول قیمت سایزها" %}</h5>
+    {% if product.sku %}<small class="text-muted d-block mb-2">{% trans "کد محصول:" %} <strong dir="ltr">{{ product.sku }}</strong></small>{% endif %}
     <div class="table-responsive">
         <table class="table table-hover align-middle mb-0 size-prices-table">
             <thead style="background:var(--hf-primary);color:#fff;">
                 <tr>
-                    <th>سایز</th>
-                    <th>قیمت (تومان)</th>
-                    <th class="text-center">تعداد و سفارش</th>
+                    <th>{% trans "سایز" %}</th>
+                    <th>{% trans "قیمت (تومان)" %}</th>
+                    <th class="text-center">{% trans "تعداد و سفارش" %}</th>
                 </tr>
             </thead>
             <tbody>
@@ -290,7 +291,7 @@
                     <td>
                         <div class="fw-bold">{{ item.size.name }}
                             {% if item.order_rule == 'even' %}
-                            <span class="badge bg-info ms-1" style="font-size:.65rem;">فقط زوج</span>
+                            <span class="badge bg-info ms-1" style="font-size:.65rem;">{% trans "فقط زوج" %}</span>
                             {% endif %}
                         </div>
                         <small class="text-muted">{{ item.size.dimensions_display }}</small>
@@ -308,7 +309,7 @@
                             <button class="btn btn-hf-primary btn-sm qty-add-btn"
                                     onclick="addToCart({{ product.id }}, {{ item.size.id }}, document.getElementById('qty_{{ item.size.id }}'))">
                                 <i class="bi bi-cart-plus"></i>
-                                <span class="qty-btn-text">افزودن</span>
+                                <span class="qty-btn-text">{% trans "افزودن" %}</span>
                             </button>
                         </div>
                     </td>
@@ -321,7 +322,7 @@
                 <tr id="moreSizesBtn">
                     <td colspan="3" class="text-center py-2">
                         <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('moreSizesBtn').style.display='none';document.getElementById('moreSizes').style.display='';">
-                            <i class="bi bi-chevron-down"></i> مشاهده قیمت {{ other_sizes|length }} سایز دیگر
+                            <i class="bi bi-chevron-down"></i> {% blocktrans with n=other_sizes|length %}مشاهده قیمت {{ n }} سایز دیگر{% endblocktrans %}
                         </button>
                     </td>
                 </tr>
@@ -335,7 +336,7 @@
                     <td>
                         <div class="fw-bold">{{ item.size.name }}
                             {% if item.order_rule == 'even' %}
-                            <span class="badge bg-info ms-1" style="font-size:.65rem;">فقط زوج</span>
+                            <span class="badge bg-info ms-1" style="font-size:.65rem;">{% trans "فقط زوج" %}</span>
                             {% endif %}
                         </div>
                         <small class="text-muted">{{ item.size.dimensions_display }}</small>
@@ -353,7 +354,7 @@
                             <button class="btn btn-hf-primary btn-sm qty-add-btn"
                                     onclick="addToCart({{ product.id }}, {{ item.size.id }}, document.getElementById('qty_{{ item.size.id }}'))">
                                 <i class="bi bi-cart-plus"></i>
-                                <span class="qty-btn-text">افزودن</span>
+                                <span class="qty-btn-text">{% trans "افزودن" %}</span>
                             </button>
                         </div>
                     </td>
@@ -395,31 +396,30 @@
 
     {# سفارش سایز خاص #}
     <div class="mt-3 p-3 rounded" style="background:var(--hf-gray-light);">
-        <h6><i class="bi bi-rulers"></i> سایز خاص نیاز دارید؟</h6>
+        <h6><i class="bi bi-rulers"></i> {% trans "سایز خاص نیاز دارید؟" %}</h6>
         <p class="small text-muted mb-2">
-            سفارش سایز خاص فقط با تسویه کامل امکان‌پذیر است. توصیه می‌شود سایزهای خاص به صورت جفتی سفارش داده شود.
-            هزینه پرتی و طراحی به مبلغ سفارش اضافه می‌شود.
+            {% trans "سفارش سایز خاص فقط با تسویه کامل امکان‌پذیر است. توصیه می‌شود سایزهای خاص به صورت جفتی سفارش داده شود. هزینه پرتی و طراحی به مبلغ سفارش اضافه می‌شود." %}
         </p>
         <form method="post" action="{% url 'shop:custom_size_request' product.slug %}" class="row g-2 align-items-end">
             {% csrf_token %}
             <div class="col-4 col-md-2">
-                <label class="form-label small">طول (متر)</label>
+                <label class="form-label small">{% trans "طول (متر)" %}</label>
                 <input type="number" name="custom_length" step="0.01" class="form-control form-control-sm" dir="ltr" required>
             </div>
             <div class="col-4 col-md-2">
-                <label class="form-label small">عرض (متر)</label>
+                <label class="form-label small">{% trans "عرض (متر)" %}</label>
                 <input type="number" name="custom_width" step="0.01" class="form-control form-control-sm" dir="ltr" required>
             </div>
             <div class="col-4 col-md-2">
-                <label class="form-label small">تعداد</label>
+                <label class="form-label small">{% trans "تعداد" %}</label>
                 <input type="number" name="quantity" value="2" min="1" class="form-control form-control-sm" dir="ltr">
             </div>
             <div class="col-12 col-md-4">
-                <label class="form-label small">توضیحات</label>
-                <input type="text" name="note" class="form-control form-control-sm" placeholder="اختیاری...">
+                <label class="form-label small">{% trans "توضیحات" %}</label>
+                <input type="text" name="note" class="form-control form-control-sm" placeholder="{% trans 'اختیاری...' %}">
             </div>
             <div class="col-12 col-md-2">
-                <button type="submit" class="btn btn-hf-primary btn-sm w-100">ثبت درخواست</button>
+                <button type="submit" class="btn btn-hf-primary btn-sm w-100">{% trans "ثبت درخواست" %}</button>
             </div>
         </form>
     </div>
@@ -428,26 +428,26 @@
 
 {# شرایط خرید #}
 <div class="hf-card p-4 mt-4">
-    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-info-circle"></i> شرایط خرید</h5>
+    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-info-circle"></i> {% trans "شرایط خرید" %}</h5>
     <div class="row g-3">
         <div class="col-md-4">
             <div class="p-3 rounded h-100" style="background:var(--hf-primary-bg);">
-                <h6><i class="bi bi-cash-stack text-success"></i> خرید نقدی</h6>
+                <h6><i class="bi bi-cash-stack text-success"></i> {% trans "خرید نقدی" %}</h6>
                 <p class="small mb-0">پرداخت آنلاین کامل. سفارش بالای {{ ss.free_shipping_min|price_comma }} ارسال رایگان تا نزدیکترین باربری.</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="p-3 rounded h-100" style="background:#FFF8E1;">
-                <h6><i class="bi bi-wallet2 text-warning"></i> پرداخت موقع تحویل</h6>
-                <p class="small mb-0">حداقل {{ ss.deposit_percent }}% بیعانه. قیمت روز در زمان تحویل. هزینه ارسال با مشتری.</p>
+                <h6><i class="bi bi-wallet2 text-warning"></i> {% trans "پرداخت موقع تحویل" %}</h6>
+                <p class="small mb-0">{% blocktrans with d=ss.deposit_percent %}حداقل {{ d }} درصد بیعانه. قیمت روز در زمان تحویل. هزینه ارسال با مشتری.{% endblocktrans %}</p>
             </div>
         </div>
         <div class="col-md-4">
             <div class="p-3 rounded h-100" style="background:#E8F5E9;">
-                <h6><i class="bi bi-credit-card text-success"></i> خرید اقساطی</h6>
+                <h6><i class="bi bi-credit-card text-success"></i> {% trans "خرید اقساطی" %}</h6>
                 <p class="small mb-0">
-                    چک صیادی تا {{ ss.check_max_months }} ماه |
-                    طرح بتا تا {{ ss.beta_max_months }} ماه |
+                    {% blocktrans with m=ss.check_max_months %}چک صیادی تا {{ m }} ماه{% endblocktrans %} |
+                    {% blocktrans with m=ss.beta_max_months %}طرح بتا تا {{ m }} ماه{% endblocktrans %} |
                     سقف {{ ss.installment_max|price_comma }}
                 </p>
             </div>
@@ -457,13 +457,13 @@
 
 {# شرح محصول #}
 <div class="hf-card p-4 mt-4">
-    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-file-text"></i> معرفی محصول</h5>
+    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-file-text"></i> {% trans "معرفی محصول" %}</h5>
     <div style="white-space:pre-line;line-height:2;">{{ product.get_effective_description }}</div>
 </div>
 
 {# نظرات و امتیازدهی #}
 <div class="hf-card p-4 mt-4">
-    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-star"></i> نظرات و امتیازها</h5>
+    <h5 class="mb-3" style="color:var(--hf-primary);"><i class="bi bi-star"></i> {% trans "نظرات و امتیازها" %}</h5>
 
     {# فرم ثبت امتیاز #}
     {% if user.is_authenticated %}
@@ -483,13 +483,13 @@
                 <input type="hidden" name="rating" id="ratingInput" value="{{ user_rating.rating|default:'0' }}">
             </div>
             <div class="mb-2">
-                <textarea name="comment" class="form-control form-control-sm" rows="2" placeholder="نظر شما (اختیاری)...">{{ user_rating.comment|default:"" }}</textarea>
+                <textarea name="comment" class="form-control form-control-sm" rows="2" placeholder="{% trans 'نظر شما (اختیاری)...' %}">{{ user_rating.comment|default:"" }}</textarea>
             </div>
-            <button type="submit" class="btn btn-hf-primary btn-sm">ثبت امتیاز</button>
+            <button type="submit" class="btn btn-hf-primary btn-sm">{% trans "ثبت امتیاز" %}</button>
         </form>
     </div>
     {% else %}
-    <p class="text-muted">برای ثبت نظر <a href="{% url 'accounts:login' %}?next={{ request.path }}">وارد شوید</a>.</p>
+    <p class="text-muted">{% trans "برای ثبت نظر" %} <a href="{% url 'accounts:login' %}?next={{ request.path }}">{% trans "وارد شوید" %}</a>.</p>
     {% endif %}
 
     {# لیست نظرات #}
@@ -511,14 +511,14 @@
         {% endif %}
     </div>
     {% empty %}
-    <p class="text-muted small">هنوز نظری ثبت نشده. اولین نفر باشید!</p>
+    <p class="text-muted small">{% trans "هنوز نظری ثبت نشده. اولین نفر باشید!" %}</p>
     {% endfor %}
 </div>
 
 {# محصولات مشابه #}
 {% if related %}
 <div class="mt-4">
-    <h5 class="mb-3"><i class="bi bi-grid" style="color:var(--hf-primary);"></i> محصولات مشابه</h5>
+    <h5 class="mb-3"><i class="bi bi-grid" style="color:var(--hf-primary);"></i> {% trans "محصولات مشابه" %}</h5>
     <div class="row g-3">
         {% for p in related %}
         <div class="col-6 col-md-3">
@@ -533,7 +533,7 @@
                     <div class="card-body p-2">
                         <h6 class="card-title" style="font-size:0.8rem;">{{ p.display_title }}</h6>
                         {% with price=p.get_sell_price_12m %}
-                        {% if price %}<div class="hf-price" style="font-size:0.85rem;">{{ price|price_comma }} <small>تومان</small></div>{% endif %}
+                        {% if price %}<div class="hf-price" style="font-size:0.85rem;">{{ price|price_comma }} <small>{% trans "تومان" %}</small></div>{% endif %}
                         {% endwith %}
                     </div>
                 </div>

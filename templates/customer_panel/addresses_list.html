@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block meta_title %}آدرس‌های من{% endblock %}
 
@@ -6,14 +7,14 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 style="color:var(--hf-primary);">
-            <i class="bi bi-geo-alt"></i> آدرس‌های من
+            <i class="bi bi-geo-alt"></i> {% trans "آدرس‌های من" %}
         </h2>
         <div>
             <a href="{% url 'customer_panel:dashboard' %}" class="btn btn-outline-secondary">
-                <i class="bi bi-arrow-right"></i> بازگشت
+                <i class="bi bi-arrow-right"></i> {% trans "بازگشت" %}
             </a>
             <a href="{% url 'customer_panel:address_add' %}" class="btn btn-hf-primary">
-                <i class="bi bi-plus-circle"></i> افزودن آدرس
+                <i class="bi bi-plus-circle"></i> {% trans "افزودن آدرس" %}
             </a>
         </div>
     </div>
@@ -25,7 +26,7 @@
             <div class="hf-card p-3 {% if address.is_default %}border-primary{% endif %}">
                 {% if address.is_default %}
                 <div class="badge bg-primary mb-2">
-                    <i class="bi bi-star-fill"></i> پیش‌فرض
+                    <i class="bi bi-star-fill"></i> {% trans "پیش‌فرض" %}
                 </div>
                 {% endif %}
                 
@@ -33,7 +34,7 @@
                 <p class="mb-2">{{ address.full_address }}</p>
                 
                 {% if address.postal_code %}
-                <p class="mb-1"><small><i class="bi bi-mailbox"></i> کد پستی: {{ address.postal_code }}</small></p>
+                <p class="mb-1"><small><i class="bi bi-mailbox"></i> {% trans "کد پستی:" %} {{ address.postal_code }}</small></p>
                 {% endif %}
                 
                 {% if address.phone %}
@@ -45,17 +46,17 @@
                     <form method="post" action="{% url 'customer_panel:address_set_default' address.pk %}" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-outline-success">
-                            <i class="bi bi-star"></i> پیش‌فرض
+                            <i class="bi bi-star"></i> {% trans "پیش‌فرض" %}
                         </button>
                     </form>
                     {% endif %}
                     
                     <a href="{% url 'customer_panel:address_edit' address.pk %}" class="btn btn-outline-primary">
-                        <i class="bi bi-pencil"></i> ویرایش
+                        <i class="bi bi-pencil"></i> {% trans "ویرایش" %}
                     </a>
                     
                     <a href="{% url 'customer_panel:address_delete' address.pk %}" class="btn btn-outline-danger">
-                        <i class="bi bi-trash"></i> حذف
+                        <i class="bi bi-trash"></i> {% trans "حذف" %}
                     </a>
                 </div>
             </div>
@@ -65,10 +66,10 @@
     {% else %}
     <div class="hf-card p-5 text-center">
         <i class="bi bi-geo-alt" style="font-size:4rem;color:#ccc;"></i>
-        <h4 class="mt-3 mb-2">شما هنوز آدرسی ثبت نکرده‌اید</h4>
-        <p class="text-muted mb-4">برای ارسال سفارشات، لطفاً آدرس خود را اضافه کنید.</p>
+        <h4 class="mt-3 mb-2">{% trans "شما هنوز آدرسی ثبت نکرده‌اید" %}</h4>
+        <p class="text-muted mb-4">{% trans "برای ارسال سفارشات، لطفاً آدرس خود را اضافه کنید." %}</p>
         <a href="{% url 'customer_panel:address_add' %}" class="btn btn-hf-primary">
-            <i class="bi bi-plus-circle"></i> افزودن اولین آدرس
+            <i class="bi bi-plus-circle"></i> {% trans "افزودن اولین آدرس" %}
         </a>
     </div>
     {% endif %}

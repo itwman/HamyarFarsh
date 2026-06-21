@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
 {% load price_tags %}
 
@@ -11,7 +12,7 @@
         <div class="col-12">
             <h1 class="mb-4">
                 <i class="bi bi-receipt"></i>
-                سفارش شماره #{{ order.id }}
+                {% trans "سفارش شماره #" %}{{ order.id }}
             </h1>
         </div>
     </div>
@@ -24,25 +25,25 @@
                 <div class="card-header bg-white">
                     <h5 class="mb-0">
                         <i class="bi bi-info-circle"></i>
-                        وضعیت سفارش
+                        {% trans "وضعیت سفارش" %}
                     </h5>
                 </div>
                 <div class="card-body">
                     <div class="row">
                         <div class="col-md-6 mb-3">
-                            <strong>وضعیت فعلی:</strong>
+                            <strong>{% trans "وضعیت فعلی:" %}</strong>
                             <span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% elif order.status == 'shipped' %}info{% else %}warning{% endif %} fs-6 ms-2">
                                 {{ order.get_status_display_persian }}
                             </span>
                         </div>
                         
                         <div class="col-md-6 mb-3">
-                            <strong>تاریخ ثبت:</strong>
+                            <strong>{% trans "تاریخ ثبت:" %}</strong>
                             {{ order.get_jalali_created_at }}
                         </div>
                         
                         <div class="col-md-6 mb-3">
-                            <strong>روش پرداخت:</strong>
+                            <strong>{% trans "روش پرداخت:" %}</strong>
                             {{ order.get_payment_method_display_persian }}
                         </div>
                         
@@ -50,7 +51,7 @@
                         <div class="col-12">
                             <div class="alert alert-warning">
                                 <i class="bi bi-exclamation-triangle"></i>
-                                <strong>توجه:</strong> قیمت نهایی این سفارش، قیمت روز تحویل است.
+                                <strong>{% trans "توجه:" %}</strong> {% trans "قیمت نهایی این سفارش، قیمت روز تحویل است." %}
                             </div>
                         </div>
                         {% endif %}
@@ -63,7 +64,7 @@
                 <div class="card-header bg-white">
                     <h5 class="mb-0">
                         <i class="bi bi-box-seam"></i>
-                        محصولات سفارش
+                        {% trans "محصولات سفارش" %}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -71,11 +72,11 @@
                         <table class="table table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>محصول</th>
-                                    <th>سایز</th>
-                                    <th>تعداد</th>
-                                    <th>قیمت واحد</th>
-                                    <th>جمع</th>
+                                    <th>{% trans "محصول" %}</th>
+                                    <th>{% trans "سایز" %}</th>
+                                    <th>{% trans "تعداد" %}</th>
+                                    <th>{% trans "قیمت واحد" %}</th>
+                                    <th>{% trans "جمع" %}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -96,28 +97,28 @@
                                                 </a>
                                                 <br>
                                                 <small class="text-muted">
-                                                    {{ item.product.album.thread_density }} شانه
+                                                    {{ item.product.album.thread_density }} {% trans "شانه" %}
                                                 </small>
                                             </div>
                                         </div>
                                     </td>
                                     <td>
                                         {% if item.is_custom_size %}
-                                            <span class="badge bg-warning">سفارشی</span>
+                                            <span class="badge bg-warning">{% trans "سفارشی" %}</span>
                                             <br>
-                                            {{ item.custom_length }}×{{ item.custom_width }} متر
+                                            {{ item.custom_length }}×{{ item.custom_width }} {% trans "متر" %}
                                         {% else %}
                                             {{ item.size.name }}
                                         {% endif %}
                                         
                                         {% if item.is_pair_order %}
                                         <br>
-                                        <span class="badge bg-info">زوجی</span>
+                                        <span class="badge bg-info">{% trans "زوجی" %}</span>
                                         {% endif %}
                                     </td>
                                     <td>{{ item.quantity }}</td>
-                                    <td>{{ item.unit_price|price_comma }} تومان</td>
-                                    <td><strong>{{ item.get_total_price|price_comma }} تومان</strong></td>
+                                    <td>{{ item.unit_price|price_comma }} {% trans "تومان" %}</td>
+                                    <td><strong>{{ item.get_total_price|price_comma }} {% trans "تومان" %}</strong></td>
                                 </tr>
                                 {% endfor %}
                             </tbody>
@@ -132,7 +133,7 @@
                 <div class="card-header bg-white">
                     <h5 class="mb-0">
                         <i class="bi bi-geo-alt"></i>
-                        آدرس ارسال
+                        {% trans "آدرس ارسال" %}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -152,7 +153,7 @@
                 <div class="card-header bg-white">
                     <h5 class="mb-0">
                         <i class="bi bi-chat-left-text"></i>
-                        یادداشت شما
+                        {% trans "یادداشت شما" %}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -167,7 +168,7 @@
                 <div class="card-header bg-white">
                     <h5 class="mb-0">
                         <i class="bi bi-clock-history"></i>
-                        تاریخچه تغییرات
+                        {% trans "تاریخچه تغییرات" %}
                     </h5>
                 </div>
                 <div class="card-body">
@@ -200,39 +201,39 @@
         <div class="col-lg-4">
             <div class="card shadow-sm sticky-top mb-4" style="top: 20px;">
                 <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">خلاصه مالی</h5>
+                    <h5 class="mb-0">{% trans "خلاصه مالی" %}</h5>
                 </div>
                 <div class="card-body">
                     <div class="d-flex justify-content-between mb-2">
-                        <span>مبلغ کل:</span>
-                        <strong>{{ order.total_amount|price_comma }} تومان</strong>
+                        <span>{% trans "مبلغ کل:" %}</span>
+                        <strong>{{ order.total_amount|price_comma }} {% trans "تومان" %}</strong>
                     </div>
                     
                     {% if order.deposit_amount > 0 %}
                     <div class="d-flex justify-content-between mb-2">
-                        <span>بیعانه:</span>
-                        <span>{{ order.deposit_amount|price_comma }} تومان</span>
+                        <span>{% trans "بیعانه:" %}</span>
+                        <span>{{ order.deposit_amount|price_comma }} {% trans "تومان" %}</span>
                     </div>
                     {% endif %}
                     
                     <div class="d-flex justify-content-between mb-2">
-                        <span>پرداخت شده:</span>
-                        <span class="text-success">{{ order.paid_amount|price_comma }} تومان</span>
+                        <span>{% trans "پرداخت شده:" %}</span>
+                        <span class="text-success">{{ order.paid_amount|price_comma }} {% trans "تومان" %}</span>
                     </div>
                     
                     <hr>
                     
                     <div class="d-flex justify-content-between mb-3">
-                        <strong>مانده:</strong>
+                        <strong>{% trans "مانده:" %}</strong>
                         <strong class="{% if order.get_remaining_amount > 0 %}text-danger{% else %}text-success{% endif %} fs-5">
-                            {{ order.get_remaining_amount|price_comma }} تومان
+                            {{ order.get_remaining_amount|price_comma }} {% trans "تومان" %}
                         </strong>
                     </div>
                     
                     {% if order.free_shipping %}
                     <div class="alert alert-success small">
                         <i class="bi bi-truck"></i>
-                        ارسال رایگان
+                        {% trans "ارسال رایگان" %}
                     </div>
                     {% endif %}
 
@@ -242,7 +243,7 @@
                         <a href="{% url 'orders:order_payment' order.id %}" 
                            class="btn btn-success">
                             <i class="bi bi-credit-card"></i>
-                            پرداخت
+                            {% trans "پرداخت" %}
                         </a>
                         {% endif %}
                         
@@ -253,14 +254,14 @@
                                     class="btn btn-outline-danger w-100"
                                     onclick="return confirm('آیا از لغو سفارش اطمینان دارید؟')">
                                 <i class="bi bi-x-circle"></i>
-                                لغو سفارش
+                                {% trans "لغو سفارش" %}
                             </button>
                         </form>
                         {% endif %}
                         
                         <a href="{% url 'orders:order_list' %}" class="btn btn-outline-secondary">
                             <i class="bi bi-list"></i>
-                            لیست سفارشات
+                            {% trans "لیست سفارشات" %}
                         </a>
                     </div>
                 </div>

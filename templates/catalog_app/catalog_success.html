@@ -1,23 +1,24 @@
 {% extends 'dashboard/base.html' %}
+{% load i18n %}
 {% block title %}کاتالوگ ایجاد شد{% endblock %}
 {% block page_title %}کاتالوگ ایجاد شد{% endblock %}
 {% block content %}
 <div class="card p-4 text-center" style="max-width:600px;margin:0 auto;">
 <i class="bi bi-check-circle text-success" style="font-size:3rem;"></i>
 <h4 class="mt-2">{{ catalog.title }}</h4>
-<p class="text-muted">{{ catalog.products.count }} محصول</p>
+<p class="text-muted">{{ catalog.products.count }} {% trans "محصول" %}</p>
 <div class="mb-3">
-<label class="form-label fw-bold">لینک کاتالوگ:</label>
+<label class="form-label fw-bold">{% trans "لینک کاتالوگ:" %}</label>
 <div class="input-group">
 <input type="text" class="form-control text-center" id="catUrl" value="{{ catalog_url }}" readonly dir="ltr">
 <button class="btn btn-outline-secondary" onclick="navigator.clipboard.writeText(document.getElementById('catUrl').value);alert('کپی شد!');"><i class="bi bi-clipboard"></i></button>
 </div>
 </div>
 <div class="d-flex gap-2 justify-content-center flex-wrap">
-<a href="{{ telegram_url }}" target="_blank" class="btn btn-info"><i class="bi bi-telegram"></i> تلگرام</a>
-<a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success"><i class="bi bi-whatsapp"></i> واتساپ</a>
-<a href="{% url 'catalog_app:view' catalog.unique_code %}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-eye"></i> مشاهده</a>
-<a href="{% url 'catalog_app:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-right"></i> لیست</a>
+<a href="{{ telegram_url }}" target="_blank" class="btn btn-info"><i class="bi bi-telegram"></i> {% trans "تلگرام" %}</a>
+<a href="{{ whatsapp_url }}" target="_blank" class="btn btn-success"><i class="bi bi-whatsapp"></i> {% trans "واتساپ" %}</a>
+<a href="{% url 'catalog_app:view' catalog.unique_code %}" target="_blank" class="btn btn-outline-primary"><i class="bi bi-eye"></i> {% trans "مشاهده" %}</a>
+<a href="{% url 'catalog_app:list' %}" class="btn btn-outline-secondary"><i class="bi bi-arrow-right"></i> {% trans "لیست" %}</a>
 </div>
 </div>
 {% endblock %}

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load static %}
 {% load gallery_tags %}
 
@@ -37,8 +38,8 @@
 <section class="gallery-hero">
     <div class="container">
         <div class="gallery-hero-content">
-            <h1><i class="bi bi-play-circle"></i> گالری ویدیو</h1>
-            <p>{{ total }} ویدیو از فرش‌های ماشینی</p>
+            <h1><i class="bi bi-play-circle"></i> {% trans "گالری ویدیو" %}</h1>
+            <p>{{ total }} {% trans "ویدیو از فرش‌های ماشینی" %}</p>
         </div>
     </div>
 </section>
@@ -56,16 +57,16 @@
         <!-- دکمه فیلتر موبایل -->
         <div class="gallery-mobile-filter-btn d-lg-none">
             <button class="btn btn-hf-primary" id="btnMobileFilter" type="button">
-                <i class="bi bi-funnel"></i> فیلتر
+                <i class="bi bi-funnel"></i> {% trans "فیلتر" %}
                 {% if sel_color or sel_design or sel_weave or sel_feature or sel_comb or sel_manufacturer %}
                 <span class="filter-badge">!</span>
                 {% endif %}
             </button>
             <div class="gallery-sort-mobile">
                 <select class="form-select form-select-sm" id="sortMobile" onchange="applySort(this.value)">
-                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
-                    <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>محبوب‌ترین</option>
-                    <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>قدیمی‌ترین</option>
+                    <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>{% trans "جدیدترین" %}</option>
+                    <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>{% trans "محبوب‌ترین" %}</option>
+                    <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>{% trans "قدیمی‌ترین" %}</option>
                 </select>
             </div>
         </div>
@@ -74,7 +75,7 @@
         <div class="gallery-drawer-overlay" id="drawerOverlay"></div>
         <div class="gallery-drawer" id="filterDrawer">
             <div class="gallery-drawer-header">
-                <h5><i class="bi bi-funnel"></i> فیلتر ویدیوها</h5>
+                <h5><i class="bi bi-funnel"></i> {% trans "فیلتر ویدیوها" %}</h5>
                 <button class="btn-close" id="btnCloseDrawer"></button>
             </div>
             <div class="gallery-drawer-body">
@@ -86,13 +87,13 @@
         <div class="col-lg-9">
             <!-- نوار مرتب‌سازی دسکتاپ -->
             <div class="gallery-toolbar d-none d-lg-flex">
-                <span class="gallery-count">{{ total }} ویدیو</span>
+                <span class="gallery-count">{{ total }} {% trans "ویدیو" %}</span>
                 <div class="gallery-sort">
-                    <label>مرتب‌سازی:</label>
+                    <label>{% trans "مرتب‌سازی:" %}</label>
                     <select class="form-select form-select-sm" onchange="applySort(this.value)">
-                        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>جدیدترین</option>
-                        <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>محبوب‌ترین</option>
-                        <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>قدیمی‌ترین</option>
+                        <option value="newest" {% if current_sort == 'newest' %}selected{% endif %}>{% trans "جدیدترین" %}</option>
+                        <option value="popular" {% if current_sort == 'popular' %}selected{% endif %}>{% trans "محبوب‌ترین" %}</option>
+                        <option value="oldest" {% if current_sort == 'oldest' %}selected{% endif %}>{% trans "قدیمی‌ترین" %}</option>
                     </select>
                 </div>
             </div>
@@ -102,12 +103,12 @@
             <div class="gallery-active-filters">
                 {% if query %}
                 <span class="active-filter-tag">
-                    جستجو: {{ query }}
+                    {% trans "جستجو:" %} {{ query }}
                     <a href="?{% if sel_color %}color={{ sel_color }}&{% endif %}{% if sel_design %}design={{ sel_design }}&{% endif %}sort={{ current_sort }}" class="remove-filter">&times;</a>
                 </span>
                 {% endif %}
                 <a href="{% url 'gallery:video_gallery' %}" class="clear-all-filters">
-                    <i class="bi bi-x-circle"></i> حذف همه فیلترها
+                    <i class="bi bi-x-circle"></i> {% trans "حذف همه فیلترها" %}
                 </a>
             </div>
             {% endif %}
@@ -151,7 +152,7 @@
                             </span>
                             <span class="meta-item">
                                 <i class="bi bi-hash"></i>
-                                {{ video.product.album.comb }} شانه
+                                {{ video.product.album.comb }} {% trans "شانه" %}
                             </span>
                         </div>
                         <div class="video-card-footer">
@@ -159,7 +160,7 @@
                                 <i class="bi bi-eye"></i> {{ video.view_count|format_views }}
                             </span>
                             <a href="/farsh/{{ video.product.slug }}/" class="btn btn-sm btn-outline-hf">
-                                <i class="bi bi-cart2"></i> خرید
+                                <i class="bi bi-cart2"></i> {% trans "خرید" %}
                             </a>
                         </div>
                     </div>
@@ -169,7 +170,7 @@
 
             <!-- صفحه‌بندی -->
             {% if videos.has_other_pages %}
-            <nav class="gallery-pagination" aria-label="صفحه‌بندی">
+            <nav class="gallery-pagination" aria-label="{% trans 'صفحه‌بندی' %}">
                 <ul class="pagination justify-content-center">
                     {% if videos.has_previous %}
                     <li class="page-item">
@@ -204,10 +205,10 @@
             <!-- حالت خالی -->
             <div class="gallery-empty">
                 <i class="bi bi-camera-video-off"></i>
-                <h3>ویدیویی یافت نشد</h3>
-                <p>فیلترهای خود را تغییر دهید یا بعداً دوباره تلاش کنید.</p>
+                <h3>{% trans "ویدیویی یافت نشد" %}</h3>
+                <p>{% trans "فیلترهای خود را تغییر دهید یا بعداً دوباره تلاش کنید." %}</p>
                 <a href="{% url 'gallery:video_gallery' %}" class="btn btn-hf-primary">
-                    <i class="bi bi-arrow-counterclockwise"></i> مشاهده همه ویدیوها
+                    <i class="bi bi-arrow-counterclockwise"></i> {% trans "مشاهده همه ویدیوها" %}
                 </a>
             </div>
             {% endif %}

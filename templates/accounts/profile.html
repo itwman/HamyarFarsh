@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block meta_title %}پروفایل | {{ site_settings.site_name }}{% endblock %}
 
@@ -7,7 +8,7 @@
     <div class="col-md-8 col-lg-6">
         <div class="hf-card p-4">
             <h4 class="mb-4" style="color: var(--hf-primary);">
-                <i class="bi bi-person"></i> ویرایش پروفایل
+                <i class="bi bi-person"></i> {% trans "ویرایش پروفایل" %}
             </h4>
 
             <div class="text-center mb-4">
@@ -36,7 +37,7 @@
                 </div>
                 {% endfor %}
                 <button type="submit" class="btn btn-hf-primary w-100">
-                    <i class="bi bi-check-lg"></i> ذخیره تغییرات
+                    <i class="bi bi-check-lg"></i> {% trans "ذخیره تغییرات" %}
                 </button>
             </form>
         </div>

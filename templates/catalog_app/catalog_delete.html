@@ -1,4 +1,5 @@
 {% extends 'dashboard/base.html' %}
+{% load i18n %}
 {% block title %}حذف کاتالوگ{% endblock %}
 {% block page_title %}حذف کاتالوگ{% endblock %}
 {% block content %}
@@ -6,13 +7,13 @@
 <div class="text-center mb-3">
 <i class="bi bi-exclamation-triangle text-danger" style="font-size:3rem;"></i>
 <h5 class="mt-2">حذف کاتالوگ «{{ catalog.title }}»؟</h5>
-<p class="text-muted">{{ catalog.products.count }} محصول | {{ catalog.view_count }} بازدید</p>
+<p class="text-muted">{{ catalog.products.count }} {% trans "محصول |" %} {{ catalog.view_count }} {% trans "بازدید" %}</p>
 </div>
 <form method="post">
 {% csrf_token %}
 <div class="d-flex gap-2 justify-content-center">
-<button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> حذف</button>
-<a href="{% url 'catalog_app:list' %}" class="btn btn-outline-secondary">انصراف</a>
+<button type="submit" class="btn btn-danger"><i class="bi bi-trash"></i> {% trans "حذف" %}</button>
+<a href="{% url 'catalog_app:list' %}" class="btn btn-outline-secondary">{% trans "انصراف" %}</a>
 </div>
 </form>
 </div>

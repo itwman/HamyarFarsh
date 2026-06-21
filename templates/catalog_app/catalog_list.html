@@ -1,16 +1,17 @@
 {% extends 'dashboard/base.html' %}
+{% load i18n %}
 {% block title %}لیست کاتالوگ‌ها{% endblock %}
 {% block page_title %}لیست کاتالوگ‌ها{% endblock %}
 {% block content %}
 <div class="d-flex justify-content-between align-items-center mb-3">
-<small class="text-muted">{{ catalogs.count }} کاتالوگ</small>
-<a href="{% url 'catalog_app:create' %}" class="btn btn-sm btn-danger"><i class="bi bi-plus-circle"></i> کاتالوگ جدید</a>
+<small class="text-muted">{{ catalogs.count }} {% trans "کاتالوگ" %}</small>
+<a href="{% url 'catalog_app:create' %}" class="btn btn-sm btn-danger"><i class="bi bi-plus-circle"></i> {% trans "کاتالوگ جدید" %}</a>
 </div>
 <div class="card">
 <div class="table-responsive">
 <table class="table table-hover align-middle mb-0 small">
 <thead class="table-dark">
-<tr><th>کد</th><th>عنوان</th><th>محصولات</th><th>بازدید</th><th>ایجاد</th><th>انقضا</th><th class="text-center">عملیات</th></tr>
+<tr><th>{% trans "کد" %}</th><th>{% trans "عنوان" %}</th><th>{% trans "محصولات" %}</th><th>{% trans "بازدید" %}</th><th>{% trans "ایجاد" %}</th><th>{% trans "انقضا" %}</th><th class="text-center">{% trans "عملیات" %}</th></tr>
 </thead>
 <tbody>
 {% for catalog in catalogs %}
@@ -20,19 +21,19 @@
 <td><span class="badge bg-info">{{ catalog.products.count }}</span></td>
 <td><i class="bi bi-eye"></i> {{ catalog.view_count }}</td>
 <td>{{ catalog.created_at|date:"Y/m/d" }}</td>
-<td>{% if catalog.is_expired %}<span class="badge bg-danger">منقضی</span>{% else %}{{ catalog.expires_at|date:"Y/m/d" }}{% endif %}</td>
+<td>{% if catalog.is_expired %}<span class="badge bg-danger">{% trans "منقضی" %}</span>{% else %}{{ catalog.expires_at|date:"Y/m/d" }}{% endif %}</td>
 <td class="text-center">
 <div class="btn-group btn-group-sm">
-<a href="{% url 'catalog_app:view' catalog.unique_code %}" class="btn btn-outline-primary" target="_blank" title="مشاهده"><i class="bi bi-eye"></i></a>
-<button class="btn btn-outline-info" onclick="copyLink('{{ request.scheme }}://{{ request.get_host }}{% url 'catalog_app:view' catalog.unique_code %}')" title="کپی"><i class="bi bi-clipboard"></i></button>
-<a href="https://t.me/share/url?url={{ request.scheme }}://{{ request.get_host }}{% url 'catalog_app:view' catalog.unique_code %}&text={{ catalog.title }}" target="_blank" class="btn btn-outline-info" title="تلگرام"><i class="bi bi-telegram"></i></a>
-<a href="https://wa.me/?text={{ catalog.title }}%20{{ request.scheme }}://{{ request.get_host }}{% url 'catalog_app:view' catalog.unique_code %}" target="_blank" class="btn btn-outline-success" title="واتساپ"><i class="bi bi-whatsapp"></i></a>
-<a href="{% url 'catalog_app:delete' catalog.pk %}" class="btn btn-outline-danger" title="حذف"><i class="bi bi-trash"></i></a>
+<a href="{% url 'catalog_app:view' catalog.unique_code %}" class="btn btn-outline-primary" target="_blank" title="{% trans 'مشاهده' %}"><i class="bi bi-eye"></i></a>
+<button class="btn btn-outline-info" onclick="copyLink('{{ request.scheme }}://{{ request.get_host }}{% url 'catalog_app:view' catalog.unique_code %}')" title="{% trans 'کپی' %}"><i class="bi bi-clipboard"></i></button>
+<a href="https://t.me/share/url?url={{ request.scheme }}://{{ request.get_host }}{% url 'catalog_app:view' catalog.unique_code %}&text={{ catalog.title }}" target="_blank" class="btn btn-outline-info" title="{% trans 'تلگرام' %}"><i class="bi bi-telegram"></i></a>
+<a href="https://wa.me/?text={{ catalog.title }}%20{{ request.scheme }}://{{ request.get_host }}{% url 'catalog_app:view' catalog.unique_code %}" target="_blank" class="btn btn-outline-success" title="{% trans 'واتساپ' %}"><i class="bi bi-whatsapp"></i></a>
+<a href="{% url 'catalog_app:delete' catalog.pk %}" class="btn btn-outline-danger" title="{% trans 'حذف' %}"><i class="bi bi-trash"></i></a>
 </div>
 </td>
 </tr>
 {% empty %}
-<tr><td colspan="7" class="text-center text-muted py-4">هیچ کاتالوگی یافت نشد.</td></tr>
+<tr><td colspan="7" class="text-center text-muted py-4">{% trans "هیچ کاتالوگی یافت نشد." %}</td></tr>
 {% endfor %}
 </tbody>
 </table>

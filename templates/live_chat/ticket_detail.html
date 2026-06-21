@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block meta_title %}تیکت #{{ ticket.pk }} | همیار فرش{% endblock %}
 {% block content %}
 <div class="container py-4">
@@ -17,11 +18,11 @@
         <div class="card mb-3 {% if r.is_admin %}border-start border-3 border-primary{% endif %}">
             <div class="card-body">
                 <div class="d-flex justify-content-between mb-2">
-                    <strong>{% if r.is_admin %}<i class="bi bi-headset text-primary"></i> پشتیبانی{% else %}<i class="bi bi-person"></i> {{ r.user.get_full_name|default:"شما" }}{% endif %}</strong>
+                    <strong>{% if r.is_admin %}<i class="bi bi-headset text-primary"></i> {% trans "پشتیبانی" %}{% else %}<i class="bi bi-person"></i> {{ r.user.get_full_name|default:"شما" }}{% endif %}</strong>
                     <small class="text-muted">{{ r.jalali_created }}</small>
                 </div>
                 <div style="line-height:2;">{{ r.message|linebreaksbr }}</div>
-                {% if r.attachment %}<a href="{{ r.attachment.url }}" class="btn btn-sm btn-outline-secondary mt-2"><i class="bi bi-paperclip"></i> پیوست</a>{% endif %}
+                {% if r.attachment %}<a href="{{ r.attachment.url }}" class="btn btn-sm btn-outline-secondary mt-2"><i class="bi bi-paperclip"></i> {% trans "پیوست" %}</a>{% endif %}
             </div>
         </div>
         {% endfor %}
@@ -29,17 +30,17 @@
 
     <!-- فرم پاسخ -->
     {% if ticket.status != 'closed' %}
-    <div class="card"><div class="card-header py-2"><strong><i class="bi bi-reply"></i> پاسخ شما</strong></div>
+    <div class="card"><div class="card-header py-2"><strong><i class="bi bi-reply"></i> {% trans "پاسخ شما" %}</strong></div>
         <div class="card-body">
             <form method="post" enctype="multipart/form-data">{% csrf_token %}
                 {{ form.message }}
                 <div class="mt-2">{{ form.attachment }}</div>
-                <div class="mt-3"><button type="submit" class="btn btn-hf-primary"><i class="bi bi-send"></i> ارسال</button></div>
+                <div class="mt-3"><button type="submit" class="btn btn-hf-primary"><i class="bi bi-send"></i> {% trans "ارسال" %}</button></div>
             </form>
         </div>
     </div>
     {% else %}
-    <div class="alert alert-secondary text-center"><i class="bi bi-lock"></i> این تیکت بسته شده است.</div>
+    <div class="alert alert-secondary text-center"><i class="bi bi-lock"></i> {% trans "این تیکت بسته شده است." %}</div>
     {% endif %}
 </div>
 {% endblock %}

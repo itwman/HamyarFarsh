@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block meta_title %}ویرایش پروفایل{% endblock %}
 
@@ -8,7 +9,7 @@
         <div class="col-md-8">
             <div class="hf-card p-4">
                 <h3 class="mb-4" style="color:var(--hf-primary);">
-                    <i class="bi bi-person"></i> ویرایش پروفایل
+                    <i class="bi bi-person"></i> {% trans "ویرایش پروفایل" %}
                 </h3>
 
                 <form method="post">
@@ -16,57 +17,57 @@
                     
                     <div class="row g-3">
                         <div class="col-md-6">
-                            <label class="form-label">نام</label>
+                            <label class="form-label">{% trans "نام" %}</label>
                             <input type="text" name="first_name" class="form-control" 
                                    value="{{ user.first_name }}">
                         </div>
                         
                         <div class="col-md-6">
-                            <label class="form-label">نام خانوادگی</label>
+                            <label class="form-label">{% trans "نام خانوادگی" %}</label>
                             <input type="text" name="last_name" class="form-control" 
                                    value="{{ user.last_name }}">
                         </div>
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">ایمیل</label>
+                        <label class="form-label">{% trans "ایمیل" %}</label>
                         <input type="email" name="email" class="form-control" 
                                value="{{ user.email }}">
                     </div>
 
                     <div class="mb-3">
-                        <label class="form-label">شماره موبایل</label>
+                        <label class="form-label">{% trans "شماره موبایل" %}</label>
                         <input type="text" class="form-control" 
                                value="{{ user.phone }}" disabled>
                         <small class="form-text text-muted">
-                            شماره موبایل قابل تغییر نیست.
+                            {% trans "شماره موبایل قابل تغییر نیست." %}
                         </small>
                     </div>
 
                     <hr class="my-4">
 
-                    <h5 class="mb-3">تغییر رمز عبور (اختیاری)</h5>
+                    <h5 class="mb-3">{% trans "تغییر رمز عبور (اختیاری)" %}</h5>
                     
                     <div class="mb-3">
-                        <label class="form-label">رمز عبور جدید</label>
+                        <label class="form-label">{% trans "رمز عبور جدید" %}</label>
                         <input type="password" name="new_password" class="form-control"
-                               placeholder="در صورت تمایل به تغییر رمز عبور وارد کنید">
+                               placeholder="{% trans 'در صورت تمایل به تغییر رمز عبور وارد کنید' %}">
                         <small class="form-text text-muted">
-                            حداقل 8 کاراکتر
+                            {% trans "حداقل 8 کاراکتر" %}
                         </small>
                     </div>
 
                     <div class="alert alert-info">
                         <i class="bi bi-info-circle"></i>
-                        در صورت تغییر رمز عبور، باید دوباره وارد شوید.
+                        {% trans "در صورت تغییر رمز عبور، باید دوباره وارد شوید." %}
                     </div>
 
                     <div class="d-flex gap-2">
                         <button type="submit" class="btn btn-hf-primary">
-                            <i class="bi bi-check-circle"></i> ذخیره تغییرات
+                            <i class="bi bi-check-circle"></i> {% trans "ذخیره تغییرات" %}
                         </button>
                         <a href="{% url 'customer_panel:dashboard' %}" class="btn btn-outline-secondary">
-                            <i class="bi bi-x-circle"></i> انصراف
+                            <i class="bi bi-x-circle"></i> {% trans "انصراف" %}
                         </a>
                     </div>
                 </form>

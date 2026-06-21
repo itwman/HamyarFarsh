@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
 
 {% block meta_title %}سفارش سایز سفارشی - {{ product.name }} | {{ site_settings.site_title }}{% endblock %}
@@ -11,7 +12,7 @@
                 <div class="card-header bg-primary text-white">
                     <h4 class="mb-0">
                         <i class="bi bi-rulers"></i>
-                        سفارش سایز سفارشی
+                        {% trans "سفارش سایز سفارشی" %}
                     </h4>
                 </div>
                 <div class="card-body">
@@ -28,7 +29,7 @@
                             <h5>{{ product.name }}</h5>
                             <p class="text-muted mb-2">
                                 {{ product.album.manufacturer.name }} - 
-                                {{ product.album.thread_density }} شانه
+                                {{ product.album.thread_density }} {% trans "شانه" %}
                             </p>
                         </div>
                     </div>
@@ -37,13 +38,13 @@
 
                     <!-- هشدارها -->
                     <div class="alert alert-warning">
-                        <h6><i class="bi bi-info-circle"></i> شرایط سفارش سایز سفارشی:</h6>
+                        <h6><i class="bi bi-info-circle"></i> {% trans "شرایط سفارش سایز سفارشی:" %}</h6>
                         <ul class="mb-0">
-                            <li>سایز سفارشی <strong>فقط به تعداد زوج</strong> قابل سفارش است</li>
-                            <li>حداقل سفارش: <strong>2 عدد</strong></li>
-                            <li>پرداخت: <strong>فقط تسویه کامل</strong> (بدون بیعانه یا اقساط)</li>
-                            <li>قیمت نهایی بعد از بررسی کارشناسان اعلام می‌شود</li>
-                            <li>زمان تولید: 10 تا 15 روز کاری</li>
+                            <li>{% trans "سایز سفارشی" %} <strong>{% trans "فقط به تعداد زوج" %}</strong> {% trans "قابل سفارش است" %}</li>
+                            <li>{% trans "حداقل سفارش:" %} <strong>{% trans "2 عدد" %}</strong></li>
+                            <li>{% trans "پرداخت:" %} <strong>{% trans "فقط تسویه کامل" %}</strong> {% trans "(بدون بیعانه یا اقساط)" %}</li>
+                            <li>{% trans "قیمت نهایی بعد از بررسی کارشناسان اعلام می‌شود" %}</li>
+                            <li>{% trans "زمان تولید: 10 تا 15 روز کاری" %}</li>
                         </ul>
                     </div>
 
@@ -56,7 +57,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="id_length" class="form-label">
                                     <i class="bi bi-arrows-expand"></i>
-                                    طول (متر) *
+                                    {% trans "طول (متر) *" %}
                                 </label>
                                 {{ form.length }}
                                 {% if form.length.errors %}
@@ -67,7 +68,7 @@
                             <div class="col-md-6 mb-3">
                                 <label for="id_width" class="form-label">
                                     <i class="bi bi-arrows-expand"></i>
-                                    عرض (متر) *
+                                    {% trans "عرض (متر) *" %}
                                 </label>
                                 {{ form.width }}
                                 {% if form.width.errors %}
@@ -79,10 +80,10 @@
                         <div class="row">
                             <div class="col-md-6 mb-3">
                                 <label for="id_quantity" class="form-label">
-                                    تعداد (زوج الزامی) *
+                                    {% trans "تعداد (زوج الزامی) *" %}
                                 </label>
                                 {{ form.quantity }}
-                                <small class="form-text text-muted">حداقل 2 عدد</small>
+                                <small class="form-text text-muted">{% trans "حداقل 2 عدد" %}</small>
                                 {% if form.quantity.errors %}
                                 <div class="text-danger small mt-1">{{ form.quantity.errors }}</div>
                                 {% endif %}
@@ -90,7 +91,7 @@
                             
                             <div class="col-md-6 mb-3">
                                 <label for="id_customer_phone" class="form-label">
-                                    شماره تماس *
+                                    {% trans "شماره تماس *" %}
                                 </label>
                                 {{ form.customer_phone }}
                                 {% if form.customer_phone.errors %}
@@ -101,26 +102,26 @@
 
                         <div class="mb-3">
                             <label for="id_notes" class="form-label">
-                                توضیحات تکمیلی (اختیاری)
+                                {% trans "توضیحات تکمیلی (اختیاری)" %}
                             </label>
                             {{ form.notes }}
                         </div>
 
                         <div class="alert alert-info">
                             <i class="bi bi-telephone"></i>
-                            بعد از ثبت درخواست، کارشناسان ما در اسرع وقت با شما تماس گرفته و قیمت نهایی را اعلام می‌کنند.
+                            {% trans "بعد از ثبت درخواست، کارشناسان ما در اسرع وقت با شما تماس گرفته و قیمت نهایی را اعلام می‌کنند." %}
                         </div>
 
                         <div class="d-grid gap-2">
                             <button type="submit" class="btn btn-primary btn-lg">
                                 <i class="bi bi-check-circle"></i>
-                                ثبت درخواست
+                                {% trans "ثبت درخواست" %}
                             </button>
                             
                             <a href="{% url 'shop:product_detail' product.slug %}" 
                                class="btn btn-outline-secondary">
                                 <i class="bi bi-arrow-right"></i>
-                                بازگشت به محصول
+                                {% trans "بازگشت به محصول" %}
                             </a>
                         </div>
                     </form>
@@ -132,15 +133,15 @@
                 <div class="card-header bg-light">
                     <h6 class="mb-0">
                         <i class="bi bi-question-circle"></i>
-                        نکات مهم
+                        {% trans "نکات مهم" %}
                     </h6>
                 </div>
                 <div class="card-body">
                     <ul class="mb-0">
-                        <li>سایزهای سفارشی ممکن است هزینه اضافی پرتی داشته باشند</li>
-                        <li>در صورت نیاز به طراحی خاص، هزینه طراحی به قیمت اضافه می‌شود</li>
-                        <li>قیمت نهایی بر اساس مساحت و پیچیدگی کار محاسبه می‌شود</li>
-                        <li>پس از تأیید قیمت، امکان تغییر سایز وجود ندارد</li>
+                        <li>{% trans "سایزهای سفارشی ممکن است هزینه اضافی پرتی داشته باشند" %}</li>
+                        <li>{% trans "در صورت نیاز به طراحی خاص، هزینه طراحی به قیمت اضافه می‌شود" %}</li>
+                        <li>{% trans "قیمت نهایی بر اساس مساحت و پیچیدگی کار محاسبه می‌شود" %}</li>
+                        <li>{% trans "پس از تأیید قیمت، امکان تغییر سایز وجود ندارد" %}</li>
                     </ul>
                 </div>
             </div>

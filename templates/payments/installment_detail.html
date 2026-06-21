@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load humanize %}
 {% load price_tags %}
 {% load jalali_tags %}
@@ -14,93 +15,93 @@
                     <div>
                         <h4 style="color:var(--hf-primary);">
                             <i class="bi bi-credit-card-2-front"></i>
-                            طرح اقساط سفارش #{{ order.id }}
+                            {% trans "طرح اقساط سفارش #" %}{{ order.id }}
                         </h4>
                         <small class="text-muted">{{ plan.get_plan_type_display }} - {{ plan.get_period_display }}</small>
                     </div>
                     <span class="badge bg-{% if plan.is_confirmed %}success{% else %}warning{% endif %} fs-6">
-                        {% if plan.is_confirmed %}تأیید شده{% else %}در انتظار تأیید{% endif %}
+                        {% if plan.is_confirmed %}{% trans "تأیید شده" %}{% else %}{% trans "در انتظار تأیید" %}{% endif %}
                     </span>
                 </div>
                 
                 <div class="row g-3 mb-4">
                     <div class="col-md-4">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <small class="text-muted d-block">مبلغ کل</small>
-                            <strong>{{ plan.total_amount|price_comma }} تومان</strong>
+                            <small class="text-muted d-block">{% trans "مبلغ کل" %}</small>
+                            <strong>{{ plan.total_amount|price_comma }} {% trans "تومان" %}</strong>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <small class="text-muted d-block">پیش‌پرداخت</small>
-                            <strong>{{ plan.down_payment|price_comma }} تومان</strong>
+                            <small class="text-muted d-block">{% trans "پیش‌پرداخت" %}</small>
+                            <strong>{{ plan.down_payment|price_comma }} {% trans "تومان" %}</strong>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <small class="text-muted d-block">مبلغ اقساط</small>
-                            <strong class="text-primary">{{ plan.financed_amount|price_comma }} تومان</strong>
+                            <small class="text-muted d-block">{% trans "مبلغ اقساط" %}</small>
+                            <strong class="text-primary">{{ plan.financed_amount|price_comma }} {% trans "تومان" %}</strong>
                         </div>
                     </div>
                     
                     <div class="col-md-4">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <small class="text-muted d-block">نرخ سود</small>
-                            <strong>{{ plan.interest_rate }}% ماهانه</strong>
+                            <small class="text-muted d-block">{% trans "نرخ سود" %}</small>
+                            <strong>{{ plan.interest_rate }}{% trans "% ماهانه" %}</strong>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <small class="text-muted d-block">مجموع سود</small>
-                            <strong class="text-warning">{{ plan.total_interest|price_comma }} تومان</strong>
+                            <small class="text-muted d-block">{% trans "مجموع سود" %}</small>
+                            <strong class="text-warning">{{ plan.total_interest|price_comma }} {% trans "تومان" %}</strong>
                         </div>
                     </div>
                     <div class="col-md-4">
                         <div class="p-3 rounded" style="background:var(--hf-gray-light);">
-                            <small class="text-muted d-block">جمع با سود</small>
-                            <strong>{{ plan.total_with_interest|price_comma }} تومان</strong>
+                            <small class="text-muted d-block">{% trans "جمع با سود" %}</small>
+                            <strong>{{ plan.total_with_interest|price_comma }} {% trans "تومان" %}</strong>
                         </div>
                     </div>
                 </div>
                 
                 <div class="p-4 rounded text-center" style="background:var(--hf-primary-bg);border:2px solid var(--hf-primary);">
-                    <h6 class="mb-2">مبلغ هر قسط</h6>
+                    <h6 class="mb-2">{% trans "مبلغ هر قسط" %}</h6>
                     <div class="fs-2 fw-bold" style="color:var(--hf-primary);">
-                        {{ plan.installment_amount|price_comma }} تومان
+                        {{ plan.installment_amount|price_comma }} {% trans "تومان" %}
                     </div>
-                    <small class="text-muted">{{ plan.num_installments }} قسط {{ plan.get_period_display }}</small>
+                    <small class="text-muted">{{ plan.num_installments }} {% trans "قسط" %} {{ plan.get_period_display }}</small>
                 </div>
             </div>
             
             <div class="hf-card p-4">
                 <h5 class="mb-3">
-                    <i class="bi bi-list-ol"></i> لیست اقساط
+                    <i class="bi bi-list-ol"></i> {% trans "لیست اقساط" %}
                 </h5>
                 
                 <div class="table-responsive">
                     <table class="table table-hover align-middle">
                         <thead style="background:var(--hf-primary);color:#fff;">
                             <tr>
-                                <th>شماره</th>
-                                <th>مبلغ</th>
-                                <th>تاریخ سررسید</th>
-                                <th>وضعیت</th>
-                                <th>تاریخ پرداخت</th>
+                                <th>{% trans "شماره" %}</th>
+                                <th>{% trans "مبلغ" %}</th>
+                                <th>{% trans "تاریخ سررسید" %}</th>
+                                <th>{% trans "وضعیت" %}</th>
+                                <th>{% trans "تاریخ پرداخت" %}</th>
                             </tr>
                         </thead>
                         <tbody>
                             {% for inst in installments %}
                             <tr class="{% if inst.status == 'overdue' %}table-danger{% elif inst.status == 'paid' %}table-success{% endif %}">
                                 <td><strong>{{ inst.installment_number }}</strong></td>
-                                <td>{{ inst.amount|price_comma }} تومان</td>
+                                <td>{{ inst.amount|price_comma }} {% trans "تومان" %}</td>
                                 <td>{{ inst.due_date|jalali }}</td>
                                 <td>
                                     {% if inst.status == 'paid' %}
-                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> پرداخت شده</span>
+                                    <span class="badge bg-success"><i class="bi bi-check-circle"></i> {% trans "پرداخت شده" %}</span>
                                     {% elif inst.status == 'overdue' %}
-                                    <span class="badge bg-danger"><i class="bi bi-exclamation-triangle"></i> سررسید گذشته</span>
+                                    <span class="badge bg-danger"><i class="bi bi-exclamation-triangle"></i> {% trans "سررسید گذشته" %}</span>
                                     {% else %}
-                                    <span class="badge bg-secondary">پرداخت نشده</span>
+                                    <span class="badge bg-secondary">{% trans "پرداخت نشده" %}</span>
                                     {% endif %}
                                 </td>
                                 <td>
@@ -120,7 +121,7 @@
                 <div class="mt-3 p-3 rounded" style="background:#fff8e1;">
                     <small>
                         <i class="bi bi-info-circle"></i>
-                        <strong>توجه:</strong> لطفاً چک‌های صیادی را با مبالغ و تاریخ‌های مشخص شده آماده کنید.
+                        <strong>{% trans "توجه:" %}</strong> {% trans "لطفاً چک‌های صیادی را با مبالغ و تاریخ‌های مشخص شده آماده کنید." %}
                     </small>
                 </div>
                 {% endif %}
@@ -129,30 +130,30 @@
         
         <div class="col-lg-4">
             <div class="hf-card p-4 mb-3">
-                <h6 class="mb-3"><i class="bi bi-box-seam"></i> اطلاعات سفارش</h6>
+                <h6 class="mb-3"><i class="bi bi-box-seam"></i> {% trans "اطلاعات سفارش" %}</h6>
                 <div class="small">
                     <div class="mb-2">
-                        <strong>شماره سفارش:</strong> #{{ order.id }}
+                        <strong>{% trans "شماره سفارش:" %}</strong> #{{ order.id }}
                     </div>
                     <div class="mb-2">
-                        <strong>تاریخ ثبت:</strong> {{ order.created_at|jalali }}
+                        <strong>{% trans "تاریخ ثبت:" %}</strong> {{ order.created_at|jalali }}
                     </div>
                     <div class="mb-2">
-                        <strong>وضعیت سفارش:</strong>
+                        <strong>{% trans "وضعیت سفارش:" %}</strong>
                         <span class="badge bg-info">{{ order.get_status_display }}</span>
                     </div>
                 </div>
                 <a href="{% url 'orders:detail' order.id %}" class="btn btn-outline-secondary btn-sm w-100 mt-3">
-                    <i class="bi bi-eye"></i> مشاهده سفارش
+                    <i class="bi bi-eye"></i> {% trans "مشاهده سفارش" %}
                 </a>
             </div>
             
             {% if not plan.is_confirmed and user.is_staff %}
             <div class="hf-card p-4">
-                <h6 class="mb-3 text-danger"><i class="bi bi-exclamation-triangle"></i> عملیات مدیریتی</h6>
-                <p class="small text-muted">این طرح اقساط هنوز تأیید نشده است.</p>
+                <h6 class="mb-3 text-danger"><i class="bi bi-exclamation-triangle"></i> {% trans "عملیات مدیریتی" %}</h6>
+                <p class="small text-muted">{% trans "این طرح اقساط هنوز تأیید نشده است." %}</p>
                 <a href="{% url 'payments:confirm_installment' plan.id %}" class="btn btn-success w-100">
-                    <i class="bi bi-check-circle"></i> تأیید طرح اقساط
+                    <i class="bi bi-check-circle"></i> {% trans "تأیید طرح اقساط" %}
                 </a>
             </div>
             {% endif %}

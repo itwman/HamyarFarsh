@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% load static %}
 {% load price_tags %}
 
@@ -11,7 +12,7 @@
         <div class="col-12">
             <h1 class="mb-4">
                 <i class="bi bi-bag-check"></i>
-                سفارشات من
+                {% trans "سفارشات من" %}
             </h1>
         </div>
     </div>
@@ -25,7 +26,7 @@
                     <div class="row align-items-center">
                         <div class="col-md-8">
                             <h5 class="mb-0">
-                                سفارش #{{ order.id }}
+                                {% trans "سفارش #" %}{{ order.id }}
                                 <span class="badge bg-{% if order.status == 'delivered' %}success{% elif order.status == 'cancelled' %}danger{% elif order.status == 'shipped' %}info{% else %}warning{% endif %} ms-2">
                                     {{ order.get_status_display_persian }}
                                 </span>
@@ -39,7 +40,7 @@
                             <a href="{% url 'orders:order_detail' order.id %}" 
                                class="btn btn-outline-primary btn-sm">
                                 <i class="bi bi-eye"></i>
-                                مشاهده جزئیات
+                                {% trans "مشاهده جزئیات" %}
                             </a>
                         </div>
                     </div>
@@ -48,7 +49,7 @@
                     <div class="row">
                         <div class="col-md-8">
                             <!-- خلاصه آیتم‌ها -->
-                            <strong>محصولات:</strong>
+                            <strong>{% trans "محصولات:" %}</strong>
                             <ul class="mb-2">
                                 {% for item in order.items.all|slice:":3" %}
                                 <li>
@@ -58,7 +59,7 @@
                                 </li>
                                 {% endfor %}
                                 {% if order.items.count > 3 %}
-                                <li class="text-muted">و {{ order.items.count|add:"-3" }} محصول دیگر...</li>
+                                <li class="text-muted">{% trans "و" %} {{ order.items.count|add:"-3" }} {% trans "محصول دیگر..." %}</li>
                                 {% endif %}
                             </ul>
                             
@@ -69,7 +70,7 @@
                                 {% if order.free_shipping %}
                                 <span class="badge bg-success">
                                     <i class="bi bi-truck"></i>
-                                    ارسال رایگان
+                                    {% trans "ارسال رایگان" %}
                                 </span>
                                 {% endif %}
                             </div>
@@ -77,27 +78,27 @@
                         
                         <div class="col-md-4 text-md-end">
                             <div class="mb-2">
-                                <small class="text-muted">مبلغ کل:</small>
+                                <small class="text-muted">{% trans "مبلغ کل:" %}</small>
                                 <br>
-                                <strong class="fs-5">{{ order.total_amount|price_comma }} تومان</strong>
+                                <strong class="fs-5">{{ order.total_amount|price_comma }} {% trans "تومان" %}</strong>
                             </div>
                             
                             <div class="mb-2">
-                                <small class="text-muted">پرداخت شده:</small>
+                                <small class="text-muted">{% trans "پرداخت شده:" %}</small>
                                 <br>
-                                <span class="text-success">{{ order.paid_amount|price_comma }} تومان</span>
+                                <span class="text-success">{{ order.paid_amount|price_comma }} {% trans "تومان" %}</span>
                             </div>
                             
                             {% if order.get_remaining_amount > 0 %}
                             <div>
-                                <small class="text-muted">مانده:</small>
+                                <small class="text-muted">{% trans "مانده:" %}</small>
                                 <br>
-                                <span class="text-danger fw-bold">{{ order.get_remaining_amount|price_comma }} تومان</span>
+                                <span class="text-danger fw-bold">{{ order.get_remaining_amount|price_comma }} {% trans "تومان" %}</span>
                             </div>
                             {% else %}
                             <div class="text-success">
                                 <i class="bi bi-check-circle-fill"></i>
-                                تسویه شده
+                                {% trans "تسویه شده" %}
                             </div>
                             {% endif %}
                         </div>
@@ -109,7 +110,7 @@
                         <a href="{% url 'orders:order_payment' order.id %}" 
                            class="btn btn-success btn-sm">
                             <i class="bi bi-credit-card"></i>
-                            پرداخت
+                            {% trans "پرداخت" %}
                         </a>
                         {% endif %}
                         
@@ -121,7 +122,7 @@
                             {% csrf_token %}
                             <button type="submit" class="btn btn-outline-danger btn-sm">
                                 <i class="bi bi-x-circle"></i>
-                                لغو سفارش
+                                {% trans "لغو سفارش" %}
                             </button>
                         </form>
                         {% endif %}
@@ -139,11 +140,11 @@
             <div class="card shadow-sm text-center py-5">
                 <div class="card-body">
                     <i class="bi bi-cart-x display-1 text-muted"></i>
-                    <h3 class="mt-4 mb-3">هنوز سفارشی ثبت نکرده‌اید</h3>
-                    <p class="text-muted mb-4">از کاتالوگ محصولات ما دیدن کنید و اولین سفارش خود را ثبت کنید.</p>
+                    <h3 class="mt-4 mb-3">{% trans "هنوز سفارشی ثبت نکرده‌اید" %}</h3>
+                    <p class="text-muted mb-4">{% trans "از کاتالوگ محصولات ما دیدن کنید و اولین سفارش خود را ثبت کنید." %}</p>
                     <a href="{% url 'shop:product_list' %}" class="btn btn-primary btn-lg">
                         <i class="bi bi-arrow-right"></i>
-                        مشاهده محصولات
+                        {% trans "مشاهده محصولات" %}
                     </a>
                 </div>
             </div>

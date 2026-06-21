@@ -46,6 +46,8 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
     'https://hamyarfarsh.ir',
     'https://www.hamyarfarsh.ir',
+    # ساب‌دامین‌های زبان (en. / ar. / ru. / ...)
+    'https://*.hamyarfarsh.ir',
 ]
 
 # Ensure CSRF cookie is accessible
@@ -88,6 +90,8 @@ INSTALLED_APPS = [
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    # تشخیص زبان از ساب‌دامین (باید بعد از Session و قبل از Common باشد)
+    'hamyarfarsh.middleware.SubdomainLocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -106,6 +110,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'settings_app.context_processors.site_settings',
@@ -149,6 +154,32 @@ TIME_ZONE = 'Asia/Tehran'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
+# ============================================================
+# چندزبانه (i18n) - فاز ۱
+# هر زبان روی یک ساب‌دامین اجرا می‌شود؛ کدبیس و دیتابیس یکی است.
+# تشخیص زبان توسط hamyarfarsh.middleware.SubdomainLocaleMiddleware
+# ============================================================
+from django.utils.translation import gettext_lazy as _
+
+LANGUAGES = [
+    ('fa', _('فارسی')),       # پیش‌فرض (RTL)
+    ('ar', _('العربية')),     # عربی (RTL)
+    ('ur', _('اردو')),        # اردو (RTL)
+    ('en', _('English')),     # انگلیسی
+    ('ru', _('Русский')),     # روسی
+    ('es', _('Español')),     # اسپانیایی
+    ('fr', _('Français')),    # فرانسوی
+    ('de', _('Deutsch')),     # آلمانی
+    ('hi', _('हिन्दी')),       # هندی (دیواناگری)
+]
+
+# پوشه‌ی فایل‌های ترجمه (.po / .mo)
+LOCALE_PATHS = [BASE_DIR / 'locale']
+
+# کوکی زبان (برای سوییچ دستی کاربر در صورت نیاز)
+LANGUAGE_COOKIE_NAME = 'hf_lang'
+LANGUAGE_COOKIE_SAMESITE = 'Lax'
 
 STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load i18n %}
 {% load static %}
 {% load gallery_tags %}
 
@@ -45,16 +46,16 @@
                     <!-- دکمه‌های بالا -->
                     <div class="pin-detail-actions">
                         <a href="{% url 'gallery:image_gallery' %}" class="pin-back-btn">
-                            <i class="bi bi-arrow-right"></i> بازگشت
+                            <i class="bi bi-arrow-right"></i> {% trans "بازگشت" %}
                         </a>
                         <div class="d-flex gap-2">
-                            <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}" target="_blank" class="pin-share-btn" title="تلگرام">
+                            <a href="https://t.me/share/url?url={{ request.build_absolute_uri }}" target="_blank" class="pin-share-btn" title="{% trans 'تلگرام' %}">
                                 <i class="bi bi-telegram"></i>
                             </a>
-                            <a href="https://wa.me/?text={{ product.display_title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" target="_blank" class="pin-share-btn" title="واتساپ">
+                            <a href="https://wa.me/?text={{ product.display_title|urlencode }}%20{{ request.build_absolute_uri|urlencode }}" target="_blank" class="pin-share-btn" title="{% trans 'واتساپ' %}">
                                 <i class="bi bi-whatsapp"></i>
                             </a>
-                            <button class="pin-share-btn" onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}');this.innerHTML='<i class=\'bi bi-check-lg\'></i>';setTimeout(()=>{this.innerHTML='<i class=\'bi bi-link-45deg\'></i>'},1500)" title="کپی لینک">
+                            <button class="pin-share-btn" onclick="navigator.clipboard.writeText('{{ request.build_absolute_uri }}');this.innerHTML='<i class=\'bi bi-check-lg\'></i>';setTimeout(()=>{this.innerHTML='<i class=\'bi bi-link-45deg\'></i>'},1500)" title="{% trans 'کپی لینک' %}">
                                 <i class="bi bi-link-45deg"></i>
                             </button>
                         </div>
@@ -65,7 +66,7 @@
 
                     <!-- تگ‌های ویژگی -->
                     <div class="pin-detail-tags">
-                        <span class="pin-detail-tag"><i class="bi bi-hash"></i> {{ product.album.comb }} شانه</span>
+                        <span class="pin-detail-tag"><i class="bi bi-hash"></i> {{ product.album.comb }} {% trans "شانه" %}</span>
                         {% if product.background_color %}
                         <span class="pin-detail-tag" style="{% if product.background_color.color_code %}border-right:3px solid {{ product.background_color.color_code }};{% endif %}">
                             <i class="bi bi-palette"></i> {{ product.background_color.name }}
@@ -88,25 +89,25 @@
                     <!-- مشخصات فنی -->
                     <div class="pin-detail-specs">
                         <div class="pin-spec-row">
-                            <span class="pin-spec-label">شرکت</span>
+                            <span class="pin-spec-label">{% trans "شرکت" %}</span>
                             <span class="pin-spec-value">{{ product.manufacturer.name }}</span>
                         </div>
                         <div class="pin-spec-row">
-                            <span class="pin-spec-label">آلبوم</span>
+                            <span class="pin-spec-label">{% trans "آلبوم" %}</span>
                             <span class="pin-spec-value">{{ product.album.name }}</span>
                         </div>
                         {% if product.density %}
                         <div class="pin-spec-row">
-                            <span class="pin-spec-label">تراکم</span>
+                            <span class="pin-spec-label">{% trans "تراکم" %}</span>
                             <span class="pin-spec-value">{{ product.density }}</span>
                         </div>
                         {% endif %}
                         <div class="pin-spec-row">
-                            <span class="pin-spec-label">جنس نخ</span>
+                            <span class="pin-spec-label">{% trans "جنس نخ" %}</span>
                             <span class="pin-spec-value">{{ product.yarn_type }}</span>
                         </div>
                         <div class="pin-spec-row">
-                            <span class="pin-spec-label">وزن</span>
+                            <span class="pin-spec-label">{% trans "وزن" %}</span>
                             <span class="pin-spec-value">{{ product.weight_class }}</span>
                         </div>
                     </div>
@@ -114,14 +115,14 @@
                     <!-- قیمت -->
                     {% if sell_12 %}
                     <div class="pin-detail-price">
-                        <span class="pin-price-label">قیمت ۱۲ متری</span>
-                        <span class="pin-price-value">{{ sell_12|intcomma_fa }} <small>تومان</small></span>
+                        <span class="pin-price-label">{% trans "قیمت ۱۲ متری" %}</span>
+                        <span class="pin-price-value">{{ sell_12|intcomma_fa }} <small>{% trans "تومان" %}</small></span>
                     </div>
                     {% endif %}
 
                     <!-- دکمه خرید -->
                     <a href="/farsh/{{ product.slug }}/" class="btn btn-hf-primary w-100 pin-buy-main">
-                        <i class="bi bi-cart-plus"></i> مشاهده و خرید محصول
+                        <i class="bi bi-cart-plus"></i> {% trans "مشاهده و خرید محصول" %}
                     </a>
                 </div>
             </div>
@@ -132,9 +133,9 @@
     {% if similar_images %}
     <div class="pin-similar-section">
         <h2 class="pin-similar-title">
-            <i class="bi bi-grid-3x3-gap"></i> فرش‌های مشابه
+            <i class="bi bi-grid-3x3-gap"></i> {% trans "فرش‌های مشابه" %}
         </h2>
-        <p class="pin-similar-subtitle">بر اساس رنگ، طرح، شانه و ویژگی‌های مشترک</p>
+        <p class="pin-similar-subtitle">{% trans "بر اساس رنگ، طرح، شانه و ویژگی‌های مشترک" %}</p>
 
         <div class="pin-grid">
             {% for sim in similar_images %}
@@ -153,7 +154,7 @@
                         </div>
                         <!-- امتیاز شباهت -->
                         {% if sim.similarity_score %}
-                        <span class="pin-similarity-badge" title="امتیاز شباهت">
+                        <span class="pin-similarity-badge" title="{% trans 'امتیاز شباهت' %}">
                             {{ sim.similarity_score }}
                             <i class="bi bi-lightning-fill"></i>
                         </span>
@@ -173,10 +174,10 @@
                     <div class="pin-card-footer">
                         {% with price=sim.product.get_sell_price_12m %}
                         {% if price %}
-                        <span class="pin-price">{{ price|intcomma_fa }} <small>ت</small></span>
+                        <span class="pin-price">{{ price|intcomma_fa }} <small>{% trans "ت" %}</small></span>
                         {% endif %}
                         {% endwith %}
-                        <a href="/farsh/{{ sim.product.slug }}/" class="pin-buy-btn" title="خرید">
+                        <a href="/farsh/{{ sim.product.slug }}/" class="pin-buy-btn" title="{% trans 'خرید' %}">
                             <i class="bi bi-cart-plus"></i>
                         </a>
                     </div>
